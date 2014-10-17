@@ -1,22 +1,26 @@
-#ifndef CAMERA_INC
-#include ""e "camera_connector.h"
-#define CAMERA_INC
-#endif
 
+#include "camera_connector.h"
 
+#include <stdlib.h>
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
 
     cv::VideoCapture cap;
 
     int i;
-    for (i = 0; i < 1500; i++ ) {
+    for (i = 2; i < 1500; i++ ) {
         if (cap.open(i)){
-            std::cout << "Found Camera %d\n" << i;
+            std::cout << "Found Camera " << i;
+            break;
         }
 
     }
+
+    std::string init = "val";
+    Camera_Connector * connect = new Camera_Connector(USB_WEBCAM,init);
+
+
+    connect->test_image();
 
     return 0;
 }

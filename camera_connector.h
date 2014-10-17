@@ -13,6 +13,13 @@
 #include "opencv2/core/core_c.h"
 #include "opencv2/highgui/highgui_c.h"
 #include "opencv2/imgproc/imgproc_c.h"
+#include <queue>
+#include <thread>
+#include <chrono>
+
+#ifdef __arm__
+#include <raspicam/raspicam_cv.h>
+#endif
 
 #define RASPBERRY_PI_CAM 1
 #define USB_WEBCAM 2
@@ -25,10 +32,19 @@
 class Camera_Connector {
     void set_camera_source();
     cv::VideoCapture cam;
+    cv::Mat perspective_adjust(cv::Mat & source);
+    std::queue<cv::Mat> image_queue;
+    #ifdef __arm__
+    raspicam::RaspiCam_cv Camera;
+    #endif
+    int camera_source;
+    int get_image(cv::Mat & image_ret);
 
+    int process_image(cv::Mat & rect_queue );
 public:
+    void test_image();
     void config_camera(int exp, int saturation, int interval);
-    int get_image( char & buffer ,size_t buffer_size);
+   // int get_image( char & buffer ,size_t buffer_size);
     Camera_Connector(int camera_source, std::string source);
     ~Camera_Connector();
 };

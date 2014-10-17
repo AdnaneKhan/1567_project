@@ -70,7 +70,20 @@ void Locator::receive_data(int serial_id) {
     while (!thread_halt) {
         // Treat read as a buffer and read values to it.
 
+        int byte_count = read(serial_id, &read, sizeof(Arduino_packet));
+        cout << "Read % bytes into the Arduino_packet" << byte_count;
 
+        if (byte_count == sizeof(Arduino_packet)) {
+            this->recent_metrics.back_distance = read.back_distance;
+            this->recent_metrics.front_distance = read.front_distance;
+            this->recent_metrics.heading = read.heading;
+            this->recent_metrics.l_distance = read.l_distance;
+            this->recent_metrics.r_distance = read.r_distance;
+        }
+
+        //Sleep for 100 ms before reading next
+        std::chrono::milliseconds dura( 100 );
+        std::this_thread::sleep_for( dura );
 
     }
 
