@@ -32,8 +32,10 @@
 class Camera_Connector {
     void set_camera_source();
     cv::VideoCapture cam;
-    cv::Mat perspective_adjust(cv::Mat & source);
+    int step_detect(cv::Mat &source, int &intersection);
     std::queue<cv::Mat> image_queue;
+    std::queue<std::string> f_name_queue;
+    std::string file_folder;
     #ifdef __arm__
     raspicam::RaspiCam_cv Camera;
     #endif
@@ -42,7 +44,7 @@ class Camera_Connector {
 
     int process_image(cv::Mat & rect_queue );
 public:
-    void test_image();
+    void test_image(int n);
     void config_camera(int exp, int saturation, int interval);
    // int get_image( char & buffer ,size_t buffer_size);
     Camera_Connector(int camera_source, std::string source);

@@ -4,7 +4,6 @@
 #endif
 
 #include <thread>
-#include <stdlib>
 #include <unistd.h> // UNIX standard function definitions
 #include <fcntl.h> // File control definitions
 #include <errno.h> // Error number definitions
@@ -12,9 +11,13 @@
 #include <time.h>   // time calls
 #include <iostream>
 #include <fstream>
+#include<memory>
+#include <array>
+
 
 #define TRUE 1
 #define FALSE 0
+#define CHAR_TO_POSITION 65
 
 /*
     This class represents the Sennot Square navigation problem.
@@ -39,13 +42,36 @@ class Locator {
 
     } Arduino_packet;
 
-    typedef struct Node {
-        int visited;
 
-        int num_neighbors;
-        //  (num_neighbors-1) serves as max index into neighbors
-        Node neighbors[4];
-    } Node;
+
+    class Node {
+    public:
+        char node_label;
+        std::array<std::pair<Node,int>, 4> neighbors;
+        // ID is the label of this node, neighbor ID is that of the neighbor, cost is num lights
+        // to reach neighbor, direction is 0-3 (N S E W) that the neighbor is in
+        Node(char id): neighbors() {
+            node_label = id;
+        }
+        void add_neighbor(char neighbor_id, int cost, int direction) {
+            neighbors.at(direction) = std::make_pair(sennot_graph.nodes.at(neighbor_id - CHAR_TO_POSITION),cost);
+        }
+        int num_neighbors() {
+            return this->neighbors.size();
+        }
+        bool get_neighbor(Node & neighbor_ret, int direction) {
+            // Check if value is valid
+            if (neighbors.at(direction)) {
+                neighbor_ret = neighbors.at(direction).first;
+            }
+        }
+    };
+
+    class Graph {
+    public:
+        std::array<Node, 12> nodes;
+
+    };
 
 
     Arduino_packet recent_metrics;
@@ -53,8 +79,11 @@ class Locator {
     std::thread arduino_connection;
     int thread_halt;
 
-    // Array initalized once graph file is read in
-    Node graph[];
+
+    Graph sennot_graph;
+    int edge_progress;
+    std::vector< std::list< char > > step_lists;
+    Locator::graph_step();
 
     // This function is threaded
     void receive_data();

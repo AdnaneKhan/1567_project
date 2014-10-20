@@ -1,33 +1,82 @@
 #include "locator.h"
 
+bool Locator::is_located() {
+    bool retb = false;
+
+    // If all possible paths reduced to 1, then we have found our location
+    if (step_lists.size() == 1) {
+        retb = true;
+    }
+
+    return retv;
+}
 
 Locator::Locator(std::string file_uri) {
     ofstream myfile;
-    Locator::camera = new Camera_Connector;
+    this->camera = new Camera_Connector(USB_WEBCAM,init);
+    this->edge_progress = 0;
+    step_lists.resize(12);
 
-    myfile.open (file_uri, ios::in);
-    std::string line;
-    if (myfile.is_open())
-    {
-        // First line is num of nodes
-        line = getline(myfile,line);
-        int count = line.c_str();
+    char nodes[12] = {'A','B','C','D','E','F','G','H','I','J','K','L'};
+    char edges[13][3] = { {'A','B',0, 0},{'A','F',0,0},{'F','G',0,0},{'G','H',0,0},{'H','I',0,0},{'H','K',0,0},{'I','J',0,0},{'J','K',0,0},{'K','B',0,0},{'B','C',0,0},{'C','D',0,0},{'E','D',0,0},{'E','L',0,0}};
 
-        Locator::graph = Node[count];
-
-        // Populate graph with nodes
-        while ( getline (myfile,line) && count > 0)
-        {
-            // Split to get node id
-
-            // "iterate" through ids of neighbors and add their ids + costs to the graph
-
-
-            count--;
-        }
-        myfile.close();
+    for (int i = 0; i < 12; i++) {
+        // set initial steps
+        step_lists.at(i).push_back(i + CHAR_TO_POSITION);
+        sennot_graph.nodes.at(i) = Node(i + CHAR_TO_POSITION);
     }
 
+    // Add all edges in graph
+    for (int i = 0; i < 13; i++) {
+        sennot_graph.nodes.at(edges[i][0] - 65).add_neighbor(edges[i][1], edges[i][2], edges[i][3]);
+    }
+
+}
+
+
+int Locator::graph_step() {
+
+    edge_progress++;
+
+//    for (int i = 0; i < step_lists.size(); i++) {
+//
+//    }
+    // for paths in possible paths
+    // step each by one
+    // return number of valid paths we can still traverse
+}
+
+void Locator::graph_intersect(int step_count) {
+
+
+
+    // reset progress
+    edge_progress = 0;
+}
+
+Locator::run_locator() {
+
+    int intersection = 0;
+    int old_res = 0;
+    int res = 0;
+
+    int step;
+        get_image(camera_test);
+        old_res = res;
+        res = step_detect(camera_test,intersection);
+        step = (res ^ old_res) & res;
+        if (step) {
+            ///
+            Loactor::grapth_step();
+            if (intersection) {
+                // We are at intersection, check to see which paths we could possibly be on
+                Locator::graph_intersect(edge_progress);
+            }
+            if (graph_step() == 1) {
+                // Paths have been narrowed to one
+
+            }
+        }
 }
 
 Locator::~Locator() {
@@ -58,8 +107,6 @@ int Locator::start(std::string serial_info, std::string receive_data) {
     } else { // Serial port was not opened successfully
         retv = FALSE;
     }
-
-
 
     return retv;
 }
