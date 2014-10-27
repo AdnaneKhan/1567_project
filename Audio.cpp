@@ -48,6 +48,9 @@ namespace Audio {
             case 3:
                 play_left();
                 break;
+            default:
+                // No-op
+                break;
         }
     }
 }

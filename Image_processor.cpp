@@ -1,5 +1,6 @@
 #include "Image_processor.h"
 
+//#define DEBUG
 /**
 *  \param n number of times to take sample
 *  \param interval time in ms to wait in between samples
@@ -40,7 +41,7 @@ void Image_Processor::test_image(int n, int interval, Camera_Connector &camera) 
 *  \param countour vector of points that form contour to check
 */
 bool Image_Processor::check_within(cv::Mat &mat, float bounding_percent, Vector<Point> contour) {
-    bool retV = false;
+    bool retV = true;
 
     // Finding max and min x and y coords
     int y_min = mat.rows / 5;
@@ -49,14 +50,26 @@ bool Image_Processor::check_within(cv::Mat &mat, float bounding_percent, Vector<
     int x_min = mat.cols / 5;
     int x_max = mat.cols - x_min;
 
+#ifdef DEBUG
+         std::cout << "The y min is " << y_min << std::endl;
+         std::cout << "The x min is " << x_min << std::endl;
+    #endif
+
     for (cv::Vector<Point>::iterator point = contour.begin(); point != contour.end(); ++point) {
         // Shape contains points outside of the rectangle
+#ifdef DEBUG
+        std::cout << "The y point is " << point->y << std::endl;
+        std::cout << "The x point is " << point->x << std::endl;
+#endif
         if (point->x > x_max || point->x < x_max || point->y > y_max || point->y < y_min) {
-            retV = true;
+            retV = false;
             break;
         }
     }
 
+#ifdef DEBUG
+    std::cout << "The contour was " << retV << " in the mat.\n";
+    #endif
     return retV;
 }
 
@@ -80,37 +93,19 @@ int Image_Processor::circle_detect(Mat &src) {
     int retV = 0;
 
     // Two detection possibilities for lights which are on/off
-    Mat grey_src_on;
-    Mat grey_src_off;
-
+    Mat grey_src;
     Mat working_src = src;
 
-    cvtColor(src, grey_src_on, CV_BGR2GRAY);
-    cvtColor(src, grey_src_off, CV_BGR2GRAY);
 
+    cvtColor(src, grey_src, CV_BGR2GRAY);
+    GaussianBlur(grey_src, grey_src, Size(15, 15), 2, 2);
+    Camera_Connector::write_image("circles_grey_off", grey_src);
+    Canny(grey_src, grey_src, 100, 400, 3);
 
-    GaussianBlur(grey_src_off, grey_src_off, Size(15, 15), 2, 2);
-    GaussianBlur(grey_src_on, grey_src_on, Size(15, 15), 2, 2);
-
-    grey_src_on = grey_src_on + Scalar(-75, -75, -75);
-
-    Camera_Connector::write_image("circles_grey_on", grey_src_on);
-    Camera_Connector::write_image("circles_grey_off", grey_src_off);
 
     vector<Vec3f> circles;
+    HoughCircles(grey_src, circles, CV_HOUGH_GRADIENT, grey_src.rows / 8, 1, 50, 10);
 
-    HoughCircles(grey_src_off, circles, CV_HOUGH_GRADIENT, 1, grey_src_off.rows / 8, 30, 50, 0, 0);
-
-    /// Work on some radius filtering to make sure sprinklers do not get picked up
-    for (int i = 0; i < CIRCLE_ATTEMPTS; i++) {
-        if (circles.size() > 0) {
-
-            retV = 1;
-            break;
-        }
-        grey_src_on = grey_src_on + Scalar(-75, -75, -75);
-        HoughCircles(grey_src_on, circles, CV_HOUGH_GRADIENT, 1, grey_src_on.rows / 8, 30, 50, 0, 0);
-    }
 
     /// Draw the circles detected
     for (size_t i = 0; i < circles.size(); i++) {
@@ -118,11 +113,13 @@ int Image_Processor::circle_detect(Mat &src) {
         Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
         int radius = cvRound(circles[i][2]);
         // circle center
-        circle(working_src, center, 3, Scalar(0, 255, 0), -1, 8, 0);
+        circle(grey_src, center, 3, Scalar(0, 255, 0), -1, 8, 0);
         // circle outline
-        circle(working_src, center, radius, Scalar(0, 0, 255), 3, 8, 0);
+        circle(grey_src, center, radius, Scalar(0, 0, 255), 3, 8, 0);
     }
-    Camera_Connector::write_image("circles", grey_src_off);
+
+    destroyAllWindows();
+    imshow("circles", grey_src);
 
     return retV;
 }
@@ -174,6 +171,7 @@ int Image_Processor::hough_rectangle_detect(Mat &src) {
     return 0;
 }
 
+
 /**
 *
 *   \brief uses contour method to check for lit rectangles (lights) in image
@@ -183,27 +181,35 @@ int Image_Processor::hough_rectangle_detect(Mat &src) {
 int Image_Processor::rectangle_detect(Mat &src) {
     int retV = 0;
     Mat thr;
+    Mat blurred;
+    Mat edges;
 
+    //cvtColor(src, thr, CV_BGR2GRAY);
     cvtColor(src, thr, CV_BGR2GRAY);
-
+    blurred = thr.clone();
 
     // Process image to isolate lights
-    threshold(thr, thr, 220, 255, CV_THRESH_BINARY);
-    blur(thr, thr, Size(25, 25));
-    addWeighted(thr, 8.0f, thr, 0.0f, 0.0f, thr, -1);
+    blur(thr, blurred, Size(25, 25));
+    threshold(blurred, blurred, 225, 255, CV_THRESH_BINARY);
+
+    Canny(blurred, edges, 20, 200, 3);
+
+#ifdef DEBUG
+        Camera_Connector::write_image("rect_test", blurred);
+    #endif
+
+    //addWeighted(thr, 8.0f, thr, 0.0f, 0.0f, thr, -1);
     vector<vector<Point> > contours; // Vector for storing contour
     vector<Vec4i> hierarchy;
-    int largest_contour_index = 0;
+    int largest_contour_index = -1;
+
+    // Init this to be large enough to represent a light
     int largest_area = 0;
 
-
-    Mat dst(src.rows, src.cols, CV_8UC1, Scalar::all(0)); //create destination image
-    findContours(thr.clone(), contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS); // Find the contours in the image
-    //std::cout << contours.size() << std::endl;
+    findContours(edges.clone(), contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS); // Find the contours in the image
 
     for (int i = 0; i < contours.size(); i++) {
-
-        if (contours[i].size() > 0) {
+        if (contours[i].size() > 0 && check_within(src, .20, contours[i])) {
             double a = contourArea(contours[i], false);  //  Find the area of contour
 
 
@@ -217,8 +223,11 @@ int Image_Processor::rectangle_detect(Mat &src) {
 
     // Need to detect whether the edges reach edge of screen, becuase we dont want to detect
     // off camera rectangles
-
-
+    //drawContours( edges,contours, largest_contour_index, Scalar(255,255,255), CV_FILLED, 8, hierarchy );
+//    destroyAllWindows();
+//    imshow("Contour",edges);
+    //  Camera_Connector::write_image("image_rect_light", edges);
+    //waitKey(0);
 
     // If we have a circular shape vs rectangle we are at an intersection
     if (contours.size() > 0) {
@@ -250,8 +259,11 @@ int Image_Processor::step_detect(Camera_Connector &camera, int &intersection) {
     src = camera.get_image();
     int circle = circle_detect(src);
 
+    // If circle is detected intersection flag is set to 1
     if (circle) {
         intersection = 1;
+    } else {
+        intersection = 0;
     }
 
     return step;

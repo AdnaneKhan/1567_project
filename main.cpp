@@ -1,19 +1,22 @@
+#define DEBUG
+
+
 #include "locator.h"
+
 
 int main() {
 
     std::string init = "val";
 
 
-    Locator loc = Locator(" ", "");
-
-
+    Locator *loc = new Locator(" ", "");
     std::chrono::milliseconds timespan(500);
-    while (!loc.is_located()) {
-        loc.run_locator();
+    while (!loc->is_located()) {
+        loc->run_locator();
         std::this_thread::sleep_for(timespan);
     }
 
+    delete(loc);
 //    Image_Processor proc = Image_Processor();
 //    Camera_Connector camera = Camera_Connector(USB_WEBCAM, "", 0);
 //    Mat img = camera.get_image();

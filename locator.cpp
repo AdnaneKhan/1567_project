@@ -62,32 +62,36 @@ int Locator::graph_step(int edge_cost) {
 */
 int Locator::graph_intersect(int step_count) {
 
-
+    int next_dir = next_step_m();
+#ifdef DEBUG
+        std::cout << next_dir << " is our next step (cardinal).\n";
+    #endif
     for (int i = 0; i < NODE_COUNT; i++) {
         if (step_lists[i].size() > depth) {
             Node *temp = step_lists[i].back();
 
             // int next_dir = next_step(recent_metrics);
-            int next_dir = next_step_m();
+
             // Iterate through all options NOT in the direction we came from
-            for (int j = 0; j < MAX_NEIGHBORS; j++) {
-                if (temp->neighbors[j].second != -1 && j == next_dir) {
+            //for (int j = 0; j < MAX_NEIGHBORS; j++) {
+            if (temp->neighbors[next_dir].second != -1) {
                     // Check if we have an opening
 
                     // Turn in this direction
                     depth++;
-                    step_lists[i].push_back(temp->neighbors[j].first);
-                    return convert_dir(next_dir, curr_heading);
+                step_lists[i].push_back(temp->neighbors[next_dir].first);
 
-
+#ifdef DEBUG
+                    std::cout << " We are potentially going from " << temp->node_label << " to " << temp->neighbors[next_dir].first->node_label << std::endl;
+                    #endif
                 }
-            }
+            //}
         }
     }
     // reset progress
     edge_progress = 0;
 
-    return -1;
+    return convert_dir(next_dir, curr_heading);
 }
 
 /**
@@ -273,11 +277,11 @@ int Locator::next_step_m() {
 
     for (int i = 0; i < directions.size(); i++) {
         if (directions[i] != -1) {
-            return directions[i];
+            return directions[i] / 2;
         }
     }
 
-    return -1;
+    exit(1);
 }
 
 /**
@@ -313,79 +317,80 @@ int Locator::next_step(Arduino_packet &packet) {
 
 void Locator::run_locator() {
 
-    int intersection = 0;
 
     int step;
-        old_res = res;
+
+    old_res = res;
+    old_intersection = intersection;
     res = proc.step_detect(this->camera, intersection);
-        step = (res ^ old_res) & res;
-        if (step) {
-            std::cout << "Detected Light" << std::endl;
-            ///
-            step = graph_step(edge_progress++);
-            if (intersection) {
+    step = (res ^ old_res) & res;
+    if (step) {
+        std::cout << "Detected Light" << std::endl;
+        ///
+        step = graph_step(edge_progress++);
 
-                // Prompt user that he has reached intersection
-                Audio::intersection();
 
-                // We are at intersection, check to see which paths we could possibly be on
-                int dir = Locator::graph_intersect(edge_progress);
-                Audio::turn_dir(dir);
-            }
-            if (step == 1) {
+        if ((intersection ^ old_intersection) & intersection) {
 
-            }
+            // Prompt user that he has reached intersection
+            Audio::intersection();
+
+            // We are at intersection, check to see which paths we could possibly be on
+            int dir = Locator::graph_intersect(edge_progress);
+#ifdef DEBUG
+               std::cout << "The path was " << dir << std::endl;
+            #endif
+            Audio::turn_dir(dir);
         }
+    }
 }
 
 
-//int Locator::start(std::string serial_info, std::string receive_data) {
-//    int serial_id;
-//    int retv;
-//    // Initialize the serial read
-//
-//    serial_id = open(serial_info, O_RDONLY | O_NOCTTY | O_NDELAY );
-//
-//
-//
-//
-//    if (serial_id != -1) {
-//        Locator::thread_halt = FALSE;
-//        arduino_connection(receive_data,serial_info);
-//
-//        retv = TRUE;
-//    } else { // Serial port was not opened successfully
-//        retv = FALSE;
-//    }
-//
-//    return retv;
-//}
+int Locator::start(std::string serial_info, std::string receive_data) {
+    int serial_id;
+    int retv;
+    // Initialize the serial read
 
-//void Locator::receive_data(int serial_id) {
-//    Arduino_packet read = {0};
-//
-//    while (!thread_halt) {
-//        // Treat read as a buffer and read values to it.
-//
-//        int byte_count = read(serial_id, &read, sizeof(float) * 5);
-//        std::cout << "Read % bytes into the Arduino_packet" << byte_count;
-//
-//        if (byte_count == sizeof(Arduino_packet)) {
-//            this->recent_metrics.back_distance = read.back_distance;
-//            this->recent_metrics.front_distance = read.front_distance;
-//            this->recent_metrics.heading = read.heading;
-//            this->recent_metrics.l_distance = read.l_distance;
-//            this->recent_metrics.r_distance = read.r_distance;
-//        }
-//
-//        //Sleep for 100 ms before reading next
-//        std::chrono::milliseconds dura( 100 );
-//        std::this_thread::sleep_for( dura );
-//
-//    }
-//
-//    close(serial_id);
-//}
+    serial_id = open(serial_info.c_str(), O_RDONLY | O_NOCTTY | O_NDELAY);
+
+
+    if (serial_id != -1) {
+        Locator::thread_halt = FALSE;
+        arduino_connection = std::thread(&Locator::receive_data, this, atoi(serial_info.c_str()));
+
+        retv = TRUE;
+    } else { // Serial port was not opened successfully
+        retv = FALSE;
+    }
+
+    return retv;
+}
+
+void Locator::receive_data(int serial_id) {
+    float buf[5];
+
+    while (!thread_halt) {
+        // Treat read as a buffer and read values to it.
+
+        int byte_count = read(serial_id, &buf, sizeof(buf));
+        std::cout << "Read % bytes into the Arduino_packet" << byte_count;
+
+        if (byte_count == sizeof(Arduino_packet)) {
+            this->recent_metrics.back_distance = buf[0];
+            this->recent_metrics.front_distance = buf[1];
+            this->recent_metrics.heading = buf[2];
+            this->recent_metrics.l_distance = buf[3];
+            this->recent_metrics.r_distance = buf[4];
+        }
+
+        //Sleep for 100 ms before reading next
+        std::chrono::milliseconds dura(100);
+        std::this_thread::sleep_for(dura);
+
+    }
+
+    close(serial_id);
+}
 
 
 Locator::Locator(std::string file_uri, std::string serial_id) {
@@ -396,10 +401,12 @@ Locator::Locator(std::string file_uri, std::string serial_id) {
     this->edge_progress = 0;
     this->res = 0;
     this->old_res = 1;
+    this->intersection = 0;
+    this->old_intersection = 0;
 //  this->step_lists.resize(NODE_COUNT);
 
     char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'};
-    char edges[12][4] = {{'A', 'B', 3, 0}, {'B', 'C', 3, 0}, {'C', 'D', 4, 0}, {'A', 'E', 2, 0}, {'E', 'F', 1, 0}, {'F', 'G', 2, 0}, {'G', 'H', 4, 0}, {'C', 'H', 5, 0}, {'D', 'J', 5, 0}, {'J', 'I', 0, 0}, {'I', 'L', 0, 0}, {'L', 'K', 0, 0}};
+    char edges[12][4] = {{'A', 'B', 3, 2}, {'B', 'C', 3, 2}, {'C', 'D', 4, 4}, {'A', 'E', 2, 3}, {'E', 'F', 1, 2}, {'F', 'G', 2, 3}, {'G', 'H', 4, 2}, {'C', 'H', 5, 3}, {'D', 'J', 5, 3}, {'J', 'I', 0, 0}, {'I', 'L', 0, 3}, {'L', 'K', 0, 0}};
     depth = 0;
     num_paths = NODE_COUNT;
     for (int i = 0; i < NODE_COUNT; i++) {
@@ -423,8 +430,8 @@ Locator::~Locator() {
         delete(this->graph[i]);
     }
 
-//    if (arduino_connection.joinable()) {
-//        arduino_connection.join();
-//    }
+    if (arduino_connection.joinable()) {
+        arduino_connection.join();
+    }
 
 }

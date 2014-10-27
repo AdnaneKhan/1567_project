@@ -35,7 +35,7 @@ private:
     std::queue<std::string> f_name_queue; ///< file names in folder (for hdd image source)
     std::string file_folder; ///< folder to look in for images
     int camera_source; /// <camera source based on dfinitions
-    #ifdef __arm__
+#ifdef __arm__
     raspicam::RaspiCam_cv Camera;
     #endif
 
@@ -44,6 +44,7 @@ public:
     * Writes the matrix to a png file with the given filename
     */
     static void write_image(std::string filename, cv::Mat &img);
+
     void config_camera(int exp, int saturation, int interval);
 
 
@@ -53,5 +54,6 @@ public:
     }
 
     Camera_Connector(int camera_source, std::string source, int camera_id);
+
     ~Camera_Connector();
 };

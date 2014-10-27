@@ -15,7 +15,7 @@
 
 #ifndef CAMERA_INC
 
-#include "camera_connector.h"
+#include "Camera_connector.h"
 
 #define CAMERA_INC
 #endif
@@ -45,6 +45,9 @@
 #define RIGHT 1
 #define BACK 2
 #define LEFT 3
+
+//#define DEBUG
+
 /*
     This class represents the Sennot Square navigation problem.
     A text file is specified in the constructor which contains information to initialize
@@ -74,7 +77,7 @@ class Locator {
 
     Arduino_packet recent_metrics;
     Camera_Connector camera;
-//  std::thread arduino_connection;
+    std::thread arduino_connection;
     Image_Processor proc;
 
     int thread_halt;
@@ -84,6 +87,9 @@ class Locator {
     int curr_heading;
     int old_res;
     int res;
+
+    int intersection;
+    int old_intersection;
 
     void receive_data(int serial_id);
 
@@ -99,6 +105,7 @@ class Locator {
     int graph_step(int edge_progress);
 
     static int convert_dir(int dir, int heading);
+
 public:
 
     /**
@@ -109,11 +116,11 @@ public:
 
 
     /**
-     Opens a serial connection, if it succeeds, start a thread that reads from the port on a given interval.
+    Opens a serial connection, if it succeeds, start a thread that reads from the port on a given interval.
 
-     If the connection fails, exit without starting the therad.
-     */
-    // int start(std::string serial_info, std::string receive_data);
+    If the connection fails, exit without starting the therad.
+    */
+    int start(std::string serial_info, std::string receive_data);
 
     /*
     Returns TRUE if the locator has joined possible paths and the location has been narrowed down.
@@ -121,6 +128,8 @@ public:
 
      */
     bool is_located();
+
     Locator(std::string file_uri, std::string serial_id);
+
     ~Locator();
 };

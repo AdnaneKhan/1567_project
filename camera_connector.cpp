@@ -1,19 +1,19 @@
-#include "camera_connector.h"
+#include "Camera_connector.h"
 
 
 using namespace cv;
 
-class camera_exception: public std::exception {
-    virtual const char* what() const throw() {
+class camera_exception : public std::exception {
+    virtual const char *what() const throw() {
         return "The camera ID specified was not valid";
     }
 } camera_ex;
 
 /**
- Returns new image from camera source, if the
- source is a folder then reads new file from list of file names
- and returns that, if it is an actual camera then returns from pre-initialized reader object
- */
+Returns new image from camera source, if the
+source is a folder then reads new file from list of file names
+and returns that, if it is an actual camera then returns from pre-initialized reader object
+*/
 cv::Mat Camera_Connector::get_image() {
     cv::Mat ret_image;
 
@@ -30,7 +30,7 @@ cv::Mat Camera_Connector::get_image() {
         }
 
     } else if (camera_source == RASPBERRY_PI_CAM) {
-    #ifdef __arm__
+#ifdef __arm__
         Camera.retrieve(image_ret);
     #endif
     } else {
@@ -38,10 +38,7 @@ cv::Mat Camera_Connector::get_image() {
     }
 
 #ifdef DEBUG
-    std::vector<int> compression_params;
-    compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
-    compression_params.push_back(9);
-    cv::imwrite("/Users/adnankhan/Box Sync/Robots/1567_project/test_images/"+std::to_string(i)+".png" ,ret_image,compression_params);
+        Camera_Connector::write_image("recent_image", ret_image);
     #endif
     return ret_image;
 }
@@ -56,12 +53,12 @@ void usb_camera_init(cv::VideoCapture &to_init, int camera_id) {
 
     if (to_init.open(camera_id)) {
         std::cout << "Found Camera " << camera_id << '\n';
-            std::chrono::milliseconds timespan(500);
-            std::this_thread::sleep_for(timespan);
+        std::chrono::milliseconds timespan(500);
+        std::this_thread::sleep_for(timespan);
     } else {
         // Failed to initialize camera
         throw camera_ex;
-        }
+    }
 
 }
 
@@ -92,12 +89,12 @@ void Camera_Connector::write_image(std::string filename, cv::Mat &img) {
 *     3 - IMAGE_FOLDER
 */
 Camera_Connector::Camera_Connector(int camera_source, std::string source, int camera_id) {
-    switch (camera_source){
+    switch (camera_source) {
         case USB_WEBCAM:
             usb_camera_init(cam, camera_id);
 
             break;
-            #ifdef __arm__
+#ifdef __arm__
         case RASPBERRY_PI_CAM:
 
             // Initialize pi_cam
@@ -109,7 +106,7 @@ Camera_Connector::Camera_Connector(int camera_source, std::string source, int ca
             // Read names of all images in folder
             // push all names to queue
 
-        Camera_Connector::camera_source = camera_source;
+            Camera_Connector::camera_source = camera_source;
             break;
         default:
             throw camera_ex;
