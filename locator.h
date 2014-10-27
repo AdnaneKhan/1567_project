@@ -93,7 +93,7 @@ class Locator {
 
     void receive_data(int serial_id);
 
-
+    int intersection_check(Arduino_packet & check);
     int next_step(Arduino_packet &packet);
 
     int next_step_m();

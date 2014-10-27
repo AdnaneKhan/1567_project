@@ -46,6 +46,7 @@ int Locator::graph_step(int edge_cost) {
             }
 
             // If all paths are less than edge progress, then we remove the base from vector
+            //
             if (!keep_path) {
                 step_lists[i].clear();
                 num_paths--;
@@ -56,6 +57,10 @@ int Locator::graph_step(int edge_cost) {
     return 0;
 }
 
+
+int Locator::intersection_check(Arduino_packet & check) {
+
+}
 
 /**
 *  \param step_count number of steps that were travelled along edge to reach this node (intersection)
