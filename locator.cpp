@@ -58,9 +58,9 @@ int Locator::graph_step(int edge_cost) {
 }
 
 
-int Locator::intersection_check(Arduino_packet & check) {
-
-}
+//int Locator::intersection_check(Arduino_packet & check) {
+//
+//}
 
 /**
 *  \param step_count number of steps that were travelled along edge to reach this node (intersection)
