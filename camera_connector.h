@@ -1,3 +1,7 @@
+#ifndef CAMERA_CONNECTOR_H
+#define CAMERA_CONNECTOR_H
+
+
 #include <iostream>
 #include "opencv2/opencv.hpp"
 
@@ -57,3 +61,6 @@ public:
 
     ~Camera_Connector();
 };
+
+
+#endif

@@ -84,6 +84,67 @@ int Image_Processor::circle_detect(Camera_Connector &camera) {
 }
 
 /**
+* Detects circle lights that are on
+*/
+int on_circle_detect(Mat & src) {
+    int retV = 0;
+    Mat dest;
+    Mat thr;
+    Mat canny;
+
+    cvtColor(src, thr, CV_BGR2GRAY);
+    GaussianBlur(thr, dest, Size(15, 15),2,2);
+    threshold(dest,dest,230,255,CV_THRESH_BINARY);
+    Canny(dest, canny, 100,200,3);
+
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy;
+
+    findContours( canny, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
+
+    if (contours.size() > 0.0) {
+        double area = contourArea(contours[0],false);
+        float radius;
+        Point2f center;
+        minEnclosingCircle(contours[0], center, radius);
+        circle(src, center, radius,Scalar(255,0,0), 1,8,0);
+                imshow("img",src);
+        waitKey(0);
+        printf("%f area2\n",(radius*radius*3.14159265359));
+        printf("%lf area\n",area);
+        printf("div %f\n",(area/(radius*radius*3.14159265359) ));
+        if ( (area/(radius*radius*3.14159265359) ) > 0.90) {
+      //      printf("higher\n");
+            retV = 1;
+        }
+    }
+
+    return retV;
+}
+
+/**
+*  Detects circle lights that are off
+*/
+int off_circle_detect(Mat & src ){
+int retV = 0;
+    Mat grey_src;
+
+    cvtColor(src, grey_src, CV_BGR2GRAY);
+    GaussianBlur(grey_src, grey_src, Size(7, 7),0,0);
+
+    Canny(grey_src, grey_src, 50, 100, 3);
+
+    vector<Vec3f> circles;
+    HoughCircles(grey_src, circles, CV_HOUGH_GRADIENT, grey_src.rows / 3, 250, 100);
+
+    if (circles.size() > 0) {
+        retV = 1;
+    }
+
+    return retV;
+}
+
+/**
 * Referencing http://docs.opencv.org/doc/tutorials/imgproc/imgtrans/hough_circle/hough_circle.html
 * In creating this method.
 *
@@ -92,34 +153,25 @@ int Image_Processor::circle_detect(Camera_Connector &camera) {
 int Image_Processor::circle_detect(Mat &src) {
     int retV = 0;
 
-    // Two detection possibilities for lights which are on/off
-    Mat grey_src;
-    Mat working_src = src;
+
+    retV = on_circle_detect(src);
+
+//    if (!retV) {
+//        retV = off_circle_detect(src);
+//    }
 
 
-    cvtColor(src, grey_src, CV_BGR2GRAY);
-    GaussianBlur(grey_src, grey_src, Size(15, 15), 2, 2);
-    Camera_Connector::write_image("circles_grey_off", grey_src);
-    Canny(grey_src, grey_src, 100, 400, 3);
+//    /// Draw the circles detected
+//    for (size_t i = 0; i < circles.size(); i++) {
+//        retV = 1;
+//        Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+//        int radius = cvRound(circles[i][2]);
+//        // circle center
+//        circle(on_src, center, 3, Scalar(0, 255, 0), -1, 8, 0);
+//        // circle outline
+//        circle(on_src, center, radius, Scalar(0, 0, 255), 3, 8, 0);
+//    }
 
-
-    vector<Vec3f> circles;
-    HoughCircles(grey_src, circles, CV_HOUGH_GRADIENT, grey_src.rows / 8, 1, 50, 10);
-
-
-    /// Draw the circles detected
-    for (size_t i = 0; i < circles.size(); i++) {
-        retV = 1;
-        Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-        int radius = cvRound(circles[i][2]);
-        // circle center
-        circle(grey_src, center, 3, Scalar(0, 255, 0), -1, 8, 0);
-        // circle outline
-        circle(grey_src, center, radius, Scalar(0, 0, 255), 3, 8, 0);
-    }
-
-    destroyAllWindows();
-    imshow("circles", grey_src);
 
     return retV;
 }
@@ -194,7 +246,7 @@ int Image_Processor::rectangle_detect(Mat &src) {
 
     Canny(blurred, edges, 20, 200, 3);
 
-#ifdef DEBUG
+    #ifdef DEBUG
         Camera_Connector::write_image("rect_test", blurred);
     #endif
 
@@ -261,6 +313,7 @@ int Image_Processor::step_detect(Camera_Connector &camera, int &intersection) {
 
     // If circle is detected intersection flag is set to 1
     if (circle) {
+        printf("Circle!");
         intersection = 1;
     } else {
         intersection = 0;

@@ -11,10 +11,13 @@ int main() {
 
     Locator *loc = new Locator(" ", "");
     std::chrono::milliseconds timespan(500);
-    while (!loc->is_located()) {
-        loc->run_locator();
-        std::this_thread::sleep_for(timespan);
-    }
+    //int res = loc->start("");
+   // if (res) {
+        while (!loc->is_located()) {
+            loc->run_locator();
+            std::this_thread::sleep_for(timespan);
+        }
+   // }
 
     delete(loc);
 //    Image_Processor proc = Image_Processor();

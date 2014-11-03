@@ -1,3 +1,7 @@
+
+#ifndef NODE_H
+#define NODE_H
+
 #define MAX_NEIGHBORS 4
 
 class Node {
@@ -22,3 +26,6 @@ public:
     bool get_neighbor(Node &neighbor_ret, int direction);
 
 };
+
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef AUDIO_H
+#define AUDIO_H
+
 namespace Audio {
     /**
     *
@@ -41,3 +44,4 @@ namespace Audio {
 }
 
 
+#endif

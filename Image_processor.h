@@ -1,9 +1,10 @@
-#ifndef CAMERA_INC
+#ifndef IMAGE_PROCESSOR_H
+#define IMAGE_PROCESSOR_H
+
+
 
 #include "camera_connector.h"
 
-#define CAMERA_INC
-#endif
 
 #define CIRCLE_ATTEMPTS 3
 
@@ -27,3 +28,5 @@ public:
 
     int step_detect(Camera_Connector &camera, int &intersection);
 };
+
+#endif

@@ -48,8 +48,9 @@ int Locator::graph_step(int edge_cost) {
             // If all paths are less than edge progress, then we remove the base from vector
             //
             if (!keep_path) {
-                step_lists[i].clear();
-                num_paths--;
+               // step_lists[i].clear();
+                //num_paths--;
+                std::cout << "We have reached a point where we would have removed steps, but keeping\n";
             }
         }
     }
@@ -68,6 +69,7 @@ int Locator::graph_step(int edge_cost) {
 int Locator::graph_intersect(int step_count) {
 
     int next_dir = next_step_m();
+    // int next_dir = next_step(recent_metrics);
 #ifdef DEBUG
         std::cout << next_dir << " is our next step (cardinal).\n";
     #endif
@@ -75,7 +77,6 @@ int Locator::graph_intersect(int step_count) {
         if (step_lists[i].size() > depth) {
             Node *temp = step_lists[i].back();
 
-            // int next_dir = next_step(recent_metrics);
 
             // Iterate through all options NOT in the direction we came from
             //for (int j = 0; j < MAX_NEIGHBORS; j++) {
@@ -83,13 +84,14 @@ int Locator::graph_intersect(int step_count) {
                     // Check if we have an opening
 
                     // Turn in this direction
-                    depth++;
+                depth++;
                 step_lists[i].push_back(temp->neighbors[next_dir].first);
 
-#ifdef DEBUG
+                // Clear st
+                    #ifdef DEBUG
                     std::cout << " We are potentially going from " << temp->node_label << " to " << temp->neighbors[next_dir].first->node_label << std::endl;
                     #endif
-                }
+            }
             //}
         }
     }
@@ -351,7 +353,7 @@ void Locator::run_locator() {
 }
 
 
-int Locator::start(std::string serial_info, std::string receive_data) {
+int Locator::start(std::string serial_info) {
     int serial_id;
     int retv;
     // Initialize the serial read
@@ -361,7 +363,7 @@ int Locator::start(std::string serial_info, std::string receive_data) {
 
     if (serial_id != -1) {
         Locator::thread_halt = FALSE;
-        arduino_connection = std::thread(&Locator::receive_data, this, atoi(serial_info.c_str()));
+        arduino_connection = std::thread(&Locator::receive_data, this,serial_id);
 
         retv = TRUE;
     } else { // Serial port was not opened successfully

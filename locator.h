@@ -1,3 +1,6 @@
+#ifndef LOCATOR_H
+#define LOCATOR_H
+
 #include <thread>
 #include <unistd.h> // UNIX standard function definitions
 #include <fcntl.h> // File control definitions
@@ -46,7 +49,7 @@
 #define BACK 2
 #define LEFT 3
 
-//#define DEBUG
+#define DEBUG
 
 /*
     This class represents the Sennot Square navigation problem.
@@ -120,7 +123,7 @@ public:
 
     If the connection fails, exit without starting the therad.
     */
-    int start(std::string serial_info, std::string receive_data);
+    int start(std::string serial_info);
 
     /*
     Returns TRUE if the locator has joined possible paths and the location has been narrowed down.
@@ -133,3 +136,5 @@ public:
 
     ~Locator();
 };
+
+#endif
