@@ -2,6 +2,12 @@
 #define AUDIO_H
 
 namespace Audio {
+
+    /**
+    *  Plays a prompt to tell user light was encountered
+    */
+    void play_light();
+
     /**
     *
     * Plays a prompt for the user to turn left.

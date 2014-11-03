@@ -324,31 +324,34 @@ int Locator::next_step(Arduino_packet &packet) {
 
 void Locator::run_locator() {
 
-
     int step;
-
+    // Rising edge for ceiling light detection
     old_res = res;
     old_intersection = intersection;
+
     res = proc.step_detect(this->camera, intersection);
     step = (res ^ old_res) & res;
-    if (step) {
-        std::cout << "Detected Light" << std::endl;
-        ///
-        step = graph_step(edge_progress++);
 
+    // Need to ensure we don't count circles as lights too
+    if ((intersection ^ old_intersection) & intersection) {
 
-        if ((intersection ^ old_intersection) & intersection) {
+        // Prompt user that he has reached intersection
+        Audio::intersection();
 
-            // Prompt user that he has reached intersection
-            Audio::intersection();
-
-            // We are at intersection, check to see which paths we could possibly be on
-            int dir = Locator::graph_intersect(edge_progress);
-#ifdef DEBUG
-               std::cout << "The path was " << dir << std::endl;
+        // We are at intersection, check to see which paths we could possibly be on
+        int dir = Locator::graph_intersect(edge_progress);
+            #ifdef DEBUG
+                    std::cout << "The path was " << dir << std::endl;
             #endif
-            Audio::turn_dir(dir);
-        }
+        Audio::turn_dir(dir);
+    }
+
+    // Need
+    if (step) {
+        Audio::play_light();
+        ///
+        graph_step(edge_progress++);
+
     }
 }
 

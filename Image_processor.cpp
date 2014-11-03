@@ -103,18 +103,22 @@ int on_circle_detect(Mat & src) {
     findContours( canny, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
 
     if (contours.size() > 0.0) {
+
         double area = contourArea(contours[0],false);
         float radius;
         Point2f center;
         minEnclosingCircle(contours[0], center, radius);
-        circle(src, center, radius,Scalar(255,0,0), 1,8,0);
-                imshow("img",src);
-        waitKey(0);
-        printf("%f area2\n",(radius*radius*3.14159265359));
-        printf("%lf area\n",area);
-        printf("div %f\n",(area/(radius*radius*3.14159265359) ));
+
+        #ifdef DEBUG
+            imshow("img",src);
+            waitKey(0);
+            circle(src, center, radius,Scalar(255,0,0), 1,8,0);
+            printf("%f area2\n",(radius*radius*3.14159265359));
+            printf("%lf area\n",area);
+            printf("div %f\n",(area/(radius*radius*3.14159265359) ));
+        #endif
+
         if ( (area/(radius*radius*3.14159265359) ) > 0.90) {
-      //      printf("higher\n");
             retV = 1;
         }
     }
@@ -159,19 +163,6 @@ int Image_Processor::circle_detect(Mat &src) {
 //    if (!retV) {
 //        retV = off_circle_detect(src);
 //    }
-
-
-//    /// Draw the circles detected
-//    for (size_t i = 0; i < circles.size(); i++) {
-//        retV = 1;
-//        Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-//        int radius = cvRound(circles[i][2]);
-//        // circle center
-//        circle(on_src, center, 3, Scalar(0, 255, 0), -1, 8, 0);
-//        // circle outline
-//        circle(on_src, center, radius, Scalar(0, 0, 255), 3, 8, 0);
-//    }
-
 
     return retV;
 }
@@ -223,7 +214,6 @@ int Image_Processor::hough_rectangle_detect(Mat &src) {
     return 0;
 }
 
-
 /**
 *
 *   \brief uses contour method to check for lit rectangles (lights) in image
@@ -236,7 +226,6 @@ int Image_Processor::rectangle_detect(Mat &src) {
     Mat blurred;
     Mat edges;
 
-    //cvtColor(src, thr, CV_BGR2GRAY);
     cvtColor(src, thr, CV_BGR2GRAY);
     blurred = thr.clone();
 
@@ -250,7 +239,6 @@ int Image_Processor::rectangle_detect(Mat &src) {
         Camera_Connector::write_image("rect_test", blurred);
     #endif
 
-    //addWeighted(thr, 8.0f, thr, 0.0f, 0.0f, thr, -1);
     vector<vector<Point> > contours; // Vector for storing contour
     vector<Vec4i> hierarchy;
     int largest_contour_index = -1;
@@ -271,15 +259,6 @@ int Image_Processor::rectangle_detect(Mat &src) {
             }
         }
     }
-
-
-    // Need to detect whether the edges reach edge of screen, becuase we dont want to detect
-    // off camera rectangles
-    //drawContours( edges,contours, largest_contour_index, Scalar(255,255,255), CV_FILLED, 8, hierarchy );
-//    destroyAllWindows();
-//    imshow("Contour",edges);
-    //  Camera_Connector::write_image("image_rect_light", edges);
-    //waitKey(0);
 
     // If we have a circular shape vs rectangle we are at an intersection
     if (contours.size() > 0) {
@@ -313,7 +292,6 @@ int Image_Processor::step_detect(Camera_Connector &camera, int &intersection) {
 
     // If circle is detected intersection flag is set to 1
     if (circle) {
-        printf("Circle!");
         intersection = 1;
     } else {
         intersection = 0;

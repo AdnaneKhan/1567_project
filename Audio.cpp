@@ -53,4 +53,8 @@ namespace Audio {
                 break;
         }
     }
+
+    void play_light() {
+        std::cout << "You have walked under a light." << std::endl;
+    }
 }

@@ -35,6 +35,8 @@ cv::Mat Camera_Connector::get_image() {
     #endif
     } else {
         cam.read(ret_image);
+        imshow("Test",ret_image);
+        waitKey(0);
     }
 
 #ifdef DEBUG
@@ -54,6 +56,8 @@ void usb_camera_init(cv::VideoCapture &to_init, int camera_id) {
     if (to_init.open(camera_id)) {
         std::cout << "Found Camera " << camera_id << '\n';
         std::chrono::milliseconds timespan(500);
+        to_init.set(CV_CAP_PROP_AUTO_EXPOSURE,0);
+        to_init.set(CV_CAP_PROP_GAIN,0);
         std::this_thread::sleep_for(timespan);
     } else {
         // Failed to initialize camera
