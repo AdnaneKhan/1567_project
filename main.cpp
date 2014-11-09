@@ -1,7 +1,7 @@
 #define DEBUG
 
 
-#include "locator.h"
+#include "Locator.h"
 
 
 int main() {
