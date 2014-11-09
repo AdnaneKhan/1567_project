@@ -361,8 +361,7 @@ int Locator::start(std::string serial_info) {
     int retv;
     // Initialize the serial read
 
-    serial_id = open(serial_info.c_str(), O_RDONLY | O_NOCTTY | O_NDELAY);
-
+    serial_id = open(serial_info.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
 
     if (serial_id != -1) {
         Locator::thread_halt = FALSE;
@@ -380,23 +379,30 @@ void Locator::receive_data(int serial_id) {
     float buf[5];
 
     while (!thread_halt) {
+        char out = '1';
+
+        int writeout = write(serial_id, &out, 1);
+        std::cout << "Wrote "<< writeout << " bytes to arduino.\n";
+        std::chrono::milliseconds dura(100);
+        //std::this_thread::sleep_for(dura);
         // Treat read as a buffer and read values to it.
 
         int byte_count = read(serial_id, &buf, sizeof(buf));
-        std::cout << "Read % bytes into the Arduino_packet" << byte_count;
+        std::cout << "Read "<< byte_count << " bytes into the Arduino_packet.\n";
+        printf("Front: %f \n",buf[0] );
+        printf("Left: %f \n",buf[1] );
+        printf("Right: %f \n",buf[2] );
 
         if (byte_count == sizeof(Arduino_packet)) {
-            this->recent_metrics.back_distance = buf[0];
-            this->recent_metrics.front_distance = buf[1];
-            this->recent_metrics.heading = buf[2];
+            this->recent_metrics.front_distance = buf[0];
+            this->recent_metrics.r_distance  = buf[1];
+            this->recent_metrics.l_distance = buf[2];
             this->recent_metrics.l_distance = buf[3];
             this->recent_metrics.r_distance = buf[4];
         }
 
         //Sleep for 100 ms before reading next
-        std::chrono::milliseconds dura(100);
         std::this_thread::sleep_for(dura);
-
     }
 
     close(serial_id);
@@ -416,9 +422,12 @@ Locator::Locator(std::string file_uri, std::string serial_id) {
 //  this->step_lists.resize(NODE_COUNT);
 
     char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'};
-    char edges[12][4] = {{'A', 'B', 3, 2}, {'B', 'C', 3, 2}, {'C', 'D', 4, 4}, {'A', 'E', 2, 3}, {'E', 'F', 1, 2}, {'F', 'G', 2, 3}, {'G', 'H', 4, 2}, {'C', 'H', 5, 3}, {'D', 'J', 5, 3}, {'J', 'I', 0, 0}, {'I', 'L', 0, 3}, {'L', 'K', 0, 0}};
+    char edges[12][4] = {{'A', 'B', 3, 2}, {'B', 'C', 3, 2}, {'C', 'D', 4, 4}, {'A', 'E', 2, 3}, {'E', 'F', 1, 2}, {'F', 'G', 2, 3},
+            {'G', 'H', 4, 2}, {'C', 'H', 5, 3}, {'D', 'J', 5, 3}, {'J', 'I', 0, 0}, {'I', 'L', 0, 3}, {'L', 'K', 0, 0}};
+
     depth = 0;
     num_paths = NODE_COUNT;
+
     for (int i = 0; i < NODE_COUNT; i++) {
         // set initial steps
         (this->graph[i]) = new Node(nodes[i]);
@@ -431,7 +440,6 @@ Locator::Locator(std::string file_uri, std::string serial_id) {
         (this->graph.at(edges[i][0] - 65))->add_neighbor(graph.at(edges[i][1] - CHAR_TO_POSITION), edges[i][2], edges[i][3]);
         (this->graph.at(edges[i][1] - 65))->add_neighbor(graph.at(edges[i][0] - CHAR_TO_POSITION), edges[i][2], (edges[i][3] + 2) % 4);
     }
-
 }
 
 Locator::~Locator() {

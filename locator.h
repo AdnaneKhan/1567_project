@@ -16,14 +16,9 @@
 #include <list>
 #include <cmath>
 
-#ifndef CAMERA_INC
 
-#include "Camera_connector.h"
-
-#define CAMERA_INC
-#endif
-
-#include "Image_processor.h"
+#include "Camera_Connector.h"
+#include "Image_Processor.h"
 #include "Node.h"
 #include "Audio.h"
 
@@ -101,13 +96,46 @@ class Locator {
 
     int next_step_m();
 
+
+    /**
+    *  Parses sensor data to check which directions are open for the user to turn into
+    */
     int check_openings(Arduino_packet &packet, std::vector<int> &directions, int curr_direction);
 
+    /**
+    *
+    */
     int graph_intersect(int step_count);
 
+
+    /**
+    * Makea a step to a new node in the graph
+    */
     int graph_step(int edge_progress);
 
+    /**
+    *
+    */
     static int convert_dir(int dir, int heading);
+
+    /**
+    *  Finds a path to the solution from the given node, returns as a list of pair <Node, int> where int is
+    *  a parameter to turn direction
+    */
+    void find_goal();
+
+    /**
+    * Guides user to walk until goal hallway open, then
+    */
+    void goal_walk();
+
+
+    /**
+    *  Resets the state of the graph so that user is located at any of ndes matching current
+    *  charactersistics
+    */
+    void reset_state();
+
 
 public:
 
@@ -116,7 +144,6 @@ public:
     * loop
     */
     void run_locator();
-
 
     /**
     Opens a serial connection, if it succeeds, start a thread that reads from the port on a given interval.

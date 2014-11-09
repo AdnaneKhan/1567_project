@@ -1,4 +1,4 @@
-#include "Image_processor.h"
+#include "Image_Processor.h"
 
 //#define DEBUG
 /**
@@ -31,7 +31,6 @@ void Image_Processor::test_image(int n, int interval, Camera_Connector &camera) 
     return;
 }
 
-
 /**
 *  Checks whether the points of the counter are all located within a bounding rectangle that is
 *  bounding_percent away from the edges of the matrix
@@ -50,24 +49,24 @@ bool Image_Processor::check_within(cv::Mat &mat, float bounding_percent, Vector<
     int x_min = mat.cols / 5;
     int x_max = mat.cols - x_min;
 
-#ifdef DEBUG
+    #ifdef DEBUG
          std::cout << "The y min is " << y_min << std::endl;
          std::cout << "The x min is " << x_min << std::endl;
     #endif
 
     for (cv::Vector<Point>::iterator point = contour.begin(); point != contour.end(); ++point) {
         // Shape contains points outside of the rectangle
-#ifdef DEBUG
+    #ifdef DEBUG
         std::cout << "The y point is " << point->y << std::endl;
         std::cout << "The x point is " << point->x << std::endl;
-#endif
+    #endif
         if (point->x > x_max || point->x < x_max || point->y > y_max || point->y < y_min) {
             retV = false;
             break;
         }
     }
 
-#ifdef DEBUG
+    #ifdef DEBUG
     std::cout << "The contour was " << retV << " in the mat.\n";
     #endif
     return retV;
@@ -122,7 +121,6 @@ int on_circle_detect(Mat & src) {
             retV = 1;
         }
     }
-
     return retV;
 }
 
@@ -141,9 +139,6 @@ int retV = 0;
     vector<Vec3f> circles;
     HoughCircles(grey_src, circles, CV_HOUGH_GRADIENT, grey_src.rows / 3, 250, 100);
 
-    if (circles.size() > 0) {
-        retV = 1;
-    }
 
     return retV;
 }
@@ -157,61 +152,13 @@ int retV = 0;
 int Image_Processor::circle_detect(Mat &src) {
     int retV = 0;
 
-
     retV = on_circle_detect(src);
 
-//    if (!retV) {
-//        retV = off_circle_detect(src);
-//    }
+   if (!retV) {
+       retV = off_circle_detect(src);
+   }
 
     return retV;
-}
-
-/**
-* \brief checks for rectangles using hough line intersection WIP
-* \param src matrix to check hough rectangle
-*
-*  Referring to openCV docs for hough line detection
-*  Still WIP, attmepting to determine presence of rectangles using intersections of hough lines.
-*/
-int Image_Processor::hough_rectangle_detect(Mat &src) {
-    Mat working_src = src;
-
-    Mat canny;
-    Mat dst2;
-
-
-    Canny(working_src, canny, 50, 200, 3);
-    cvtColor(canny, dst2, CV_GRAY2BGR);
-    Camera_Connector::write_image("grey_test", canny);
-
-    vector<Vec2f> lines;
-
-    HoughLines(canny, lines, 1, CV_PI / 180, 200, 0, 0);
-
-    for (size_t i = 0; i < lines.size(); i++) {
-        float rho = lines[i][0], theta = lines[i][1];
-        Point pt1, pt2;
-        double a = cos(theta), b = sin(theta);
-        double x0 = a * rho, y0 = b * rho;
-        pt1.x = cvRound(x0 + 1000 * (-b));
-        pt1.y = cvRound(y0 + 1000 * (a));
-        pt2.x = cvRound(x0 - 1000 * (-b));
-        pt2.y = cvRound(y0 - 1000 * (a));
-        line(dst2, pt1, pt2, Scalar(0, 0, 255), 3, CV_AA);
-    }
-
-//    vector<Vec4i> lines;
-//    HoughLinesP(canny, lines, 1, CV_PI/180, 50, 100, 10 );
-//    for( size_t i = 0; i < lines.size(); i++ )
-//    {
-//        Vec4i l = lines[i];
-//        line( dst2, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0,0,255), 3, CV_AA);
-//    }
-//
-    Camera_Connector::write_image("lines", dst2);
-
-    return 0;
 }
 
 /**

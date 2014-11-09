@@ -3,7 +3,7 @@
 
 
 
-#include "camera_connector.h"
+#include "Camera_Connector.h"
 
 
 #define CIRCLE_ATTEMPTS 3
@@ -22,7 +22,6 @@ class Image_Processor {
     bool check_within(Mat &mat, float bounding_percent, cv::Vector<cv::Point> contour);
 
 public:
-    int hough_rectangle_detect(Mat &src);
 
     void test_image(int n, int interval, Camera_Connector &camera);
 

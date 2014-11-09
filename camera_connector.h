@@ -51,7 +51,6 @@ public:
 
     void config_camera(int exp, int saturation, int interval);
 
-
     cv::Mat get_image();
 
     Camera_Connector() {
