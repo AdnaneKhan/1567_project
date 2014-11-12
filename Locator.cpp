@@ -1,5 +1,10 @@
 #include "locator.h"
 
+
+locatorState Locator::reset_state() {
+    initialize_paths();
+}
+
 /**
 *  \return retb true/false whether the locator has reduced set of traversals to one
 */
@@ -204,8 +209,10 @@ int parse_direction(float heading) {
 * \param packet recent metrics from sensors
 * \param directions length4 vector
 * \param curr_direction direction (cardinal) that the user is currently facing
+*
+* \return whether any F,L,R values were detected as open
 */
-int Locator::check_openings(Arduino_packet &packet, std::vector<int> &directions, int curr_direction) {
+int Locator::check_openings(Arduino_packet &packet, std::vector<int> &directions, direction curr_direction) {
     int retV = 0;
 
     if (packet.l_distance < INTERSECTION_THRESHOLD) {
@@ -230,22 +237,17 @@ int Locator::check_openings(Arduino_packet &packet, std::vector<int> &directions
     return retV;
 }
 
-/**
-*  Allows conversion between world N,S,W,E and L,R,F,B for user
-*
-*  \param dir to turn relative to heading
-*  \param heding we are facing
-*/
-int Locator::convert_dir(int dir, int heading) {
-    int new_dir;
 
-    new_dir = (heading + dir) % 4;
+direction Locator::convert_dir(direction to_convert, int current_heading) {
+    direction new_dir;
+
+    new_dir = (current_heading + to_convert) % 4;
 
     return new_dir;
 }
 
 
-int Locator::next_step_m() {
+direction Locator::next_step_m() {
 
     std::vector<int> directions = {N, E, S, W};
     int origin;
@@ -288,7 +290,9 @@ int Locator::next_step_m() {
         }
     }
 
-    exit(1);
+  reset_state();
+
+    return 0;
 }
 
 /**
@@ -299,38 +303,45 @@ Based on possible possible locations decide which direction to have user turn
 returns direction to turn (value from 0 to 3), -1 if no valid turns found
 this indicates that locator is in an unknown state and re-setting may be necessary.
 */
-int Locator::next_step(Arduino_packet &packet) {
-    int direction = parse_direction(packet.heading);
+direction Locator::next_step(Arduino_packet &packet) {
+    direction to_turn = parse_direction(packet.heading);
 
-    std::vector<int> directions = {N, E, S, W};
+    std::vector<direction> directions = {N, E, S, W};
 
     // remove directions that are not open
-    check_openings(packet, directions, direction / 6);
+    check_openings(packet, directions, to_turn / 6);
 
-    int opposite_dir = (direction + 4) % 8;
+    int opposite_dir = (to_turn + 4) % 8;
     // We can not decide to direct our turn the way we came
-    directions[opposite_dir - 1] = -1;
+    directions[opposite_dir - 1] = INVALID_DIRECTION;
 
-    for (int i = 0; i < directions.size(); i++) {
-        // -1 is sentinel for invalid direction
-        if (directions[i] != -1) {
-            return directions[i];
+    for (direction candidate : directions) {
+        if (candidate != INVALID_DIRECTION) {
+            return candidate;
         }
     }
 
-    // In case
-    return -1;
+//    for (int i = 0; i < directions.size(); i++) {
+//        // -1 is sentinel for invalid direction
+//        if (directions[i] != -1) {
+//            return directions[i];
+//        }
+//    }
+
+    // In case no directions found that are open
+    return INVALID_DIRECTION;
 }
 
 void Locator::run_locator() {
 
-    int step;
+    graphInt step;
     // Rising edge for ceiling light detection
     old_res = res;
     old_intersection = intersection;
 
     res = proc.step_detect(this->camera, intersection);
-    step = (res ^ old_res) & res;
+
+    locatorState new_light = (res ^ old_res) & res;
 
     // Need to ensure we don't count circles as lights too
     if ((intersection ^ old_intersection) & intersection) {
@@ -347,7 +358,7 @@ void Locator::run_locator() {
     }
 
     // Need
-    if (step) {
+    if (new_light) {
         Audio::play_light();
         ///
         graph_step(edge_progress++);
@@ -408,6 +419,26 @@ void Locator::receive_data(int serial_id) {
     close(serial_id);
 }
 
+void Locator::initialize_paths() {
+    for (int i = 0; i < NODE_COUNT; i++) {
+        // set initial steps
+        (this->graph[i]) = new Node(nodes[i]);
+        step_lists.at(i).push_back(this->graph[i]);
+    }
+}
+
+void Locator::initialize_graph() {
+    depth = 0;
+    num_paths = NODE_COUNT;
+
+    // For each each in graph, add connection from node0 to node1 in one direction, then add edge from node1 to node0 in the opposite
+    // direction
+    for (int i = 0; i < 12; i++) {
+        (this->graph.at(edges[i][0] - 65))->add_neighbor(graph.at(edges[i][1] - CHAR_TO_POSITION), edges[i][2], edges[i][3]);
+        (this->graph.at(edges[i][1] - 65))->add_neighbor(graph.at(edges[i][0] - CHAR_TO_POSITION), edges[i][2], (edges[i][3] + 2) % 4);
+    }
+}
+
 
 Locator::Locator(std::string file_uri, std::string serial_id) {
     std::ofstream myfile;
@@ -421,25 +452,8 @@ Locator::Locator(std::string file_uri, std::string serial_id) {
     this->old_intersection = 0;
 //  this->step_lists.resize(NODE_COUNT);
 
-    char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'};
-    char edges[12][4] = {{'A', 'B', 3, 2}, {'B', 'C', 3, 2}, {'C', 'D', 4, 4}, {'A', 'E', 2, 3}, {'E', 'F', 1, 2}, {'F', 'G', 2, 3},
-            {'G', 'H', 4, 2}, {'C', 'H', 5, 3}, {'D', 'J', 5, 3}, {'J', 'I', 0, 0}, {'I', 'L', 0, 3}, {'L', 'K', 0, 0}};
-
-    depth = 0;
-    num_paths = NODE_COUNT;
-
-    for (int i = 0; i < NODE_COUNT; i++) {
-        // set initial steps
-        (this->graph[i]) = new Node(nodes[i]);
-        step_lists.at(i).push_back(this->graph[i]);
-    }
-
-    // For each each in graph, add connection from node0 to node1 in one direction, then add edge from node1 to node0 in the opposite
-    // direction
-    for (int i = 0; i < 12; i++) {
-        (this->graph.at(edges[i][0] - 65))->add_neighbor(graph.at(edges[i][1] - CHAR_TO_POSITION), edges[i][2], edges[i][3]);
-        (this->graph.at(edges[i][1] - 65))->add_neighbor(graph.at(edges[i][0] - CHAR_TO_POSITION), edges[i][2], (edges[i][3] + 2) % 4);
-    }
+    initialize_graph();
+    initialize_paths();
 }
 
 Locator::~Locator() {

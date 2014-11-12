@@ -39,6 +39,8 @@
 #define W 7
 #define NW 8
 
+#define INVALID_DIRECTION -1
+
 #define FORWARD 0
 #define RIGHT 1
 #define BACK 2
@@ -46,6 +48,12 @@
 
 #define DEBUG
 
+
+typedef int direction;
+typedef float sensorDistance;
+typedef int graphInt;
+
+typedef int locatorState;
 /*
     This class represents the Sennot Square navigation problem.
     A text file is specified in the constructor which contains information to initialize
@@ -59,13 +67,19 @@
     Nodes are intersections of two or more hallways.
 
  */
+
+// Definitions for the sennot square graph
+char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'};
+char edges[12][4] = {{'A', 'B', 3, 2}, {'B', 'C', 3, 2}, {'C', 'D', 4, 4}, {'A', 'E', 2, 3}, {'E', 'F', 1, 2}, {'F', 'G', 2, 3},
+        {'G', 'H', 4, 2}, {'C', 'H', 5, 3}, {'D', 'J', 5, 3}, {'J', 'I', 0, 0}, {'I', 'L', 0, 3}, {'L', 'K', 0, 0}};
+
 class Locator {
     typedef struct Arduino_packet {
         float heading;
-        float l_distance;
-        float r_distance;
-        float back_distance;
-        float front_distance;
+        sensorDistance l_distance;
+        sensorDistance r_distance;
+        sensorDistance back_distance;
+        sensorDistance front_distance;
 
     } Arduino_packet;
 
@@ -78,21 +92,26 @@ class Locator {
     std::thread arduino_connection;
     Image_Processor proc;
 
-    int thread_halt;
-    int edge_progress;
-    int depth;
-    int num_paths;
-    int curr_heading;
+    graphInt thread_halt;
+    graphInt edge_progress;
+
+    graphInt depth;
+    graphInt num_paths;
+
+
+    direction curr_heading;
+
+
     int old_res;
     int res;
 
-    int intersection;
-    int old_intersection;
+    detectionResult intersection;
+    detectionResult old_intersection;
 
     void receive_data(int serial_id);
 
     int intersection_check(Arduino_packet & check);
-    int next_step(Arduino_packet &packet);
+    direction next_step(Arduino_packet &packet);
 
     int next_step_m();
 
@@ -100,23 +119,26 @@ class Locator {
     /**
     *  Parses sensor data to check which directions are open for the user to turn into
     */
-    int check_openings(Arduino_packet &packet, std::vector<int> &directions, int curr_direction);
+    graphInt check_openings(Arduino_packet &packet, std::vector<int> &directions, int curr_direction);
 
     /**
     *
     */
-    int graph_intersect(int step_count);
+    graphInt graph_intersect(int step_count);
 
 
     /**
     * Makea a step to a new node in the graph
     */
-    int graph_step(int edge_progress);
+    graphInt graph_step(int edge_progress);
 
     /**
+    *  Allows conversion between world N,S,W,E and L,R,F,B for user
     *
+    *  \param dir to turn relative to heading
+    *  \param current_heading we are facing
     */
-    static int convert_dir(int dir, int heading);
+    static direction convert_dir(direction to_convert, int current_heading);
 
     /**
     *  Finds a path to the solution from the given node, returns as a list of pair <Node, int> where int is
@@ -134,9 +156,10 @@ class Locator {
     *  Resets the state of the graph so that user is located at any of ndes matching current
     *  charactersistics
     */
-    void reset_state();
+    locatorState reset_state();
 
-
+    void initialize_graph();
+    void initialize_paths();
 public:
 
     /**

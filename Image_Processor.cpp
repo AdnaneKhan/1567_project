@@ -75,7 +75,7 @@ bool Image_Processor::check_within(cv::Mat &mat, float bounding_percent, Vector<
 /**
 * \param camera to get get image from before checking circle
 */
-int Image_Processor::circle_detect(Camera_Connector &camera) {
+detectionResult Image_Processor::circle_detect(Camera_Connector &camera) {
 
     Mat src = camera.get_image();
 
@@ -85,8 +85,8 @@ int Image_Processor::circle_detect(Camera_Connector &camera) {
 /**
 * Detects circle lights that are on
 */
-int on_circle_detect(Mat & src) {
-    int retV = 0;
+detectionResult on_circle_detect(Mat & src) {
+    detectionResult retV = 0;
     Mat dest;
     Mat thr;
     Mat canny;
@@ -127,8 +127,8 @@ int on_circle_detect(Mat & src) {
 /**
 *  Detects circle lights that are off
 */
-int off_circle_detect(Mat & src ){
-int retV = 0;
+detectionResult off_circle_detect(Mat & src ){
+    detectionResult retV = 0;
     Mat grey_src;
 
     cvtColor(src, grey_src, CV_BGR2GRAY);
@@ -149,7 +149,7 @@ int retV = 0;
 *
 * \param src matrix to check for circles
 */
-int Image_Processor::circle_detect(Mat &src) {
+detectionResult Image_Processor::circle_detect(Mat &src) {
     int retV = 0;
 
     retV = on_circle_detect(src);
@@ -167,7 +167,7 @@ int Image_Processor::circle_detect(Mat &src) {
 *   \param src image matrix to check for rectangles
 *   Uses a countour method to detect rectangles in image
 */
-int Image_Processor::rectangle_detect(Mat &src) {
+detectionResult Image_Processor::rectangle_detect(Mat &src) {
     int retV = 0;
     Mat thr;
     Mat blurred;
@@ -221,7 +221,7 @@ int Image_Processor::rectangle_detect(Mat &src) {
 *  \param camera to get image from prior to passing it to detector
 *  \return whether rectangle was detected or not
 */
-int Image_Processor::rectangle_detect(Camera_Connector &camera) {
+detectionResult Image_Processor::rectangle_detect(Camera_Connector &camera) {
     Mat src = camera.get_image();
 
     return rectangle_detect(src);
@@ -231,7 +231,7 @@ int Image_Processor::rectangle_detect(Camera_Connector &camera) {
 * \param intersection set to 1 if intersection is detecteed
 * \param camera to set image from
 */
-int Image_Processor::step_detect(Camera_Connector &camera, int &intersection) {
+detectionResult Image_Processor::step_detect(Camera_Connector &camera, int &intersection) {
     Mat src = camera.get_image();
     int step = rectangle_detect(src);
     src = camera.get_image();
