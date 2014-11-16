@@ -28,9 +28,6 @@ class Image_Processor {
 
 public:
 
-
-
-
     void test_image(int n, int interval, Camera_Connector &camera);
 
     detectionResult step_detect(Camera_Connector &camera, int &intersection);

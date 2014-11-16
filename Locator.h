@@ -21,6 +21,7 @@
 #include "Image_Processor.h"
 #include "Node.h"
 #include "Audio.h"
+#include "Arduino_Connector.hpp"
 
 #define TRUE 1
 #define FALSE 0
@@ -76,32 +77,18 @@ const char edges[12][4] = {{'A', 'B', 3, 2}, {'B', 'C', 3, 2}, {'C', 'D', 4, 4},
         {'G', 'H', 4, 2}, {'C', 'H', 5, 3}, {'D', 'J', 5, 3}, {'J', 'I', 0, 0}, {'I', 'L', 0, 3}, {'L', 'K', 0, 0}};
 
 class Locator {
-    typedef union Arduino_packet {
-        float values[8];
-        struct Values {
-            sensorDistance l_distance;
-            sensorDistance r_distance;
-            sensorDistance back_distance;
-            sensorDistance front_distance;
-            float heading;
-            float x_tilt;
-            float y_tilt;
-            float z_tilt;
-        } Values;
-
-
-    } Arduino_packet;
 
     std::array<Node *, 12> graph;
     std::array<std::list<Node *>, 12> step_lists;
 
+    Arduino_Packet recent_metrics;
 
-    Arduino_packet recent_metrics;
     Camera_Connector camera;
-    std::thread arduino_connection;
-    Image_Processor proc;
 
-    graphInt thread_halt;
+
+    Image_Processor proc;
+    Arduino_Connector * con;
+
     graphInt edge_progress;
 
     graphInt depth;
@@ -117,10 +104,9 @@ class Locator {
     detectionResult intersection;
     detectionResult old_intersection;
 
-    void receive_data(int serial_id);
 
-    int intersection_check(Arduino_packet & check);
-    direction next_step(Arduino_packet &packet);
+    int intersection_check(Arduino_Packet & check);
+    direction next_step(Arduino_Packet &packet);
 
     int next_step_m();
 
@@ -128,7 +114,7 @@ class Locator {
     /**
     *  Parses sensor data to check which directions are open for the user to turn into
     */
-    graphInt check_openings(Arduino_packet &packet, std::vector<int> &directions, int curr_direction);
+    graphInt check_openings(Arduino_Packet &packet, std::vector<int> &directions, int curr_direction);
 
     /**
     *
@@ -149,7 +135,7 @@ class Locator {
     */
     static direction convert_dir(direction to_convert, int current_heading);
 
-    void parse_packet(char * string_in,int buf_max, Arduino_packet & to_update);
+//    void parse_packet(char * string_in,int buf_max, Arduino_Packet & to_update);
 
 
     /**

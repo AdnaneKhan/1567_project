@@ -3,6 +3,8 @@
 
 locatorState Locator::reset_state() {
     initialize_paths();
+
+    return 1;
 }
 
 /**
@@ -63,8 +65,7 @@ int Locator::graph_step(int edge_cost) {
     return 0;
 }
 
-
-//int Locator::intersection_check(Arduino_packet & check) {
+//int Locator::intersection_check(Arduino_Packet & check) {
 //
 //}
 
@@ -212,20 +213,20 @@ int parse_direction(float heading) {
 *
 * \return whether any F,L,R values were detected as open
 */
-int Locator::check_openings(Arduino_packet &packet, std::vector<int> &directions, direction curr_direction) {
+int Locator::check_openings(Arduino_Packet &packet, std::vector<int> &directions, direction curr_direction) {
     int retV = 0;
 
-    if (packet.l_distance < INTERSECTION_THRESHOLD) {
+    if (packet.Values.l_distance < INTERSECTION_THRESHOLD) {
         directions[(3 + curr_direction) % 4] = -1;
         retV = 1;
     }
 
-    if (packet.r_distance < INTERSECTION_THRESHOLD) {
+    if (packet.Values.r_distance < INTERSECTION_THRESHOLD) {
         directions[(1 + curr_direction) % 4] = -1;
         retV = 1;
     }
 
-    if (packet.front_distance < INTERSECTION_THRESHOLD) {
+    if (packet.Values.front_distance < INTERSECTION_THRESHOLD) {
         directions[curr_direction] = -1;
         retV = 1;
     }
@@ -303,8 +304,8 @@ Based on possible possible locations decide which direction to have user turn
 returns direction to turn (value from 0 to 3), -1 if no valid turns found
 this indicates that locator is in an unknown state and re-setting may be necessary.
 */
-direction Locator::next_step(Arduino_packet &packet) {
-    direction to_turn = parse_direction(packet.heading);
+direction Locator::next_step(Arduino_Packet &packet) {
+    direction to_turn = parse_direction(packet.Values.heading);
 
     std::vector<direction> directions = {N, E, S, W};
 
@@ -372,51 +373,13 @@ int Locator::start(std::string serial_info) {
     int retv;
     // Initialize the serial read
 
-    serial_id = open(serial_info.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
+    con = new Arduino_Connector(&this->recent_metrics, serial_info);
 
-    if (serial_id != -1) {
-        Locator::thread_halt = FALSE;
-        arduino_connection = std::thread(&Locator::receive_data, this,serial_id);
+    con->init_connection();
 
-        retv = TRUE;
-    } else { // Serial port was not opened successfully
-        retv = FALSE;
-    }
+    con->start_thread();
 
     return retv;
-}
-
-void Locator::receive_data(int serial_id) {
-    float buf[5];
-
-    while (!thread_halt) {
-        char out = '1';
-
-        int writeout = write(serial_id, &out, 1);
-        std::cout << "Wrote "<< writeout << " bytes to arduino.\n";
-        std::chrono::milliseconds dura(100);
-        //std::this_thread::sleep_for(dura);
-        // Treat read as a buffer and read values to it.
-
-        int byte_count = read(serial_id, &buf, sizeof(buf));
-        std::cout << "Read "<< byte_count << " bytes into the Arduino_packet.\n";
-        printf("Front: %f \n",buf[0] );
-        printf("Left: %f \n",buf[1] );
-        printf("Right: %f \n",buf[2] );
-
-        if (byte_count == sizeof(Arduino_packet)) {
-            this->recent_metrics.front_distance = buf[0];
-            this->recent_metrics.r_distance  = buf[1];
-            this->recent_metrics.l_distance = buf[2];
-            this->recent_metrics.l_distance = buf[3];
-            this->recent_metrics.r_distance = buf[4];
-        }
-
-        //Sleep for 100 ms before reading next
-        std::this_thread::sleep_for(dura);
-    }
-
-    close(serial_id);
 }
 
 void Locator::initialize_paths() {
@@ -452,18 +415,25 @@ Locator::Locator(std::string file_uri, std::string serial_id) {
     this->old_intersection = 0;
 //  this->step_lists.resize(NODE_COUNT);
 
-    initialize_graph();
     initialize_paths();
+    initialize_graph();
+
 }
 
 Locator::~Locator() {
-    thread_halt = TRUE;
     for (int i = 0; i < NODE_COUNT; i++) {
         delete(this->graph[i]);
     }
 
-    if (arduino_connection.joinable()) {
-        arduino_connection.join();
-    }
+    int end = 0;
+    do {
+        end = con->stop_thread();
+    } while (!end);
+
+
+//
+//    if (arduino_connection.joinable()) {
+//        arduino_connection.join();
+//    }
 
 }
