@@ -7,11 +7,15 @@
 int main() {
 
     std::string init = "val";
+#ifdef __arm__
+        system("omxplayer -o local audio_prompts/left.mp3");
+        #else
+    system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/begun.m4a");
+#endif
 
-
-    Locator *loc = new Locator(" ", "/dev/tty.usbmodem1411");
+    Locator *loc = new Locator(" ", "/dev/tty.usbmodem1451");
     std::chrono::milliseconds timespan(500);
-    int res = loc->start("/dev/tty.usbmodem1411");
+    int res = loc->start("/dev/tty.usbmodem1451");
     if (res) {
         while (!loc->is_located()) {
             loc->run_locator();

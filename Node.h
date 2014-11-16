@@ -5,9 +5,10 @@
 #define MAX_NEIGHBORS 4
 
 class Node {
+private:
     int neighbor_count;
 public:
-    std::pair<Node *, int> *neighbors;
+    std::pair<Node *, int> * neighbors;
     char node_label;
 
 

@@ -46,6 +46,8 @@
 #define BACK 2
 #define LEFT 3
 
+#define ARDUINO_BUF_SIZE 200
+
 #define DEBUG
 
 
@@ -69,17 +71,24 @@ typedef int locatorState;
  */
 
 // Definitions for the sennot square graph
-char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'};
-char edges[12][4] = {{'A', 'B', 3, 2}, {'B', 'C', 3, 2}, {'C', 'D', 4, 4}, {'A', 'E', 2, 3}, {'E', 'F', 1, 2}, {'F', 'G', 2, 3},
+const char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'};
+const char edges[12][4] = {{'A', 'B', 3, 2}, {'B', 'C', 3, 2}, {'C', 'D', 4, 4}, {'A', 'E', 2, 3}, {'E', 'F', 1, 2}, {'F', 'G', 2, 3},
         {'G', 'H', 4, 2}, {'C', 'H', 5, 3}, {'D', 'J', 5, 3}, {'J', 'I', 0, 0}, {'I', 'L', 0, 3}, {'L', 'K', 0, 0}};
 
 class Locator {
-    typedef struct Arduino_packet {
-        float heading;
-        sensorDistance l_distance;
-        sensorDistance r_distance;
-        sensorDistance back_distance;
-        sensorDistance front_distance;
+    typedef union Arduino_packet {
+        float values[8];
+        struct Values {
+            sensorDistance l_distance;
+            sensorDistance r_distance;
+            sensorDistance back_distance;
+            sensorDistance front_distance;
+            float heading;
+            float x_tilt;
+            float y_tilt;
+            float z_tilt;
+        } Values;
+
 
     } Arduino_packet;
 
@@ -139,6 +148,9 @@ class Locator {
     *  \param current_heading we are facing
     */
     static direction convert_dir(direction to_convert, int current_heading);
+
+    void parse_packet(char * string_in,int buf_max, Arduino_packet & to_update);
+
 
     /**
     *  Finds a path to the solution from the given node, returns as a list of pair <Node, int> where int is
