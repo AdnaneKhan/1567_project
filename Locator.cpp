@@ -2,7 +2,7 @@
 
 
 locatorState Locator::reset_state() {
-    initialize_paths();
+    // Reset Graph State
 
     return 1;
 }
@@ -13,99 +13,21 @@ locatorState Locator::reset_state() {
 bool Locator::is_located() {
     bool retb = false;
 
-    if (num_paths == 0) {
-        // We have lost our position
-        exit(1);
+    int path_num = this->locator_graph.path_count();
+
+    if (path_num == 0) {
+        // Problem state
     }
 
     // If all possible paths reduced to 1, then we have found our location
-    if (num_paths == 1) {
+    if (path_num == 1) {
         retb = true;
     }
 
     return retb;
 }
 
-/**
-* Prunes possible paths through graph to correspond with how many lights the current path has passed.
-*
-*
-* \param path_cost cost of the edge we are currently travelling upon
-*/
-int Locator::graph_step(int edge_cost) {
 
-    int keep_path = 0;
-
-    for (int i = 0; i < NODE_COUNT; i++) {
-        if (step_lists[i].size() > depth) {
-
-            Node *temp = step_lists[i].back();
-
-            //printf("We are at %c \n",temp->node_label);
-
-            for (int j = 0; j < MAX_NEIGHBORS; j++) {
-                // If at least one of the neighbors of the node represents a valid movement we can keep this traversal
-                // in set of possible routes
-                if (temp->neighbors[j].second != -1 && temp->neighbors[j].second > edge_cost) {
-                    //
-                    keep_path = 1;
-                }
-            }
-
-            // If all paths are less than edge progress, then we remove the base from vector
-            //
-            if (!keep_path) {
-               // step_lists[i].clear();
-                //num_paths--;
-                std::cout << "We have reached a point where we would have removed steps, but keeping\n";
-            }
-        }
-    }
-
-    return 0;
-}
-
-//int Locator::intersection_check(Arduino_Packet & check) {
-//
-//}
-
-/**
-*  \param step_count number of steps that were travelled along edge to reach this node (intersection)
-*/
-int Locator::graph_intersect(int step_count) {
-
-    int next_dir = next_step_m();
-    // int next_dir = next_step(recent_metrics);
-#ifdef DEBUG
-        std::cout << next_dir << " is our next step (cardinal).\n";
-    #endif
-    for (int i = 0; i < NODE_COUNT; i++) {
-        if (step_lists[i].size() > depth) {
-            Node *temp = step_lists[i].back();
-
-
-            // Iterate through all options NOT in the direction we came from
-            //for (int j = 0; j < MAX_NEIGHBORS; j++) {
-            if (temp->neighbors[next_dir].second != -1) {
-                    // Check if we have an opening
-
-                    // Turn in this direction
-                depth++;
-                step_lists[i].push_back(temp->neighbors[next_dir].first);
-
-                // Clear st
-                    #ifdef DEBUG
-                    std::cout << " We are potentially going from " << temp->node_label << " to " << temp->neighbors[next_dir].first->node_label << std::endl;
-                    #endif
-            }
-            //}
-        }
-    }
-    // reset progress
-    edge_progress = 0;
-
-    return convert_dir(next_dir, curr_heading);
-}
 
 /**
 * \param heading value in float of heading in 360 degrees
@@ -336,6 +258,8 @@ direction Locator::next_step(Arduino_Packet &packet) {
 void Locator::run_locator() {
 
     graphInt step;
+
+
     // Rising edge for ceiling light detection
     old_res = res;
     old_intersection = intersection;
@@ -349,9 +273,10 @@ void Locator::run_locator() {
 
         // Prompt user that he has reached intersection
         Audio::intersection();
-
+        cardinalDirection to_turn = this->next_step_m();
         // We are at intersection, check to see which paths we could possibly be on
-        int dir = Locator::graph_intersect(edge_progress);
+        cardinalDirection dir = this->locator_graph.graph_intersect(to_turn);
+        direction turn_command = convert_dir(turn_command, this->curr_heading);
             #ifdef DEBUG
                     std::cout << "The path was " << dir << std::endl;
             #endif
@@ -362,7 +287,8 @@ void Locator::run_locator() {
     if (new_light) {
         Audio::play_light();
         ///
-        graph_step(edge_progress++);
+
+        //graph_step(edge_progress++);
 
     }
 }
@@ -382,58 +308,27 @@ int Locator::start(std::string serial_info) {
     return retv;
 }
 
-void Locator::initialize_paths() {
-    for (int i = 0; i < NODE_COUNT; i++) {
-        // set initial steps
-        (this->graph[i]) = new Node(nodes[i]);
-        step_lists.at(i).push_back(this->graph[i]);
-    }
-}
-
-void Locator::initialize_graph() {
-    depth = 0;
-    num_paths = NODE_COUNT;
-
-    // For each each in graph, add connection from node0 to node1 in one direction, then add edge from node1 to node0 in the opposite
-    // direction
-    for (int i = 0; i < 12; i++) {
-        (this->graph.at(edges[i][0] - 65))->add_neighbor(graph.at(edges[i][1] - CHAR_TO_POSITION), edges[i][2], edges[i][3]);
-        (this->graph.at(edges[i][1] - 65))->add_neighbor(graph.at(edges[i][0] - CHAR_TO_POSITION), edges[i][2], (edges[i][3] + 2) % 4);
-    }
-}
-
 
 Locator::Locator(std::string file_uri, std::string serial_id) {
     std::ofstream myfile;
 
     this->proc = Image_Processor();
     this->camera = Camera_Connector(USB_WEBCAM, "", DEFAULT_CAMERA);
-    this->edge_progress = 0;
+
     this->res = 0;
     this->old_res = 1;
     this->intersection = 0;
     this->old_intersection = 0;
-//  this->step_lists.resize(NODE_COUNT);
 
-    initialize_paths();
-    initialize_graph();
 
 }
 
 Locator::~Locator() {
-    for (int i = 0; i < NODE_COUNT; i++) {
-        delete(this->graph[i]);
-    }
 
     int end = 0;
     do {
         end = con->stop_thread();
     } while (!end);
 
-
-//
-//    if (arduino_connection.joinable()) {
-//        arduino_connection.join();
-//    }
 
 }

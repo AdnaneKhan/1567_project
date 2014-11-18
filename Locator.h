@@ -1,11 +1,6 @@
 #ifndef LOCATOR_H
 #define LOCATOR_H
 
-#include <thread>
-#include <unistd.h> // UNIX standard function definitions
-#include <fcntl.h> // File control definitions
-#include <errno.h> // Error number definitions
-#include <termios.h> // POSIX terminal control definitionss
 #include <time.h>   // time calls
 #include <iostream>
 #include <fstream>
@@ -22,13 +17,14 @@
 #include "Node.h"
 #include "Audio.h"
 #include "Arduino_Connector.hpp"
+#include "Sennot_Graph.h"
 
 #define TRUE 1
 #define FALSE 0
-#define CHAR_TO_POSITION 65
+
 #define DEFAULT_CAMERA 500
 #define MAX_NEIGHBORS 4
-#define NODE_COUNT 12
+
 #define INTERSECTION_THRESHOLD 12
 
 #define N 1
@@ -53,8 +49,7 @@
 
 
 typedef int direction;
-typedef float sensorDistance;
-typedef int graphInt;
+
 
 typedef int locatorState;
 /*
@@ -72,14 +67,9 @@ typedef int locatorState;
  */
 
 // Definitions for the sennot square graph
-const char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'};
-const char edges[12][4] = {{'A', 'B', 3, 2}, {'B', 'C', 3, 2}, {'C', 'D', 4, 4}, {'A', 'E', 2, 3}, {'E', 'F', 1, 2}, {'F', 'G', 2, 3},
-        {'G', 'H', 4, 2}, {'C', 'H', 5, 3}, {'D', 'J', 5, 3}, {'J', 'I', 0, 0}, {'I', 'L', 0, 3}, {'L', 'K', 0, 0}};
+
 
 class Locator {
-
-    std::array<Node *, 12> graph;
-    std::array<std::list<Node *>, 12> step_lists;
 
     Arduino_Packet recent_metrics;
 
@@ -88,11 +78,9 @@ class Locator {
 
     Image_Processor proc;
     Arduino_Connector * con;
+    Sennot_Graph locator_graph;
 
-    graphInt edge_progress;
 
-    graphInt depth;
-    graphInt num_paths;
 
 
     direction curr_heading;
@@ -156,8 +144,7 @@ class Locator {
     */
     locatorState reset_state();
 
-    void initialize_graph();
-    void initialize_paths();
+
 public:
 
     /**
