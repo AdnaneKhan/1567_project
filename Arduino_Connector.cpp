@@ -23,7 +23,7 @@ int Arduino_Connector::init_serial(std::string serial_info) {
 
 void Arduino_Connector::start_thread() {
     this->thread_halt = FALSE;
-    arduino_connection = std::thread(&serial_read, this, serial_id);
+    arduino_connection = std::thread(&Arduino_Connector::serial_read, this, serial_id);
 }
 
 int Arduino_Connector::stop_thread() {
@@ -62,7 +62,9 @@ int Arduino_Connector::serial_read(int serial_handle) {
     int string_counter = 0;
 
     while (this->thread_halt == FALSE) {
-        int readCount = read( serial_handle , &buffer, 1);
+        char byte_in;
+        // Read 1 byte
+        int readCount = read( serial_handle , &byte_in, 1);
 
 
         if (readCount > 0) {
@@ -86,11 +88,14 @@ int Arduino_Connector::serial_read(int serial_handle) {
     return 0;
 }
 
-
+void Arduino_Connector::init_connection() {
+}
 
 int Arduino_Connector::end_connection() {
     char stop = STOP_SENTINEL;
-    writeout = write(serial_id, &stop, 1);
+    int writeout = write(serial_id, &stop, 1);
 
     close(serial_id);
+
+    return writeout;
 }

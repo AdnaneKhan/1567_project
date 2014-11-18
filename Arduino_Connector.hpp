@@ -1,11 +1,22 @@
 #ifndef ARDUINO_CONNECTOR_H
 #define ARDUINO_CONNECTOR_H
 
-#include "Locator.h"
 #include <thread>
+#include <string>
+#include <unistd.h> // UNIX standard function definitions
+#include <fcntl.h> // File control definitions
+#include <errno.h> // Error number definitions
+#include <termios.h> // POSIX terminal control definitionss
+#include <iostream>
+#include <fstream>
+
+typedef float sensorDistance;
 
 #define STOP_SENTINEL '#'
 #define START_SENTINEL '$'
+
+#define TRUE 1
+#define FALSE 0
 
 typedef union Arduino_Packet {
     float values[8];
@@ -39,7 +50,7 @@ public:
 private:
     void parse_packet(char * string_in,int buf_max, Arduino_Packet & to_update);
 
-    int serial_read();
+    int serial_read(int serial_handle);
     int init_serial(std::string serial_info);
     char buffer[200];
     Arduino_Packet * data_holder;
