@@ -280,7 +280,7 @@ void Locator::run_locator() {
             #ifdef DEBUG
                     std::cout << "The path was " << dir << std::endl;
             #endif
-        Audio::turn_dir(dir);
+        Audio::turn_dir(turn_command);
     }
 
     // Need
