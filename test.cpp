@@ -79,14 +79,31 @@ void test_connector() {
     con.stop_thread();
     con.end_connection();
 }
+
+// TODO: circle detection test using image processor
+void test_image_processor_circle() {
+    std::cout << "BEGIN TEST OF IMAGE_PROCESSOR (CIRCLE, LIT):\n----------------------\n";
+}
+
+// TODO: rectangle detection test iamge processor
+void test_image_processor_rectangle() {
+    std::cout << "BEGIN TEST OF IMAGE_PROCESSOR (RECTANGLE, LIT):\n----------------------\n";
+}
+
+void camera_connector_test() {
+    std::cout << "BEGIN TEST OF CAMERA_CONNECION:\n----------------------\n";
+}
+
+void audio_test() {
+    std::cout << "BEGIN TEST OF AUDIO:\n----------------------\n";
+}
+
+
 int main() {
 
-
     //test_connector();
-    //test_node();
+    test_node();
     test_graph();
-
-
 
     return 0;
 }
