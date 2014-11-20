@@ -1,6 +1,9 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
+
+// TODO MAKE THIS THRADED BY QUEING ON WORKER TREAD ASYNCHRONOUSLY
+
 namespace Audio {
 
     /**
