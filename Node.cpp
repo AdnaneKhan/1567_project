@@ -5,7 +5,7 @@ bool Node::get_neighbor(Node &neighbor_ret, int direction) {
     bool retV = false;
 
     // Check if value is valid
-    if (neighbors[direction].second != -1) {
+    if (neighbors[direction].second != INVALID_NEIGHBOR) {
         neighbor_ret = (*neighbors[direction].first);
         retV = true;
     }
@@ -23,7 +23,7 @@ Node::Node(char id) {
     neighbor_count = 0;
     neighbors = new std::pair<Node *, int>[MAX_NEIGHBORS];
     for (int i = 0; i < MAX_NEIGHBORS; i++) {
-        neighbors[i].second = -1;
+        neighbors[i].second = INVALID_NEIGHBOR;
     }
     node_label = id;
 }
@@ -32,7 +32,7 @@ Node::Node() {
     neighbor_count = 0;
     neighbors = new std::pair<Node *, int>[MAX_NEIGHBORS];
     for (int i = 0; i < MAX_NEIGHBORS; i++) {
-        neighbors[i].second = -1;
+        neighbors[i].second = INVALID_NEIGHBOR;
     }
 }
 

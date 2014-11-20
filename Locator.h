@@ -43,8 +43,6 @@
 #define BACK 2
 #define LEFT 3
 
-#define ARDUINO_BUF_SIZE 200
-
 #define DEBUG
 
 
@@ -65,10 +63,6 @@ typedef int locatorState;
     Nodes are intersections of two or more hallways.
 
  */
-
-// Definitions for the sennot square graph
-
-
 class Locator {
 
     Arduino_Packet recent_metrics;
@@ -79,9 +73,6 @@ class Locator {
     Image_Processor proc;
     Arduino_Connector * con;
     Sennot_Graph locator_graph;
-
-
-
 
     direction curr_heading;
 
@@ -104,16 +95,6 @@ class Locator {
     */
     graphInt check_openings(Arduino_Packet &packet, std::vector<int> &directions, int curr_direction);
 
-    /**
-    *
-    */
-    graphInt graph_intersect(int step_count);
-
-
-    /**
-    * Makea a step to a new node in the graph
-    */
-    graphInt graph_step(int edge_progress);
 
     /**
     *  Allows conversion between world N,S,W,E and L,R,F,B for user

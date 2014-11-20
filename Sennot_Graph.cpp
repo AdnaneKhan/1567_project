@@ -1,11 +1,15 @@
-#include <iostream>
+
 #include "Sennot_Graph.h"
+
+#include <iostream>
+
+#define LOGGING
 
 void Sennot_Graph::initialize_paths() {
     for (int i = 0; i < NODE_COUNT; i++) {
         // set initial steps
-        (this->graph[i]) = new Node(nodes[i]);
-        step_lists.at(i).push_back(this->graph[i]);
+        (graph[i]) = new Node(nodes[i]);
+        step_lists.at(i).push_back(graph[i]);
     }
 }
 
@@ -45,8 +49,8 @@ graphInt Sennot_Graph::path_count() {
 *  \param step_count number of steps that were travelled along edge to reach this node (intersection)
 */
 cardinalDirection Sennot_Graph::graph_intersect(cardinalDirection next_dir) {
-
-   // cardinalDirection next_dir = next_step_m();
+    int increment = 0;
+ // cardinalDirection next_dir = next_step_m();
  //   cardinalDirection next_dir = next_step(recent_metrics);
     #ifdef LOGGING
         std::cout << next_dir << " is our next step (cardinal).\n";
@@ -56,25 +60,30 @@ cardinalDirection Sennot_Graph::graph_intersect(cardinalDirection next_dir) {
             Node *temp = step_lists[i].back();
 
 
-            // Iterate through all options NOT in the direction we came from
-            //for (int j = 0; j < MAX_NEIGHBORS; j++) {
+
             if (temp->neighbors[next_dir].second != -1) {
                 // Check if we have an opening
 
                 // Turn in this direction
-                depth++;
+                increment = 1;
                 step_lists[i].push_back(temp->neighbors[next_dir].first);
 
-                // Clear st
                     #ifdef LOGGING
                     std::cout << " We are potentially going from " << temp->node_label << " to " << temp->neighbors[next_dir].first->node_label << std::endl;
                     #endif
+            } else {
+                // Reduce the number of paths
+                num_paths--;
             }
-            //}
         }
     }
     // reset progress
     edge_progress = 0;
+
+    // If a turn was made then depth is increased correspondingly
+    if (increment) {
+        depth++;
+    }
 
     //return convert_dir(next_dir, curr_heading);
     return next_dir;
@@ -89,34 +98,61 @@ cardinalDirection Sennot_Graph::graph_intersect(cardinalDirection next_dir) {
 graphInt Sennot_Graph::graph_step() {
 
     int keep_path = 0;
+    edge_progress++;
 
     for (int i = 0; i < NODE_COUNT; i++) {
         if (step_lists[i].size() > depth) {
 
             Node *temp = step_lists[i].back();
 
-            //printf("We are at %c \n",temp->node_label);
+            #ifdef LOGGING
+            std::cout << "We are checking " << temp->node_label << " curr prog:" << edge_progress;
+            #endif
 
             for (int j = 0; j < MAX_NEIGHBORS; j++) {
                 // If at least one of the neighbors of the node represents a valid movement we can keep this traversal
                 // in set of possible routes
-                if (temp->neighbors[j].second != -1 && temp->neighbors[j].second > edge_cost) {
+                if (temp->neighbors[j].second != -1 && temp->neighbors[j].second >= edge_progress) {
+                    #ifdef LOGGING
+                    std::cout << " with " <<temp->neighbors[j].first->node_label<< ",Cost:" << temp->neighbors[j].second;
+                    #endif
                     //
                     keep_path = 1;
                 }
-            }
 
+            }
+            #ifdef LOGGING
+            std::cout << std::endl;
+#endif
             // If all paths are less than edge progress, then we remove the base from vector
             //
             if (!keep_path) {
                 // step_lists[i].clear();
-                //num_paths--;
+                num_paths--;
                 #ifdef LOGGING
-                std::cout << "We have reached a point where we would have removed steps, but keeping\n";
+                std::cout << "We have reached a point where we would have removed steps, but keeping.\n";
                 #endif
+                keep_path = 0;
             }
         }
     }
 
     return 0;
+}
+
+// TODO: implement BFS algorithm to find the path
+std::list<graphInt> Sennot_Graph::find_path(Node *start, Node *finish) {
+    std::list<graphInt> to_return;
+
+
+
+    #ifdef LOGGING
+        std::cout << "Printing path from " << start->node_label << " to " << finish->node_label << std::endl;
+        for (graphInt i : to_return) {
+            std::cout << this->graph[i]->node_label << " -> ";
+        }
+        std::cout << "__END__\n";
+    #endif
+
+    return to_return;
 }

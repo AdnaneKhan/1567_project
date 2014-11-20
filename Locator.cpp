@@ -288,7 +288,7 @@ void Locator::run_locator() {
         Audio::play_light();
         ///
 
-        //graph_step(edge_progress++);
+        locator_graph.graph_step();
 
     }
 }
