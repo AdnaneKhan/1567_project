@@ -30,8 +30,9 @@ cv::Mat Camera_Connector::get_image() {
         }
 
     } else if (camera_source == RASPBERRY_PI_CAM) {
-#ifdef __arm__
-        Camera.retrieve(ret_image);
+    #ifdef __arm__
+       Camera.grab();
+       Camera.retrieve(ret_image);
     #endif
     } else {
         cam.read(ret_image);
