@@ -110,6 +110,8 @@ void camera_connector_test() {
         camera.write_image("test" + std::to_string(i), cam_img);
         std::chrono::milliseconds shortspan(1000);
     }
+
+    camera.close_camera();
 }
 
 void audio_test() {

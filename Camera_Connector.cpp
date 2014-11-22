@@ -31,8 +31,9 @@ cv::Mat Camera_Connector::get_image() {
 
     } else if (camera_source == RASPBERRY_PI_CAM) {
     #ifdef __arm__
-       Camera.grab();
-       Camera.retrieve(ret_image);
+       cam.grab();
+       std::cout << "We just grabbed an image from raspberry_Pi cam\n" << std::flush;
+       cam.retrieve(ret_image);
     #endif
     } else {
         cam.read(ret_image);
@@ -75,10 +76,20 @@ int pi_camera_init( raspicam::RaspiCam_Cv & to_init ) {
 }
 #endif
 
+void Camera_Connector::close_camera() {
+    if(camera_source == RASPBERRY_PI_CAM) {
+        cam.release();
+    }
+}
+
 void Camera_Connector::write_image(std::string filename, cv::Mat &img) {
     std::vector<int> compression_params;
     compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
     compression_params.push_back(9);
+
+
+    std::cout << "Writing image, the size is " << img.size() << std::endl;
+
     cv::imwrite(WRITE_LOCATION + filename + ".png", img, compression_params);
 }
 
@@ -101,7 +112,7 @@ Camera_Connector::Camera_Connector(int camera_source, std::string source, int ca
         case RASPBERRY_PI_CAM:
 
             // Initialize pi_cam
-            pi_camera_init(Camera);
+            pi_camera_init(cam);
             break;
 #endif
         case IMAGE_FOLDER:
