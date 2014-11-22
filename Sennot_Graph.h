@@ -6,8 +6,8 @@
 
 #include "Node.h"
 
-#define NODE_COUNT 15
-#define EDGE_COUNT 22
+#define NODE_COUNT 18
+#define EDGE_COUNT 20
 #define CHAR_TO_POSITION 65
 
 #define DIR_N 0
@@ -19,12 +19,12 @@ typedef int graphInt;
 typedef int cardinalDirection;
 
 // Nodes in the graph by label
-const char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M' ,'N','O'};
+const char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M' ,'N','O','P','Q','R'};
 
 // Edges in the graph
 // { NODE1, NODE2, EDGE_COST, DIRECTION }
-const char edges[EDGE_COUNT][4] = {{'A', 'B', 3, 2}, {'B', 'C', 3, 2}, {'C', 'D', 4, 4}, {'A', 'E', 2, 3}, {'E', 'F', 1, 2}, {'F', 'G', 2, 3},
-        {'G', 'H', 4, 2}, {'C', 'H', 5, 3}, {'D', 'J', 5, 3}, {'J', 'I', 0, 0}, {'I', 'L', 0, 3}, {'L', 'K', 0, 0}};
+const char edges[EDGE_COUNT][4] = {{'B', 'C', 3, DIR_E}, {'C', 'D', 3, DIR_E}, {'D', 'E', 4, DIR_E}, {'D', 'A', 2, DIR_N}, {'C', 'F', 1, DIR_S}, {'F', 'G', 2, DIR_E},
+        {'G', 'H', 4, DIR_S}, {'H', 'I', 5, DIR_E}, {'E', 'N', 5, DIR_S}, {'D', 'I', 0, DIR_S}, {'H', 'K', 0, DIR_S}, {'J', 'K', 0, DIR_E},{'K','L',0,DIR_E},{'L','J',0,DIR_S},{'I','L',0,DIR_S},{'O','P',0,DIR_S},{'M','N',0,DIR_E},{'M','Q',0,DIR_S},{'P','Q',0,DIR_E},{'Q','R',0,DIR_E}};
 
 class Sennot_Graph {
 public:
