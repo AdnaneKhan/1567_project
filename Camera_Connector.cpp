@@ -31,7 +31,7 @@ cv::Mat Camera_Connector::get_image() {
 
     } else if (camera_source == RASPBERRY_PI_CAM) {
 #ifdef __arm__
-        Camera.retrieve(image_ret);
+        Camera.retrieve(ret_image);
     #endif
     } else {
         cam.read(ret_image);
@@ -67,9 +67,9 @@ void usb_camera_init(cv::VideoCapture &to_init, int camera_id) {
 
 #ifdef __arm__
 int pi_camera_init( raspicam::RaspiCam_Cv & to_init ) {
-    Camera.set(CV_CAP_PROP_FORMAT, CV_8UC1 );
+    to_init.set(CV_CAP_PROP_FORMAT, CV_8UC1 );
 
-    if (!Camera.open()) {
+    if (!to_init.open()) {
         // Problem
     }
 }

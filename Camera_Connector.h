@@ -40,8 +40,8 @@ private:
     std::queue<std::string> f_name_queue; ///< file names in folder (for hdd image source)
     std::string file_folder; ///< folder to look in for images
     int camera_source; /// <camera source based on dfinitions
-#ifdef __arm__
-    raspicam::RaspiCam_Cv Camera;
+    #ifdef __arm__
+        raspicam::RaspiCam_Cv Camera;
     #endif
 
 public:
