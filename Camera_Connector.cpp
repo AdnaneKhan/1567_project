@@ -101,8 +101,9 @@ Camera_Connector::Camera_Connector(int camera_source, std::string source, int ca
         case RASPBERRY_PI_CAM:
 
             // Initialize pi_cam
+            pi_camera_init(Camera);
             break;
-            #endif
+#endif
         case IMAGE_FOLDER:
             // Initialize file reader
 

@@ -10,6 +10,7 @@
 #include <chrono>
 
 #ifdef __arm__
+#include <raspicam/raspicam.h>
 #include <raspicam/raspicam_cv.h>
 #endif
 
