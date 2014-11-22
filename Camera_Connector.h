@@ -20,8 +20,11 @@
 #define USB_ID 500
 
 // Location where images will be written to when write_images is called.
+#ifdef __arm__
+#define WRITE_LOCATION "~/"
+#else
 #define WRITE_LOCATION "/Users/adnankhan/Box Sync/Robots/1567_project/test_images/"
-
+#endif
 /**
 Class makes a connection to an image source, this can be:
 

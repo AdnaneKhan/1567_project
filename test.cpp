@@ -1,6 +1,7 @@
 #include "Arduino_Connector.hpp"
 #include "Sennot_Graph.h"
-
+#include "Audio.h"
+#include "Camera_Connector.h"
 
 void test_node() {
     // TEST NODE
@@ -92,10 +93,32 @@ void test_image_processor_rectangle() {
 
 void camera_connector_test() {
     std::cout << "BEGIN TEST OF CAMERA_CONNECION:\n----------------------\n";
+
+    #ifdef __arm__
+        Camera_Connector camera(RASPBERRY_PI_CAM,"",0);
+    #else
+        Camera_Connector camera(USB_WEBCAM,"",0);
+    #endif
+
+    for (int i = 0; i < 20; i++) {
+        cv::Mat cam_img = camera.get_image();
+        camera.write_image("test" + std::to_string(i), cam_img);
+        std::cout << "Wrote image: " << i;
+    }
 }
 
 void audio_test() {
     std::cout << "BEGIN TEST OF AUDIO:\n----------------------\n";
+
+    Audio::play_left();
+    Audio::intersection();
+    Audio::play_light();
+    Audio::play_right();
+    Audio::play_forward();
+
+    std::cout << "Now testing direction selector:\n";
+    Audio::turn_dir(0);
+    Audio::turn_dir(2);
 }
 
 
@@ -104,6 +127,9 @@ int main() {
     //test_connector();
     test_node();
     test_graph();
+    audio_test();
+    camera_connector_test();
+
 
     return 0;
 }
