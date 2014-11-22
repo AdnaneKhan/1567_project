@@ -41,7 +41,7 @@ private:
     std::string file_folder; ///< folder to look in for images
     int camera_source; /// <camera source based on dfinitions
 #ifdef __arm__
-    raspicam::RaspiCam_cv Camera;
+    raspicam::RaspiCam_Cv Camera;
     #endif
 
 public:
