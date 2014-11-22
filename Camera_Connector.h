@@ -21,7 +21,7 @@
 
 // Location where images will be written to when write_images is called.
 #ifdef __arm__
-#define WRITE_LOCATION "~/"
+#define WRITE_LOCATION "/home/pi/test_iamges/
 #else
 #define WRITE_LOCATION "/Users/adnankhan/Box Sync/Robots/1567_project/test_images/"
 #endif
