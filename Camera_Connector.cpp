@@ -72,6 +72,7 @@ int pi_camera_init( raspicam::RaspiCam_Cv & to_init ) {
 
     if (!to_init.open()) {
         // Problem
+        std::cout << "The Camera was unable to be opened!\n";
     }
 }
 #endif
