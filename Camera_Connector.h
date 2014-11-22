@@ -44,10 +44,9 @@ private:
     std::string file_folder; ///< folder to look in for images
     int camera_source; /// <camera source based on dfinitions
     #ifdef __arm__
-        raspicam::RaspiCam_Cv cam;
-    #else
-             cv::VideoCapture cam; ///< camera to get images from
-    #endif
+        raspicam::RaspiCam_Cv Camera;
+  #endif
+    cv::VideoCapture cam; ///< camera to get images from
 
 
 
