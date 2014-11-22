@@ -1,4 +1,4 @@
-#include "locator.h"
+#include "Locator.h"
 
 
 locatorState Locator::reset_state() {
