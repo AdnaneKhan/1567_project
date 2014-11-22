@@ -100,10 +100,15 @@ void camera_connector_test() {
         Camera_Connector camera(USB_WEBCAM,"",0);
     #endif
 
+    std::chrono::milliseconds timespan(40000);
+    std::chrono::milliseconds shortspan(1000);
+    std::this_thread::sleep_for(timespan);
+
     for (int i = 0; i < 20; i++) {
         cv::Mat cam_img = camera.get_image();
+        std::cout << "Wrote image: " << i << std::endl;
         camera.write_image("test" + std::to_string(i), cam_img);
-        std::cout << "Wrote image: " << i;
+        std::chrono::milliseconds shortspan(1000);
     }
 }
 

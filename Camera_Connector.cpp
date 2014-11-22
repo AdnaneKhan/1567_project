@@ -35,7 +35,6 @@ cv::Mat Camera_Connector::get_image() {
     #endif
     } else {
         cam.read(ret_image);
-        waitKey(0);
     }
 
 #ifdef DEBUG
