@@ -2,6 +2,7 @@
 #define ARDUINO_CONNECTOR_H
 
 #include <thread>
+#include <mutex>
 #include <string>
 #include <unistd.h> // UNIX standard function definitions
 #include <fcntl.h> // File control definitions
