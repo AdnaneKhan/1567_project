@@ -93,7 +93,7 @@ void Camera_Connector::write_image(std::string filename, cv::Mat &img) {
     compression_params.push_back(9);
 
 
-    std::cout << "Writing image, the size is " << img.size();
+    std::cout << "Writing image, the size is " << img.size()<<std::endl;
 
     cv::imwrite(WRITE_LOCATION + filename + ".png", img, compression_params);
 }
@@ -108,6 +108,7 @@ void Camera_Connector::write_image(std::string filename, cv::Mat &img) {
 *     3 - IMAGE_FOLDER
 */
 Camera_Connector::Camera_Connector(int camera_source, std::string source, int camera_id) {
+    Camera_Connector::camera_source = camera_source;
     switch (camera_source) {
         case USB_WEBCAM:
             usb_camera_init(cam, camera_id);
@@ -126,7 +127,7 @@ Camera_Connector::Camera_Connector(int camera_source, std::string source, int ca
             // Read names of all images in folder
             // push all names to queue
 
-            Camera_Connector::camera_source = camera_source;
+
             break;
         default:
             throw camera_ex;
