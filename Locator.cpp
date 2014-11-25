@@ -181,11 +181,37 @@ void Locator::run_locator() {
     // Need to ensure we don't count circles as lights too
     if ((intersection ^ old_intersection) & intersection) {
 
+
+
         // Prompt user that he has reached intersection
         Audio::intersection();
-        cardinalDirection to_turn = this->next_step_m();
-        // We are at intersection, check to see which paths we could possibly be on
+
+
+        if (locator_graph.path_count() == 1) {
+            this->last_node = locator_graph.get_last_node();
+
+            if (!goal_progression) {
+
+                this->goal_list = locator_graph.find_path(last_node, GOAL_NODE);
+
+                goal_progression = TRUE;
+            }
+        }
+        cardinalDirection to_turn;
+
+        if (this->goal_progression) {
+            // Check connection between current and front of goal list
+            to_turn = Graph_Utils::check_connection(last_node, this->goal_list.front() , this->locator_graph);
+
+        } else {
+            to_turn = this->next_step_m();
+        }
+
+        // We are at intersection, check to see which paths we could possibly be on, if we
+        // have narrowed to one and located, then this serves as navigation
         cardinalDirection dir = this->locator_graph.graph_intersect(to_turn);
+
+
         cardinalDirection turn_command = convert_dir(turn_command, this->curr_heading);
             #ifdef DEBUG
                     std::cout << "The path was " << dir << std::endl;
@@ -197,9 +223,7 @@ void Locator::run_locator() {
     if (new_light) {
         Audio::play_light();
         ///
-
         locator_graph.graph_step();
-
     }
 }
 

@@ -35,8 +35,12 @@ public:
     ~Sennot_Graph();
 
     graphInt graph_intersect(cardinalDirection next_dir);
+
     graphInt graph_step();
     graphInt path_count();
+
+    // Returns the last node (ONLY IF LOCATED)
+    nodeLabel get_last_node();
 
     /**
     * Finds path from start node to destination node
@@ -44,8 +48,8 @@ public:
     *
     * Uses Djikstras algorithm
     */
-    std::list<graphInt> find_path(Node * start, Node * finish);
-    std::list<graphInt> find_path(graphInt start, graphInt finish);
+    std::list<nodeLabel> find_path(Node * start, Node * finish);
+    std::list<nodeLabel> find_path(nodeLabel start, nodeLabel finish);
 
     Node * get_node(nodeLabel node);
 

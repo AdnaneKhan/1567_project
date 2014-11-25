@@ -40,15 +40,39 @@ void Sennot_Graph::initialize_graph() {
     }
 }
 
+nodeLabel Sennot_Graph::get_last_node() {
+    nodeLabel ret = -1;
+
+    if (num_paths == 1) {
+        for (std::list<Node*> list : step_lists) {
+            if (list.size() >= depth) {
+                return list.back()->node_id;
+
+                #ifdef LOGGING
+                std::cout << "Returning " << ret << " from get last node. \n";
+                #endif
+            }
+        }
+    } else {
+        // Problem!!
+    }
+
+    return ret;
+}
+
 graphInt Sennot_Graph::path_count() {
     return num_paths;
 }
+
+
 
 /**
 *  \param step_count number of steps that were travelled along edge to reach this node (intersection)
 */
 cardinalDirection Sennot_Graph::graph_intersect(cardinalDirection next_dir) {
     int increment = 0;
+
+
  // cardinalDirection next_dir = next_step_m();
  //   cardinalDirection next_dir = next_step(recent_metrics);
     #ifdef LOGGING
@@ -57,7 +81,6 @@ cardinalDirection Sennot_Graph::graph_intersect(cardinalDirection next_dir) {
     for (int i = 0; i < NODE_COUNT; i++) {
         if (step_lists[i].size() > depth) {
             Node *temp = step_lists[i].back();
-
 
 
             if (temp->neighbors[next_dir].second != -1) {
@@ -70,9 +93,18 @@ cardinalDirection Sennot_Graph::graph_intersect(cardinalDirection next_dir) {
                     #ifdef LOGGING
                     std::cout << " We are potentially going from " << temp->node_id << " to " << temp->neighbors[next_dir].first->node_id << std::endl;
                     #endif
+
+
             } else {
                 // Reduce the number of paths
-                num_paths--;
+                if (num_paths > 1) {
+                    num_paths--;
+                } else {
+                    #ifdef LOGGING
+                      std::cout << " We are in a state where we would be reducing paths below one.\n";
+                    #endif
+                }
+
             }
         }
     }
@@ -87,6 +119,8 @@ cardinalDirection Sennot_Graph::graph_intersect(cardinalDirection next_dir) {
     //return convert_dir(next_dir, curr_heading);
     return next_dir;
 }
+
+
 
 Node * Sennot_Graph::get_node(nodeLabel node) {
     Node * return_node = nullptr;
@@ -152,16 +186,17 @@ graphInt Sennot_Graph::graph_step() {
     return 0;
 }
 
-std::list<graphInt> Sennot_Graph::find_path(graphInt start, graphInt finish) {
+std::list<nodeLabel> Sennot_Graph::find_path(nodeLabel start, nodeLabel finish) {
     Node * source = graph[start - CHAR_TO_POSITION];
     Node * dest = graph[finish - CHAR_TO_POSITION];
 
     return find_path(source, dest);
 }
 
-// TODO: implement djikstras algorithm to find the path now WIP
-std::list<graphInt> Sennot_Graph::find_path(Node *start, Node *finish) {
-    std::list<graphInt> to_return;
+
+// TODO: nodeL djikstras algorithm to find the path now WIP
+std::list<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
+    std::list<nodeLabel> to_return;
 
     // Used to mark nodes as visited
     // 0 -> clear

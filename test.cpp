@@ -69,7 +69,7 @@ void graph_search_test() {
 
 
 
-     std::list<graphInt> result = loc.find_path('A','I');
+     std::list<nodeLabel> result = loc.find_path('A','I');
 
 
     for (graphInt n : result) {
