@@ -19,13 +19,13 @@ void Node::add_neighbor(Node *neighbor, int cost, int direction) {
     neighbors[direction].second = cost;
 }
 
-Node::Node(char id) {
+Node::Node(nodeLabel id) {
     neighbor_count = 0;
     neighbors = new std::pair<Node *, int>[MAX_NEIGHBORS];
     for (int i = 0; i < MAX_NEIGHBORS; i++) {
         neighbors[i].second = INVALID_NEIGHBOR;
     }
-    node_label = id;
+    node_id = id;
 }
 
 Node::Node() {

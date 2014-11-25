@@ -3,10 +3,11 @@
 
 #include <list>
 #include <array>
+#include <queue>
 
 #include "Node.h"
 
-#define NODE_COUNT 18
+#define NODE_COUNT 21
 #define EDGE_COUNT 20
 #define CHAR_TO_POSITION 65
 
@@ -19,12 +20,14 @@ typedef int graphInt;
 typedef int cardinalDirection;
 
 // Nodes in the graph by label
-const char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M' ,'N','O','P','Q','R'};
+const char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M' ,'N','O','P','Q','R','S','T','U'};
 
 // Edges in the graph
 // { NODE1, NODE2, EDGE_COST, DIRECTION }
-const char edges[EDGE_COUNT][4] = {{'B', 'C', 3, DIR_E}, {'C', 'D', 3, DIR_E}, {'D', 'E', 4, DIR_E}, {'D', 'A', 2, DIR_N}, {'C', 'F', 1, DIR_S}, {'F', 'G', 2, DIR_E},
-        {'G', 'H', 4, DIR_S}, {'H', 'I', 5, DIR_E}, {'E', 'N', 5, DIR_S}, {'D', 'I', 0, DIR_S}, {'H', 'K', 0, DIR_S}, {'J', 'K', 0, DIR_E},{'K','L',0,DIR_E},{'L','J',0,DIR_S},{'I','L',0,DIR_S},{'O','P',0,DIR_S},{'M','N',0,DIR_E},{'M','Q',0,DIR_S},{'P','Q',0,DIR_E},{'Q','R',0,DIR_E}};
+const char edges[EDGE_COUNT][4] = {{'B', 'C', 1, DIR_E}, {'C', 'D', 3, DIR_E}, {'D', 'E', 3, DIR_E},{'E','F', 4,DIR_E},
+        {'A','E',2,DIR_S},{'C','G',2,DIR_S},{'G','H',1,DIR_E},{'D','I',1,DIR_E},{'E','K',5 ,DIR_S},{'H','J',2,DIR_S},
+        {'J','K',4,DIR_E},{'J','L',3,DIR_S},{'K','M',3,DIR_S},{'F','S',7,DIR_S},{'Q','R',1,DIR_E},{'R','S',3, DIR_E},
+        {'R','U',1, DIR_S},{'N','O',1,DIR_E},{'O','P',4,DIR_E},{'P','T',1,DIR_S}};
 
 class Sennot_Graph {
 public:
@@ -38,9 +41,13 @@ public:
     /**
     * Finds path from start node to destination node
     * Returns as a list of ints which are the indexes of the nodes
+    *
+    * Uses Djikstras algorithm
     */
     std::list<graphInt> find_path(Node * start, Node * finish);
+    std::list<graphInt> find_path(graphInt start, graphInt finish);
 
+    Node * get_node(nodeLabel node);
 
 private:
 

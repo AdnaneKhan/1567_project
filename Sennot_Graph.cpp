@@ -4,7 +4,6 @@
 #include <iostream>
 
 #define LOGGING
-
 void Sennot_Graph::initialize_paths() {
     for (int i = 0; i < NODE_COUNT; i++) {
         // set initial steps
@@ -19,7 +18,7 @@ void Sennot_Graph::initialize_graph() {
 
     // For each each in graph, add connection from node0 to node1 in one direction, then add edge from node1 to node0 in the opposite
     // direction
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < EDGE_COUNT; i++) {
         (this->graph.at(edges[i][0] - 65))->add_neighbor(graph.at(edges[i][1] - CHAR_TO_POSITION), edges[i][2], edges[i][3]);
         (this->graph.at(edges[i][1] - 65))->add_neighbor(graph.at(edges[i][0] - CHAR_TO_POSITION), edges[i][2], (edges[i][3] + 2) % 4);
     }
@@ -69,7 +68,7 @@ cardinalDirection Sennot_Graph::graph_intersect(cardinalDirection next_dir) {
                 step_lists[i].push_back(temp->neighbors[next_dir].first);
 
                     #ifdef LOGGING
-                    std::cout << " We are potentially going from " << temp->node_label << " to " << temp->neighbors[next_dir].first->node_label << std::endl;
+                    std::cout << " We are potentially going from " << temp->node_id << " to " << temp->neighbors[next_dir].first->node_id << std::endl;
                     #endif
             } else {
                 // Reduce the number of paths
@@ -89,6 +88,20 @@ cardinalDirection Sennot_Graph::graph_intersect(cardinalDirection next_dir) {
     return next_dir;
 }
 
+Node * Sennot_Graph::get_node(nodeLabel node) {
+    Node * return_node = nullptr;
+
+    int index = node - CHAR_TO_POSITION;
+    if (index < this->graph.size()) {
+        return_node = this->graph.at(index);
+    } else {
+        // Problem
+    }
+
+    return return_node;
+}
+
+
 /**
 * Prunes possible paths through graph to correspond with how many lights the current path has passed.
 *
@@ -106,7 +119,7 @@ graphInt Sennot_Graph::graph_step() {
             Node *temp = step_lists[i].back();
 
             #ifdef LOGGING
-            std::cout << "We are checking " << temp->node_label << " curr prog:" << edge_progress;
+            std::cout << "We are checking " << temp->node_id << " curr prog:" << edge_progress;
             #endif
 
             for (int j = 0; j < MAX_NEIGHBORS; j++) {
@@ -114,7 +127,7 @@ graphInt Sennot_Graph::graph_step() {
                 // in set of possible routes
                 if (temp->neighbors[j].second != -1 && temp->neighbors[j].second >= edge_progress) {
                     #ifdef LOGGING
-                    std::cout << " with " <<temp->neighbors[j].first->node_label<< ",Cost:" << temp->neighbors[j].second;
+                    std::cout << " with " <<temp->neighbors[j].first->node_id<< ",Cost:" << temp->neighbors[j].second;
                     #endif
                     //
                     keep_path = 1;
@@ -122,12 +135,11 @@ graphInt Sennot_Graph::graph_step() {
 
             }
             #ifdef LOGGING
-            std::cout << std::endl;
-#endif
-            // If all paths are less than edge progress, then we remove the base from vector
-            //
+                std::cout << std::endl;
+            #endif
+
             if (!keep_path) {
-                // step_lists[i].clear();
+
                 num_paths--;
                 #ifdef LOGGING
                 std::cout << "We have reached a point where we would have removed steps, but keeping.\n";
@@ -140,16 +152,111 @@ graphInt Sennot_Graph::graph_step() {
     return 0;
 }
 
-// TODO: implement BFS algorithm to find the path
+std::list<graphInt> Sennot_Graph::find_path(graphInt start, graphInt finish) {
+    Node * source = graph[start - CHAR_TO_POSITION];
+    Node * dest = graph[finish - CHAR_TO_POSITION];
+
+    return find_path(source, dest);
+}
+
+// TODO: implement djikstras algorithm to find the path now WIP
 std::list<graphInt> Sennot_Graph::find_path(Node *start, Node *finish) {
     std::list<graphInt> to_return;
 
+    // Used to mark nodes as visited
+    // 0 -> clear
+    // 1 -> visited
+    char node_mark[NODE_COUNT] = {0};
+    int dist[NODE_COUNT] = {0};
+    char prev[NODE_COUNT] = {0};
+
+    std::vector<Node *> bfs_queue;
+
+    dist[start->node_id - CHAR_TO_POSITION] = 0;
+    prev[start->node_id - CHAR_TO_POSITION] = -1;
+
+    for (Node * n : this->graph) {
+        if (n->node_id != start->node_id) {
+            dist[n->node_id - CHAR_TO_POSITION] = 9999;
+            prev[n->node_id - CHAR_TO_POSITION] = -1;
+        }
+
+        bfs_queue.push_back(n);
+    }
+
+        while (!bfs_queue.empty()) {
+            int alt_cost;
+
+            int min_c = dist[bfs_queue.front()->node_id - CHAR_TO_POSITION];
+            int iter;
+            int saved_iter = 0;
+            for (iter = 0 ; iter < bfs_queue.size(); iter++) {
+                if (dist[bfs_queue[iter]->node_id - CHAR_TO_POSITION] < min_c) {
+
+                    #ifdef LOGGING
+                    std::cout << "Updating " << bfs_queue[iter]->node_id << std::endl;
+                    #endif
+                    min_c = dist[bfs_queue[iter]->node_id - CHAR_TO_POSITION];
+                    saved_iter = iter;
+                }
+            }
+
+            Node *current = bfs_queue[saved_iter];
+            bfs_queue.erase(bfs_queue.begin() + saved_iter);
+
+
+
+            if (current->node_id == finish->node_id) {
+
+               #ifdef DEBUG
+                    std::cout << "We found the destination node!\n";
+                #endif
+            // Found it
+                break;
+
+            } else {
+               #ifdef DEBUG
+                std::cout << "We are checking " << current->node_label << std::endl;
+
+                #endif
+
+                for (int i = 0; i < MAX_NEIGHBORS; i++) {
+                    if (current->neighbors[i].second != -1) {
+                        char label_check = current->neighbors[i].first->node_id;
+                        alt_cost = dist[current->node_id - CHAR_TO_POSITION] + current->neighbors[i].second;
+
+                        #ifdef DEBUG
+                        std::cout << "Neighbor " << label_check << " Cost " << alt_cost<< std::endl;
+                        #endif
+                        if (alt_cost < dist[label_check - CHAR_TO_POSITION]) {
+                            dist[label_check- CHAR_TO_POSITION] = alt_cost;
+                            #ifdef LOGGING
+                            std::cout << "Setting prev " << label_check << " to " << current->node_id << std::endl;
+                            #endif
+                            prev[label_check - CHAR_TO_POSITION] = current->node_id;
+                        }
+                    }
+                }
+            }
+        }
+
+    char iter = finish->node_id;
+
+    while (prev[iter - CHAR_TO_POSITION] != -1) {
+//        std::cout << "The curr is "<< iter <<".\n";
+        to_return.push_front(iter);
+        iter = prev[iter - CHAR_TO_POSITION];
+    }
+    to_return.push_front(start->node_id);
 
 
     #ifdef LOGGING
-        std::cout << "Printing path from " << start->node_label << " to " << finish->node_label << std::endl;
+    std::cout << "Cost: " << dist[finish->node_id - CHAR_TO_POSITION] << std::endl;
+
+
+        std::cout << "Printing path from " << start->node_id << " to " << finish->node_id << std::endl;
         for (graphInt i : to_return) {
-            std::cout << this->graph[i]->node_label << " -> ";
+            std::cout << this->graph[i - CHAR_TO_POSITION]->node_id << " -> ";
         }
         std::cout << "__END__\n";
     #endif

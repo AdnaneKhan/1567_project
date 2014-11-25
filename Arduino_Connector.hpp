@@ -20,6 +20,13 @@ typedef float sensorValue;
 #define TRUE 1
 #define FALSE 0
 
+
+#define LEFT_DISTANCE  0
+#define RIGHT_DISTANCE 1
+#define BACK_DISTANCE  2
+#define FRONT_DISTANCE 3
+#define HEADING 4
+
 typedef struct Arduino_Packet {
 std::mutex mutex;
 
@@ -40,11 +47,11 @@ std::mutex mutex;
 
         mutex.lock();
         switch(value_select) {
-            case 0: Values.l_distance = new_val; break;
-            case 1: Values.r_distance = new_val; break;
+            case LEFT_DISTANCE: Values.l_distance = new_val; break;
+            case RIGHT_DISTANCE: Values.r_distance = new_val; break;
             case 2: Values.back_distance = new_val; break;
-            case 3: Values.front_distance = new_val; break;
-            case 4: Values.heading = new_val; break;
+            case FRONT_DISTANCE: Values.front_distance = new_val; break;
+            case HEADING: Values.heading = new_val; break;
             case 5: Values.x_tilt = new_val; break;
             case 6: Values.y_tilt = new_val;  break;
             case 7: Values. z_tilt = new_val; break;

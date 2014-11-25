@@ -1,6 +1,5 @@
 #include "Locator.h"
 
-
 locatorState Locator::reset_state() {
     // Reset Graph State
 
@@ -41,89 +40,6 @@ Converts heading to int
 #define W 7
 #define NW 8
 */
-int parse_direction(float heading) {
-    int return_dir = 0;
-
-    // Divide heading (0-360f) into 24 segements of 15 degrees each
-    switch ((int) floor(heading / 15)) {
-        case 0:
-            return_dir = N;
-            break;
-        case 1:
-            return_dir = NE;
-            break;
-        case 2:
-            return_dir = NE;
-            break;
-        case 3:
-            return_dir = NE;
-            break;
-        case 4:
-            return_dir = NE;
-            break;
-        case 5:
-            return_dir = E;
-            break;
-        case 6:
-            return_dir = E;
-            break;
-        case 7:
-            return_dir = SE;
-            break;
-        case 8:
-            return_dir = SE;
-            break;
-        case 9:
-            return_dir = SE;
-            break;
-        case 10:
-            return_dir = SE;
-            break;
-        case 11:
-            return_dir = S;
-            break;
-        case 12:
-            return_dir = SW;
-            break;
-        case 13:
-            return_dir = SW;
-            break;
-        case 14:
-            return_dir = SW;
-            break;
-        case 15:
-            return_dir = SW;
-            break;
-        case 16:
-            return_dir = SW;
-            break;
-        case 17:
-            return_dir = W;
-            break;
-        case 18:
-            return_dir = W;
-            break;
-        case 19:
-            return_dir = NW;
-            break;
-        case 20:
-            return_dir = NW;
-            break;
-        case 21:
-            return_dir = NW;
-            break;
-        case 22:
-            return_dir = NW;
-            break;
-        case 23:
-            return_dir = N;
-            break;
-        default:
-            return_dir = 0;
-    }
-
-    return return_dir;
-}
 
 /**
 *
@@ -135,7 +51,7 @@ int parse_direction(float heading) {
 *
 * \return whether any F,L,R values were detected as open
 */
-int Locator::check_openings(Arduino_Packet &packet, std::vector<int> &directions, direction curr_direction) {
+int Locator::check_openings(Arduino_Packet &packet, std::vector<int> &directions, cardinalDirection curr_direction) {
     int retV = 0;
 
     if (packet.Values.l_distance < INTERSECTION_THRESHOLD) {
@@ -161,8 +77,8 @@ int Locator::check_openings(Arduino_Packet &packet, std::vector<int> &directions
 }
 
 
-direction Locator::convert_dir(direction to_convert, int current_heading) {
-    direction new_dir;
+cardinalDirection Locator::convert_dir(cardinalDirection to_convert, int current_heading) {
+    cardinalDirection new_dir;
 
     new_dir = (current_heading + to_convert) % 4;
 
@@ -170,7 +86,7 @@ direction Locator::convert_dir(direction to_convert, int current_heading) {
 }
 
 
-direction Locator::next_step_m() {
+cardinalDirection Locator::next_step_m() {
 
     std::vector<int> directions = {N, E, S, W};
     int origin;
@@ -218,6 +134,7 @@ direction Locator::next_step_m() {
     return 0;
 }
 
+
 /**
 Based on possible possible locations decide which direction to have user turn
 
@@ -226,10 +143,10 @@ Based on possible possible locations decide which direction to have user turn
 returns direction to turn (value from 0 to 3), -1 if no valid turns found
 this indicates that locator is in an unknown state and re-setting may be necessary.
 */
-direction Locator::next_step(Arduino_Packet &packet) {
-    direction to_turn = parse_direction(packet.Values.heading);
+cardinalDirection Locator::next_step(Arduino_Packet &packet) {
+    cardinalDirection to_turn = Graph_Utils::parse_direction(packet.read(HEADING));
 
-    std::vector<direction> directions = {N, E, S, W};
+    std::vector<cardinalDirection> directions = {N, E, S, W};
 
     // remove directions that are not open
     check_openings(packet, directions, to_turn / 6);
@@ -238,18 +155,11 @@ direction Locator::next_step(Arduino_Packet &packet) {
     // We can not decide to direct our turn the way we came
     directions[opposite_dir - 1] = INVALID_DIRECTION;
 
-    for (direction candidate : directions) {
+    for (cardinalDirection candidate : directions) {
         if (candidate != INVALID_DIRECTION) {
             return candidate;
         }
     }
-
-//    for (int i = 0; i < directions.size(); i++) {
-//        // -1 is sentinel for invalid direction
-//        if (directions[i] != -1) {
-//            return directions[i];
-//        }
-//    }
 
     // In case no directions found that are open
     return INVALID_DIRECTION;
@@ -276,7 +186,7 @@ void Locator::run_locator() {
         cardinalDirection to_turn = this->next_step_m();
         // We are at intersection, check to see which paths we could possibly be on
         cardinalDirection dir = this->locator_graph.graph_intersect(to_turn);
-        direction turn_command = convert_dir(turn_command, this->curr_heading);
+        cardinalDirection turn_command = convert_dir(turn_command, this->curr_heading);
             #ifdef DEBUG
                     std::cout << "The path was " << dir << std::endl;
             #endif

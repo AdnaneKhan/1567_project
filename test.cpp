@@ -1,7 +1,12 @@
+#define DEBUG
+#define LOGGING
+
 #include "Arduino_Connector.hpp"
 #include "Sennot_Graph.h"
 #include "Audio.h"
 #include "Camera_Connector.h"
+
+#include <list>
 
 void test_node() {
     // TEST NODE
@@ -25,7 +30,7 @@ void test_node() {
 
     Node temp;
     test->get_neighbor((temp), DIR_N);
-    std::cout << "The ID of the node was " << temp.node_label << std::endl;
+    std::cout << "The ID of the node was " << temp.node_id << std::endl;
     std::cout << " We expected B\n";
 
 
@@ -53,6 +58,33 @@ void test_graph() {
     loc.graph_intersect(2);
     std::cout << loc.path_count() << std::endl;
 
+}
+
+void graph_search_test() {
+    std::cout << "BEGIN TEST OF GRAPH (GOAL SEARCH):\n----------------------\n";
+
+
+    // Set of node labels to serve as source
+    Sennot_Graph loc = Sennot_Graph();
+
+
+
+     std::list<graphInt> result = loc.find_path('A','I');
+
+
+    for (graphInt n : result) {
+        std::cout << (char)n << "->";
+    }
+    std::cout << std::endl;
+
+     result = loc.find_path('A','M');
+
+
+    for (graphInt n : result) {
+        std::cout << (char)n << "->";
+    }
+    std::cout << std::endl;
+    // Destination
 }
 
 void test_connector() {
@@ -134,8 +166,9 @@ int main() {
     //test_connector();
     test_node();
     test_graph();
-    audio_test();
-    camera_connector_test();
+   // audio_test();
+   // camera_connector_test();
+    graph_search_test();
 
 
     return 0;

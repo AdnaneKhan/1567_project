@@ -18,6 +18,7 @@
 #include "Audio.h"
 #include "Arduino_Connector.hpp"
 #include "Sennot_Graph.h"
+#include "Graph_Utils.hpp"
 
 #define TRUE 1
 #define FALSE 0
@@ -27,14 +28,6 @@
 
 #define INTERSECTION_THRESHOLD 12
 
-#define N 1
-#define NE 2
-#define E 3
-#define SE 4
-#define S 5
-#define SW 6
-#define W 7
-#define NW 8
 
 #define INVALID_DIRECTION -1
 
@@ -46,10 +39,8 @@
 #define DEBUG
 
 
-typedef int direction;
-
-
 typedef int locatorState;
+typedef int handDirection;
 /*
     This class represents the Sennot Square navigation problem.
     A text file is specified in the constructor which contains information to initialize
@@ -74,7 +65,7 @@ class Locator {
     Arduino_Connector * con;
     Sennot_Graph locator_graph;
 
-    direction curr_heading;
+    cardinalDirection curr_heading;
 
 
     int old_res;
@@ -85,7 +76,7 @@ class Locator {
 
 
     int intersection_check(Arduino_Packet & check);
-    direction next_step(Arduino_Packet &packet);
+    cardinalDirection next_step(Arduino_Packet &packet);
 
     int next_step_m();
 
@@ -102,7 +93,7 @@ class Locator {
     *  \param dir to turn relative to heading
     *  \param current_heading we are facing
     */
-    static direction convert_dir(direction to_convert, int current_heading);
+    static handDirection convert_dir(cardinalDirection to_convert, int current_heading);
 
 //    void parse_packet(char * string_in,int buf_max, Arduino_Packet & to_update);
 

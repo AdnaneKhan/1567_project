@@ -1,11 +1,8 @@
 #include "Arduino_Connector.hpp"
 
-//#define DEBUG
-
 Arduino_Connector::Arduino_Connector(Arduino_Packet * data_in, std::string serial_info) {
 
     this->data_holder = data_in;
-
     this->serial_id = this->init_serial(serial_info);
 }
 
@@ -107,7 +104,6 @@ int Arduino_Connector::serial_read(int serial_handle) {
             } else {
                 this->buffer[string_counter++] = byte_in;
             }
-
         }
     }
 
