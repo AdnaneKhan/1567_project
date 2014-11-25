@@ -28,6 +28,7 @@
 
 #define INTERSECTION_THRESHOLD 12
 
+#define GOAL_NODE 'Y'
 
 #define INVALID_DIRECTION -1
 
@@ -60,10 +61,13 @@ class Locator {
 
     Camera_Connector camera;
 
-
     Image_Processor proc;
     Arduino_Connector * con;
     Sennot_Graph locator_graph;
+
+    bool goal_progression;
+    std::list<nodeLabel> goal_list;
+    nodeLabel last_node;
 
     cardinalDirection curr_heading;
 
@@ -80,7 +84,6 @@ class Locator {
 
     int next_step_m();
 
-
     /**
     *  Parses sensor data to check which directions are open for the user to turn into
     */
@@ -94,9 +97,6 @@ class Locator {
     *  \param current_heading we are facing
     */
     static handDirection convert_dir(cardinalDirection to_convert, int current_heading);
-
-//    void parse_packet(char * string_in,int buf_max, Arduino_Packet & to_update);
-
 
     /**
     *  Finds a path to the solution from the given node, returns as a list of pair <Node, int> where int is
@@ -118,6 +118,8 @@ class Locator {
 
 
 public:
+
+
 
     /**
     * Runs the location program one cycle this can either be set to run as a thread or called repeatedly from a main
