@@ -16,6 +16,8 @@
 #define DIR_S 2
 #define DIR_W 3
 
+#define INVALID_PREV '!'
+
 typedef int graphInt;
 typedef int cardinalDirection;
 

@@ -210,12 +210,12 @@ std::list<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
     std::vector<Node *> bfs_queue;
 
     dist[start->node_id - CHAR_TO_POSITION] = 0;
-    prev[start->node_id - CHAR_TO_POSITION] = INVALID_NEIGHBOR;
+    prev[start->node_id - CHAR_TO_POSITION] = INVALID_PREV;
 
     for (Node * n : this->graph) {
         if (n->node_id != start->node_id) {
             dist[n->node_id - CHAR_TO_POSITION] = 9999;
-            prev[n->node_id - CHAR_TO_POSITION] = INVALID_NEIGHBOR;
+            prev[n->node_id - CHAR_TO_POSITION] = INVALID_PREV;
         }
 
         bfs_queue.push_back(n);
@@ -277,18 +277,15 @@ std::list<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
 
     #ifdef LOGGING
         for (int i = 0; i < NODE_COUNT; i++) {
-            if (prev[i] == INVALID_NEIGHBOR) {
-                std::cout <<" - ";
-            } else {
                 std::cout << prev[i] << " ";
-            }
+
         }
     std::cout << "\nFinished dumping prev list\n";
     #endif
 
     char iter = finish->node_id;
 
-    while (prev[iter - CHAR_TO_POSITION] != INVALID_NEIGHBOR) {
+    while (prev[iter - CHAR_TO_POSITION] != INVALID_PREV) {
         #ifdef LOGGING
         std::cout << "Adding " << iter << std::endl;
         #endif
