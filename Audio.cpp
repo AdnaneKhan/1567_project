@@ -9,9 +9,9 @@ namespace Audio {
     void play_left() {
 
         #ifdef __arm__
-        system("omxplayer -o local audio_prompts/left.m4a");
+        system("omxplayer -o local audio_prompts/left.m4a &");
         #else
-        system("afplay audio_prompts/left.m4a");
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/left.m4a &");
         #endif
 
         std::cout << "Please turn left." << std::endl;
@@ -20,9 +20,9 @@ namespace Audio {
     void play_right() {
 
 #ifdef __arm__
-        system("omxplayer -o local audio_prompts/left.m4a");
+        system("omxplayer -o local audio_prompts/left.m4a &");
         #else
-        system("afplay audio_prompts/left.m4a");
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/left.m4a &");
 #endif
 
         std::cout << "Please turn right." << std::endl;
@@ -31,9 +31,9 @@ namespace Audio {
     void play_forward() {
 
 #ifdef __arm__
-        system("omxplayer -o local audio_prompts/left.m4a");
+        system("omxplayer -o local audio_prompts/left.m4a &");
         #else
-        system("afplay audio_prompts/left.m4a");
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/left.m4a &");
 #endif
 
         std::cout << "Please move forward." << std::endl;
@@ -42,9 +42,9 @@ namespace Audio {
     void play_back() {
 
         #ifdef __arm__
-            system("omxplayer -o local audio_prompts/left.m4a");
+            system("omxplayer -o local audio_prompts/left.m4a &");
         #else
-        system("afplay audio_prompts/left.m4a");
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/left.m4a &");
         #endif
 
         std::cout << "Please turn around." << std::endl;
@@ -54,9 +54,9 @@ namespace Audio {
 
 
         #ifdef __arm__
-            system("omxplayer -o local audio_prompts/left.m4a");
+            system("omxplayer -o local audio_prompts/left.m4a &");
         #else
-            system("afplay audio_prompts/left.m4a");
+            system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/left.m4a &");
         #endif
 
         std::cout << "You have turned " << curr_degrees << " degrees and you need to turn " << (target_degrees - curr_degrees) << " degrees." << std::endl;
@@ -65,9 +65,9 @@ namespace Audio {
     void turn_complete() {
 
 #ifdef __arm__
-        system("omxplayer -o local audio_prompts/left.m4a");
+        system("omxplayer -o local audio_prompts/left.m4a &");
         #else
-        system("afplay audio_prompts/left.m4a");
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/left.m4a &");
 #endif
 
         std::cout << "You have succesfully completed your turn." << std::endl;
@@ -76,9 +76,9 @@ namespace Audio {
     void intersection() {
 
 #ifdef __arm__
-        system("omxplayer -o local audio_prompts/left.m4a");
+        system("omxplayer -o local audio_prompts/left.m4a &");
         #else
-        system("afplay audio_prompts/left.m4a");
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/left.m4a &");
 #endif
         std::cout << "You have arrived at an intersection." << std::endl;
     }
@@ -106,9 +106,9 @@ namespace Audio {
     void play_light() {
 
 #ifdef __arm__
-        system("omxplayer -o local audio_prompts/left.m4a");
+        system("omxplayer -o local audio_prompts/left.m4a &");
         #else
-        system("afplay audio_prompts/left.m4a");
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/left.m4a &");
 #endif
 
         std::cout << "You have walked under a light." << std::endl;

@@ -166,8 +166,8 @@ int main() {
     //test_connector();
     test_node();
     test_graph();
-   // audio_test();
-   // camera_connector_test();
+    audio_test();
+    camera_connector_test();
     graph_search_test();
 
 
