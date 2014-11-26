@@ -204,7 +204,6 @@ std::list<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
     // Used to mark nodes as visited
     // 0 -> clear
     // 1 -> visited
-    char node_mark[NODE_COUNT] = {0};
     int dist[NODE_COUNT] = {0};
     char prev[NODE_COUNT] = {0};
 
@@ -226,7 +225,7 @@ std::list<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
             int alt_cost;
 
             int min_c = dist[bfs_queue.front()->node_id - CHAR_TO_POSITION];
-            int iter;
+            int iter = 0;
             int saved_iter = 0;
             for (iter = 0 ; iter < bfs_queue.size(); iter++) {
                 if (dist[bfs_queue[iter]->node_id - CHAR_TO_POSITION] < min_c) {
@@ -241,8 +240,6 @@ std::list<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
 
             Node *current = bfs_queue[saved_iter];
             bfs_queue.erase(bfs_queue.begin() + saved_iter);
-
-
 
             if (current->node_id == finish->node_id) {
 
@@ -278,9 +275,17 @@ std::list<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
             }
         }
 
+    #ifdef LOGGING
+        for (int i = 0; i < NODE_COUNT; i++) {
+            std::cout << prev[i] << " ";
+        }
+    std::cout << "\nFinished dumping prev list\n";
+    #endif
+
     char iter = finish->node_id;
 
     while (prev[iter - CHAR_TO_POSITION] != -1) {
+
         to_return.push_front(iter);
         iter = prev[iter - CHAR_TO_POSITION];
     }
