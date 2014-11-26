@@ -45,9 +45,8 @@ private:
     int camera_source; /// <camera source based on dfinitions
     #ifdef __arm__
         raspicam::RaspiCam_Cv Camera;
-  #endif
+    #endif
     cv::VideoCapture cam; ///< camera to get images from
-
 
 
 public:

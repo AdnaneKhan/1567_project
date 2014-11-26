@@ -246,15 +246,15 @@ std::list<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
 
             if (current->node_id == finish->node_id) {
 
-               #ifdef DEBUG
+               #ifdef LOGGING
                     std::cout << "We found the destination node!\n";
                 #endif
             // Found it
                 break;
 
             } else {
-               #ifdef DEBUG
-                std::cout << "We are checking " << current->node_label << std::endl;
+               #ifdef LOGGING
+                std::cout << "We are checking " << current->node_id << std::endl;
 
                 #endif
 
@@ -263,7 +263,7 @@ std::list<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
                         char label_check = current->neighbors[i].first->node_id;
                         alt_cost = dist[current->node_id - CHAR_TO_POSITION] + current->neighbors[i].second;
 
-                        #ifdef DEBUG
+                        #ifdef LOGGING
                         std::cout << "Neighbor " << label_check << " Cost " << alt_cost<< std::endl;
                         #endif
                         if (alt_cost < dist[label_check - CHAR_TO_POSITION]) {
