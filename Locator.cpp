@@ -26,8 +26,6 @@ bool Locator::is_located() {
     return retb;
 }
 
-
-
 /**
 * \param heading value in float of heading in 360 degrees
 Converts heading to int
@@ -72,17 +70,7 @@ int Locator::check_openings(Arduino_Packet &packet, std::vector<int> &directions
     // Back is is open since that is where we came from
     directions[(2 + curr_direction) % 4] = 1;
 
-
     return retV;
-}
-
-
-cardinalDirection Locator::convert_dir(cardinalDirection to_convert, int current_heading) {
-    cardinalDirection new_dir;
-
-    new_dir = (current_heading + to_convert) % 4;
-
-    return new_dir;
 }
 
 
@@ -133,7 +121,6 @@ cardinalDirection Locator::next_step_m() {
 
     return 0;
 }
-
 
 /**
 Based on possible possible locations decide which direction to have user turn
@@ -188,7 +175,7 @@ void Locator::run_locator() {
 
 
         if (locator_graph.path_count() == 1) {
-            this->last_node = locator_graph.get_last_node();
+            this->last_node = locator_graph.get_last_node(locator_graph.get_depth());
 
             if (!goal_progression) {
 
@@ -209,10 +196,10 @@ void Locator::run_locator() {
 
         // We are at intersection, check to see which paths we could possibly be on, if we
         // have narrowed to one and located, then this serves as navigation
-        cardinalDirection dir = this->locator_graph.graph_intersect(to_turn);
+        cardinalDirection dir = this->locator_graph.intersection_action(to_turn);
 
 
-        cardinalDirection turn_command = convert_dir(turn_command, this->curr_heading);
+        cardinalDirection turn_command = Graph_Utils::convert_dir(turn_command, this->curr_heading);
             #ifdef DEBUG
                     std::cout << "The path was " << dir << std::endl;
             #endif
@@ -223,10 +210,9 @@ void Locator::run_locator() {
     if (new_light) {
         Audio::play_light();
         ///
-        locator_graph.graph_step();
+        locator_graph.edge_step();
     }
 }
-
 
 int Locator::start(std::string serial_info) {
     int serial_id;
@@ -242,7 +228,6 @@ int Locator::start(std::string serial_info) {
     return retv;
 }
 
-
 Locator::Locator(std::string file_uri, std::string serial_id) {
     std::ofstream myfile;
 
@@ -253,7 +238,6 @@ Locator::Locator(std::string file_uri, std::string serial_id) {
     this->old_res = 1;
     this->intersection = 0;
     this->old_intersection = 0;
-
 
 }
 

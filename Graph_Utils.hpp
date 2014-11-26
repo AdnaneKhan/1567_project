@@ -31,10 +31,23 @@ namespace Graph_Utils {
 
     /*
         Checks the node and a packet, checks whether data from the packet aligns with characteristics of a node.
+
+        For each opening registered by graph data, do openings from sonars (in the L, R, and F directions)
+        correspond with nodes?
+
      */
     int confirmDirection(nodeLabel node1, std::vector<cardinalDirection > openings, Sennot_Graph graph);
 
     cardinalDirection parse_direction(float heading);
+
+    /**
+    *  Allows conversion between world N,S,W,E and L,R,F,B for user
+    *
+    *  \param dir to turn relative to heading
+    *  \param current_heading we are facing
+    */
+    int convert_dir(int to_convert, int current_heading);
+
 }
 
 #endif

@@ -43,19 +43,19 @@ void test_graph() {
 
 
     Sennot_Graph loc = Sennot_Graph();
-    loc.graph_step();
+    loc.edge_step();
     std::cout << loc.path_count() << std::endl;
-    loc.graph_step();
+    loc.edge_step();
     std::cout << loc.path_count() << std::endl;
-    loc.graph_step();
-    loc.graph_intersect(2);
+    loc.edge_step();
+    loc.intersection_action(2);
     std::cout << loc.path_count() << std::endl;
-    loc.graph_step();
+    loc.edge_step();
     std::cout << loc.path_count() << std::endl;
-    loc.graph_step();
+    loc.edge_step();
 
     std::cout << loc.path_count() << std::endl;
-    loc.graph_intersect(2);
+    loc.intersection_action(2);
     std::cout << loc.path_count() << std::endl;
 
 }

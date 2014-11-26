@@ -86,10 +86,10 @@ class Arduino_Connector {
 
 public:
 
+    Arduino_Connector(Arduino_Packet * data_in, std::string serial_info);
+
     void init_connection();
     int end_connection();
-
-    Arduino_Connector(Arduino_Packet * data_in, std::string serial_info);
 
     void start_thread();
     int stop_thread();

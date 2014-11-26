@@ -34,13 +34,22 @@ public:
     Sennot_Graph();
     ~Sennot_Graph();
 
-    graphInt graph_intersect(cardinalDirection next_dir);
+    graphInt intersection_action(cardinalDirection next_dir);
 
-    graphInt graph_step();
+    // Makes a step along the current edge
+    graphInt edge_step();
+
+    // Returns number of candidate paths
     graphInt path_count();
 
+    // Returns depth of path
+    graphInt get_depth();
+
     // Returns the last node (ONLY IF LOCATED)
-    nodeLabel get_last_node();
+    nodeLabel get_last_node(int path_length);
+
+
+    Node * get_node(nodeLabel node);
 
     /**
     * Finds path from start node to destination node
@@ -51,7 +60,6 @@ public:
     std::list<nodeLabel> find_path(Node * start, Node * finish);
     std::list<nodeLabel> find_path(nodeLabel start, nodeLabel finish);
 
-    Node * get_node(nodeLabel node);
 
 private:
 

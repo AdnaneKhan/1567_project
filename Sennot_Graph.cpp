@@ -4,35 +4,7 @@
 #include <iostream>
 
 #define LOGGING
-void Sennot_Graph::initialize_paths() {
-    for (int i = 0; i < NODE_COUNT; i++) {
-        // set initial steps
-        (graph[i]) = new Node(nodes[i]);
-        step_lists.at(i).push_back(graph[i]);
-    }
-}
 
-void Sennot_Graph::initialize_graph() {
-    depth = 0;
-    num_paths = NODE_COUNT;
-
-    // For each each in graph, add connection from node0 to node1 in one direction, then add edge from node1 to node0 in the opposite
-    // direction
-    for (int i = 0; i < EDGE_COUNT; i++) {
-        (this->graph.at(edges[i][0] - 65))->add_neighbor(graph.at(edges[i][1] - CHAR_TO_POSITION), edges[i][2], edges[i][3]);
-        (this->graph.at(edges[i][1] - 65))->add_neighbor(graph.at(edges[i][0] - CHAR_TO_POSITION), edges[i][2], (edges[i][3] + 2) % 4);
-    }
-}
-
-
- Sennot_Graph::Sennot_Graph() {
-    initialize_paths();
-    initialize_graph();
-
-    edge_progress = 0;
-    depth = 0;
-    num_paths = NODE_COUNT;
-}
 
  Sennot_Graph::~Sennot_Graph() {
     for (int i = 0; i < NODE_COUNT; i++) {
@@ -40,21 +12,26 @@ void Sennot_Graph::initialize_graph() {
     }
 }
 
-nodeLabel Sennot_Graph::get_last_node() {
-    nodeLabel ret = -1;
+nodeLabel Sennot_Graph::get_last_node(int path_length) {
+    nodeLabel ret;
 
     if (num_paths == 1) {
         for (std::list<Node*> list : step_lists) {
-            if (list.size() >= depth) {
-                return list.back()->node_id;
+            if (list.size() == path_length) {
 
                 #ifdef LOGGING
-                std::cout << "Returning " << ret << " from get last node. \n";
+                    std::cout << "Returning " << ret << " from get last node. \n";
                 #endif
+                ret = list.back()->node_id;
+
+                break;
             }
         }
     } else {
-        // Problem!!
+        #ifdef LOGGING
+        std::cout << "There was no step list that matched the current depth";
+        #endif
+        ret = -1;
     }
 
     return ret;
@@ -64,17 +41,42 @@ graphInt Sennot_Graph::path_count() {
     return num_paths;
 }
 
+graphInt Sennot_Graph::get_depth() {
+    return depth;
+}
+
+
+
+Node * Sennot_Graph::get_node(nodeLabel node) {
+    Node * return_node = nullptr;
+
+    int index = node - CHAR_TO_POSITION;
+    if (index < this->graph.size()) {
+        return_node = this->graph.at(index);
+    } else {
+        // Problem
+    }
+
+    return return_node;
+}
+
+
+Sennot_Graph::Sennot_Graph() {
+    initialize_paths();
+    initialize_graph();
+
+    edge_progress = 0;
+    depth = 0;
+    num_paths = NODE_COUNT;
+}
 
 
 /**
 *  \param step_count number of steps that were travelled along edge to reach this node (intersection)
 */
-cardinalDirection Sennot_Graph::graph_intersect(cardinalDirection next_dir) {
-    int increment = 0;
+cardinalDirection Sennot_Graph::intersection_action(cardinalDirection next_dir) {
+    bool increment = false;
 
-
- // cardinalDirection next_dir = next_step_m();
- //   cardinalDirection next_dir = next_step(recent_metrics);
     #ifdef LOGGING
         std::cout << next_dir << " is our next step (cardinal).\n";
     #endif
@@ -87,7 +89,7 @@ cardinalDirection Sennot_Graph::graph_intersect(cardinalDirection next_dir) {
                 // Check if we have an opening
 
                 // Turn in this direction
-                increment = 1;
+                increment = true;
                 step_lists[i].push_back(temp->neighbors[next_dir].first);
 
                     #ifdef LOGGING
@@ -116,25 +118,8 @@ cardinalDirection Sennot_Graph::graph_intersect(cardinalDirection next_dir) {
         depth++;
     }
 
-    //return convert_dir(next_dir, curr_heading);
     return next_dir;
 }
-
-
-
-Node * Sennot_Graph::get_node(nodeLabel node) {
-    Node * return_node = nullptr;
-
-    int index = node - CHAR_TO_POSITION;
-    if (index < this->graph.size()) {
-        return_node = this->graph.at(index);
-    } else {
-        // Problem
-    }
-
-    return return_node;
-}
-
 
 /**
 * Prunes possible paths through graph to correspond with how many lights the current path has passed.
@@ -142,7 +127,7 @@ Node * Sennot_Graph::get_node(nodeLabel node) {
 *
 * \param path_cost cost of the edge we are currently travelling upon
 */
-graphInt Sennot_Graph::graph_step() {
+graphInt Sennot_Graph::edge_step() {
 
     int keep_path = 0;
     edge_progress++;
@@ -186,6 +171,26 @@ graphInt Sennot_Graph::graph_step() {
     return 0;
 }
 
+void Sennot_Graph::initialize_paths() {
+    for (int i = 0; i < NODE_COUNT; i++) {
+        // set initial steps
+        (graph[i]) = new Node(nodes[i]);
+        step_lists.at(i).push_back(graph[i]);
+    }
+}
+
+void Sennot_Graph::initialize_graph() {
+    depth = 0;
+    num_paths = NODE_COUNT;
+
+    // For each each in graph, add connection from node0 to node1 in one direction, then add edge from node1 to node0 in the opposite
+    // direction
+    for (int i = 0; i < EDGE_COUNT; i++) {
+        (this->graph.at(edges[i][0] - 65))->add_neighbor(graph.at(edges[i][1] - CHAR_TO_POSITION), edges[i][2], edges[i][3]);
+        (this->graph.at(edges[i][1] - 65))->add_neighbor(graph.at(edges[i][0] - CHAR_TO_POSITION), edges[i][2], (edges[i][3] + 2) % 4);
+    }
+}
+
 std::list<nodeLabel> Sennot_Graph::find_path(nodeLabel start, nodeLabel finish) {
     Node * source = graph[start - CHAR_TO_POSITION];
     Node * dest = graph[finish - CHAR_TO_POSITION];
@@ -193,8 +198,6 @@ std::list<nodeLabel> Sennot_Graph::find_path(nodeLabel start, nodeLabel finish) 
     return find_path(source, dest);
 }
 
-
-// TODO: nodeL djikstras algorithm to find the path now WIP
 std::list<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
     std::list<nodeLabel> to_return;
 
@@ -278,7 +281,6 @@ std::list<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
     char iter = finish->node_id;
 
     while (prev[iter - CHAR_TO_POSITION] != -1) {
-//        std::cout << "The curr is "<< iter <<".\n";
         to_return.push_front(iter);
         iter = prev[iter - CHAR_TO_POSITION];
     }

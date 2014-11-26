@@ -104,7 +104,6 @@ cardinalDirection Graph_Utils::parse_direction(float heading) {
 int Graph_Utils::confirmDirection(nodeLabel node1, std::vector<cardinalDirection > openings, Sennot_Graph graph) {
     bool confirmation = true;
 
-
     Node * to_check = graph.get_node(node1);
 
     int direction_check[4] = {0};
@@ -119,4 +118,12 @@ int Graph_Utils::confirmDirection(nodeLabel node1, std::vector<cardinalDirection
 
 
     return confirmation;
+}
+
+int Graph_Utils::convert_dir(int to_convert, int current_heading) {
+    int new_dir;
+
+    new_dir = (current_heading + to_convert) % MAX_NEIGHBORS;
+
+    return new_dir;
 }

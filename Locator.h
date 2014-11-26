@@ -16,9 +16,10 @@
 #include "Image_Processor.h"
 #include "Node.h"
 #include "Audio.h"
+#include "Graph_Utils.hpp"
 #include "Arduino_Connector.hpp"
 #include "Sennot_Graph.h"
-#include "Graph_Utils.hpp"
+
 
 #define TRUE 1
 #define FALSE 0
@@ -57,6 +58,38 @@ typedef int handDirection;
  */
 class Locator {
 
+public:
+
+    /**
+    * Runs the location program one cycle this can either be set to run as a thread or called repeatedly from a main
+    * loop
+    */
+    void run_locator();
+
+    /**
+    Opens a serial connection, if it succeeds, start a thread that reads from the port on a given interval.
+
+    If the connection fails, exit without starting the therad.
+    */
+    int start(std::string serial_info);
+
+    /*
+    Returns TRUE if the locator has joined possible paths and the location has been narrowed down.
+    Returns FALSE if the locator has not yet definitively identified the path that has been taken.
+
+     */
+    bool is_located();
+
+    Locator(std::string file_uri, std::string serial_id);
+
+    ~Locator();
+private:
+
+    typedef struct Camera_Readings {
+        std::list<detectionResult> result_cache;
+        
+    } Camera_Readings;
+
     Arduino_Packet recent_metrics;
 
     Camera_Connector camera;
@@ -90,13 +123,6 @@ class Locator {
     graphInt check_openings(Arduino_Packet &packet, std::vector<int> &directions, int curr_direction);
 
 
-    /**
-    *  Allows conversion between world N,S,W,E and L,R,F,B for user
-    *
-    *  \param dir to turn relative to heading
-    *  \param current_heading we are facing
-    */
-    static handDirection convert_dir(cardinalDirection to_convert, int current_heading);
 
     /**
     *  Finds a path to the solution from the given node, returns as a list of pair <Node, int> where int is
@@ -109,7 +135,6 @@ class Locator {
     */
     void goal_walk();
 
-
     /**
     *  Resets the state of the graph so that user is located at any of ndes matching current
     *  charactersistics
@@ -117,33 +142,6 @@ class Locator {
     locatorState reset_state();
 
 
-public:
-
-
-
-    /**
-    * Runs the location program one cycle this can either be set to run as a thread or called repeatedly from a main
-    * loop
-    */
-    void run_locator();
-
-    /**
-    Opens a serial connection, if it succeeds, start a thread that reads from the port on a given interval.
-
-    If the connection fails, exit without starting the therad.
-    */
-    int start(std::string serial_info);
-
-    /*
-    Returns TRUE if the locator has joined possible paths and the location has been narrowed down.
-    Returns FALSE if the locator has not yet definitively identified the path that has been taken.
-
-     */
-    bool is_located();
-
-    Locator(std::string file_uri, std::string serial_id);
-
-    ~Locator();
 };
 
 #endif
