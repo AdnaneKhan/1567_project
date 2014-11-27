@@ -1,9 +1,15 @@
 #include "Arduino_Connector.hpp"
 
-Arduino_Connector::Arduino_Connector(Arduino_Packet * data_in, std::string serial_info) {
-
+Arduino_Connector::Arduino_Connector(Arduino_Packet *data_in, std::string source_info, int connection_type) {
     this->data_holder = data_in;
-    this->serial_id = this->init_serial(serial_info);
+
+    if (connection_type == ARDUINO) {
+        this->type = ARDUINO;
+        this->serial_id = this->init_serial(source_info);
+    } else if (connection_type == SIMULATION) {
+        this->type = SIMULATION;
+        this->data_file_name = source_info;
+    }
 }
 
 
@@ -25,7 +31,12 @@ int Arduino_Connector::init_serial(std::string serial_info) {
 
 void Arduino_Connector::start_thread() {
     this->thread_halt = FALSE;
-    arduino_connection = std::thread(&Arduino_Connector::serial_read, this, serial_id);
+    if (type == SIMULATION) {
+         arduino_connection = std::thread(&Arduino_Connector::file_read,this,data_file_name);
+    } else if (type == ARDUINO) {
+        arduino_connection = std::thread(&Arduino_Connector::serial_read, this, serial_id);
+    }
+
 }
 
 int Arduino_Connector::stop_thread() {
@@ -71,6 +82,27 @@ void Arduino_Connector::parse_packet(char * string_in,int buf_max, Arduino_Packe
 
         }
     }
+}
+
+
+int Arduino_Connector::file_read(std::string data_source) {
+    std::ifstream file_in(data_source);
+    std::string line;
+    char * string_buf;
+
+    std::chrono::milliseconds dura( 500 );
+
+
+    if (file_in.is_open()) {
+
+        while (this->thread_halt == FALSE && getline (file_in,line)) {
+            string_buf = const_cast<char*>(line.c_str());
+            parse_packet(string_buf, line.length() - 1, *this->data_holder);
+            std::this_thread::sleep_for(dura);
+        }
+    }
+
+    return 0;
 }
 
 int Arduino_Connector::serial_read(int serial_handle) {

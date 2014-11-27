@@ -42,11 +42,13 @@ private:
     std::queue<cv::Mat> image_queue;
     std::queue<std::string> f_name_queue; ///< file names in folder (for hdd image source)
     std::string file_folder; ///< folder to look in for images
+
     int camera_source; /// <camera source based on dfinitions
     #ifdef __arm__
         raspicam::RaspiCam_Cv Camera;
     #endif
     cv::VideoCapture cam; ///< camera to get images from
+
 
 
 public:

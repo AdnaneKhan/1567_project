@@ -11,11 +11,14 @@
 #include <iostream>
 #include <fstream>
 
-typedef float sensorDistance;
-typedef float sensorValue;
+
+#define ARDUINO 1
+#define SIMULATION 2
 
 #define STOP_SENTINEL '#'
 #define START_SENTINEL '$'
+
+
 
 #define TRUE 1
 #define FALSE 0
@@ -26,6 +29,11 @@ typedef float sensorValue;
 #define BACK_DISTANCE  2
 #define FRONT_DISTANCE 3
 #define HEADING 4
+
+
+typedef float sensorDistance;
+typedef float sensorValue;
+
 
 typedef struct Arduino_Packet {
 std::mutex mutex;
@@ -86,7 +94,7 @@ class Arduino_Connector {
 
 public:
 
-    Arduino_Connector(Arduino_Packet * data_in, std::string serial_info);
+    Arduino_Connector(Arduino_Packet *data_in, std::string source_info, int connection_type);
 
     void init_connection();
     int end_connection();
@@ -96,14 +104,19 @@ public:
 private:
     void parse_packet(char * string_in,int buf_max, Arduino_Packet & to_update);
 
+    int file_read(std::string data_source);
     int serial_read(int serial_handle);
     int init_serial(std::string serial_info);
     char buffer[200];
     Arduino_Packet * data_holder;
 
+
+    std::string data_file_name;
+    int type;
     int serial_id;
     int thread_halt;
     std::thread arduino_connection;
+
 
 };
 

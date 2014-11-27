@@ -122,7 +122,7 @@ Camera_Connector::Camera_Connector(int camera_source, std::string source, int ca
             break;
 #endif
         case IMAGE_FOLDER:
-            // Initialize file reader
+            this->file_folder = source;
 
             // Read names of all images in folder
             // push all names to queue

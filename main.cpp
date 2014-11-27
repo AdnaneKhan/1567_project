@@ -27,16 +27,16 @@ operationType select_operation( int num_args,char * args[]) {
  with the path mock_data_file (instead of from the arduino.
  */
 void run_simulation(const char * image_folder, const char * mock_data_file) {
-    
+
 }
 
 /*
 Runs the actual locater using data from camera and arduino serial connection
  */
 void run_full(const char * serial_port) {
-    Locator * loc = new  Locator(" ", serial_port);
+    Locator * loc = new Locator(" ", serial_port, 0);
     std::chrono::milliseconds timespan(500);
-    int res = loc->start(serial_port);
+    int res = loc->start(serial_port, ARDUINO_DATA);
 
     if (res) {
         while (!loc->is_located()) {

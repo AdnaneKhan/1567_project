@@ -214,25 +214,36 @@ void Locator::run_locator() {
     }
 }
 
-int Locator::start(std::string serial_info) {
-    int serial_id;
+int Locator::start(std::string data_source, int source_type) {
     int retv;
-    // Initialize the serial read
 
-    con = new Arduino_Connector(&this->recent_metrics, serial_info);
+    if (source_type == ARDUINO_DATA) {
 
-    con->init_connection();
+        // Initialize the serial read
 
-    con->start_thread();
+        con = new Arduino_Connector(&this->recent_metrics, data_source, ARDUINO);
+
+        con->init_connection();
+
+    } else if (source_type == SIMULATED_DATA) {
+        con = new Arduino_Connector(&this->recent_metrics, data_source, SIMULATION);
+        con->start_thread();
+    }
 
     return retv;
 }
 
-Locator::Locator(std::string file_uri, std::string serial_id) {
+Locator::Locator(std::string file_uri, std::string serial_id, int run_type) {
     std::ofstream myfile;
 
     this->proc = Image_Processor();
-    this->camera = Camera_Connector(USB_WEBCAM, "", DEFAULT_CAMERA);
+
+    if (run_type == ARDUINO) {
+        this->camera = Camera_Connector(USB_WEBCAM, "", DEFAULT_CAMERA);
+
+    } else if (run_type == SIMULATION) {
+        this->camera = Camera_Connector(IMAGE_FOLDER, file_uri, 0);
+    }
 
     this->res = 0;
     this->old_res = 1;

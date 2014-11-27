@@ -20,6 +20,9 @@
 #include "Arduino_Connector.hpp"
 #include "Sennot_Graph.h"
 
+#define ARDUINO_DATA 1
+#define SIMULATED_DATA 2
+
 
 #define TRUE 1
 #define FALSE 0
@@ -32,6 +35,8 @@
 #define GOAL_NODE 'Y'
 
 #define INVALID_DIRECTION -1
+
+
 
 #define FORWARD 0
 #define RIGHT 1
@@ -71,7 +76,7 @@ public:
 
     If the connection fails, exit without starting the therad.
     */
-    int start(std::string serial_info);
+    int start(std::string serial_info,int source_type);
 
     /*
     Returns TRUE if the locator has joined possible paths and the location has been narrowed down.
@@ -80,7 +85,7 @@ public:
      */
     bool is_located();
 
-    Locator(std::string file_uri, std::string serial_id);
+    Locator(std::string file_uri, std::string serial_id, int run_type);
 
     ~Locator();
 private:
