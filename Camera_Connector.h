@@ -25,6 +25,7 @@
 #else
 #define WRITE_LOCATION "/Users/adnankhan/Box Sync/Robots/1567_project/test_images/"
 #endif
+
 /**
 Class makes a connection to an image source, this can be:
 
@@ -36,8 +37,8 @@ images will be loaded in order provided by folder and returned sequentially ever
 time get image is called
 */
 class Camera_Connector {
-private:
 
+private:
 
     std::queue<cv::Mat> image_queue;
     std::queue<std::string> f_name_queue; ///< file names in folder (for hdd image source)
@@ -48,8 +49,6 @@ private:
         raspicam::RaspiCam_Cv Camera;
     #endif
     cv::VideoCapture cam; ///< camera to get images from
-
-
 
 public:
 
@@ -66,7 +65,7 @@ public:
     Camera_Connector() {
     }
 
-    Camera_Connector(int camera_source, std::string source, int camera_id);
+    Camera_Connector(int camera_source, std::string source, int camera_number);
 
     ~Camera_Connector();
 };

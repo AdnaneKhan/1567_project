@@ -5,6 +5,7 @@
 #include "Sennot_Graph.h"
 #include "Audio.h"
 #include "Camera_Connector.h"
+#include "Image_Processor.h"
 
 #include <list>
 
@@ -93,7 +94,7 @@ void test_connector() {
     // TEST ARDUINO CONNECTOR
 
     Arduino_Packet packet;
-    Arduino_Connector con(&packet, "/dev/tty.usbmodem1451");
+    Arduino_Connector con(&packet, "/dev/tty.usbmodem1451", ARDUINO);
 
     con.init_connection();
     con.start_thread();
@@ -160,6 +161,25 @@ void audio_test() {
     Audio::turn_dir(2);
 }
 
+void image_processor_test() {
+    std::cout << "BEGIN TEST OF IMAGE PROCESSOR:\n----------------------\n";
+
+    Camera_Connector con (IMAGE_FOLDER,"harvested_images/", 190);
+    Image_Processor cv_processor = Image_Processor();
+
+
+
+    for (int i = 0; i < 190; i++) {
+        cv::Mat img = con.get_image();
+        int res = cv_processor.circle_detect(img);
+        int light_res = cv_processor.rectangle_detect(img);
+
+        std::cout << " For Image " << i << ":";
+        std::cout << " The light was " << light_res << " and the circle was " << res << std::endl;
+
+    }
+
+}
 
 int main() {
 
@@ -167,7 +187,8 @@ int main() {
     test_node();
     test_graph();
     audio_test();
-    camera_connector_test();
+    //camera_connector_test();
+    image_processor_test();
     graph_search_test();
 
 

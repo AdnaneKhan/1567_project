@@ -85,7 +85,7 @@ public:
      */
     bool is_located();
 
-    Locator(std::string file_uri, std::string serial_id, int run_type);
+    Locator(std::string file_uri, int run_type);
 
     ~Locator();
 private:

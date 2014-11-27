@@ -156,7 +156,6 @@ void Locator::run_locator() {
 
     graphInt step;
 
-
     // Rising edge for ceiling light detection
     old_res = res;
     old_intersection = intersection;
@@ -167,8 +166,6 @@ void Locator::run_locator() {
 
     // Need to ensure we don't count circles as lights too
     if ((intersection ^ old_intersection) & intersection) {
-
-
 
         // Prompt user that he has reached intersection
         Audio::intersection();
@@ -215,31 +212,34 @@ void Locator::run_locator() {
 }
 
 int Locator::start(std::string data_source, int source_type) {
-    int retv;
+    int retv= 0;
 
     if (source_type == ARDUINO_DATA) {
-
         // Initialize the serial read
-
         con = new Arduino_Connector(&this->recent_metrics, data_source, ARDUINO);
 
         con->init_connection();
+        retv = 1;
 
     } else if (source_type == SIMULATED_DATA) {
         con = new Arduino_Connector(&this->recent_metrics, data_source, SIMULATION);
         con->start_thread();
+        retv =  1;
     }
 
     return retv;
 }
 
-Locator::Locator(std::string file_uri, std::string serial_id, int run_type) {
-    std::ofstream myfile;
+Locator::Locator(std::string file_uri, int run_type) {
 
     this->proc = Image_Processor();
 
     if (run_type == ARDUINO) {
-        this->camera = Camera_Connector(USB_WEBCAM, "", DEFAULT_CAMERA);
+        #ifdef __arm__
+        this->camera = Camera_Connector(RASPBERRY_PI_CAM, file_uri, 0);
+        #else
+        this->camera = Camera_Connector(USB_WEBCAM, file_uri, DEFAULT_CAMERA);
+        #endif
 
     } else if (run_type == SIMULATION) {
         this->camera = Camera_Connector(IMAGE_FOLDER, file_uri, 0);

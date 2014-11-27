@@ -11,9 +11,9 @@ typedef int operationType;
 
 operationType select_operation( int num_args,char * args[]) {
     operationType to_return;
-    if (num_args == 4  && strncmp(args[1],"-R",2) == 0) {
+    if (num_args == 4 ) {
         to_return = SIMULATION;
-    } else if(num_args == 3 && strncmp(args[1],"-S",2) == 0 ) {
+    } else if(num_args == 3 ) {
         to_return = REAL;
     } else {
         to_return = INVALID;
@@ -27,14 +27,28 @@ operationType select_operation( int num_args,char * args[]) {
  with the path mock_data_file (instead of from the arduino.
  */
 void run_simulation(const char * image_folder, const char * mock_data_file) {
+    Locator * loc = new Locator(image_folder, SIMULATION);
+    std::chrono::milliseconds timespan(500);
+    int res = loc->start(mock_data_file, SIMULATED_DATA);
 
+    if (res) {
+        while(!loc->is_located()) {
+            loc->run_locator();
+            std::this_thread::sleep_for(timespan);
+        }
+    } else {
+        std::cout << "There was a problem with initializing the locator for simulation\n";
+    }
 }
+
+
+
 
 /*
 Runs the actual locater using data from camera and arduino serial connection
  */
 void run_full(const char * serial_port) {
-    Locator * loc = new Locator(" ", serial_port, 0);
+    Locator * loc = new Locator("", ARDUINO);
     std::chrono::milliseconds timespan(500);
     int res = loc->start(serial_port, ARDUINO_DATA);
 

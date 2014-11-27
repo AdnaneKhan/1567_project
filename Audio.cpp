@@ -106,9 +106,9 @@ namespace Audio {
     void play_light() {
 
 #ifdef __arm__
-        system("omxplayer -o local audio_prompts/left.m4a &");
+        system("omxplayer -o local audio_prompts/light.m4a &");
         #else
-        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/left.m4a &");
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/light.m4a &");
 #endif
 
         std::cout << "You have walked under a light." << std::endl;

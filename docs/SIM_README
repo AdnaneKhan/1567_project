@@ -1,0 +1,41 @@
+Included in this project is the ability to run complete simulations
+for the location problems.
+
+The simulation requires two sources of external data:
+
+Mock packets to replace those sent by the Arduino
+Mock images to replace those captured from the Pi Camera.
+
+================================================================================
+
+
+The locator needs to be initialized differently depending on whether a simulation
+is being run or an actual run.
+
+
+  Locator(std::string file_uri, std::string serial_id, int run_type);
+
+is the constructor for the locator.
+
+If running a simulation:
+
+file_uri needs to be the fully qualified path with included / of a FOLDER which contains
+images in the following format
+
+test#.png
+
+Images not in this format will not be read, the images need to be numbered from 0 to n where
+n is the max number of images in the simulation.
+
+serial_id needs to contain the filename and path of a text file that contains text in the following format:
+
+
+{val1,val2,val3,val4,val5,val6,val7,val8}
+
+where values are floating point numbers in the same order that they would be
+expected to be sent from the Arduino.
+
+
+
+
+================================================================================
