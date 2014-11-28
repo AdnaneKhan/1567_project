@@ -7,6 +7,9 @@
 #include "Camera_Connector.h"
 #include "Image_Processor.h"
 
+
+#define MOCK_IMAGE_FOLDER "harvested_images/"
+
 #include <list>
 
 void test_node() {
@@ -164,7 +167,7 @@ void audio_test() {
 void image_processor_test() {
     std::cout << "BEGIN TEST OF IMAGE PROCESSOR:\n----------------------\n";
 
-    Camera_Connector con (IMAGE_FOLDER,"harvested_images/", 190);
+    Camera_Connector con (IMAGE_FOLDER, MOCK_IMAGE_FOLDER, 190);
     Image_Processor cv_processor = Image_Processor();
 
 

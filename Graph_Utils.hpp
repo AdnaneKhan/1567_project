@@ -19,6 +19,7 @@
 #define NW 8
 
 #define LONG_DISTANCE 100
+
 namespace Graph_Utils {
     /*
         Checks the connection between two nodes.

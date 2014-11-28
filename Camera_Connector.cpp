@@ -125,7 +125,7 @@ Camera_Connector::Camera_Connector(int camera_source, std::string source, int ca
             // Note that all of the file names are in a defined format
 
             for (int i = 0; i < camera_number; i++) {
-                // Push file names for test files TODO: make number flexible
+                // Push file names for test files
                 this->f_name_queue.push(source + "test"+ std::to_string(i) +".png"  );
             }
 
