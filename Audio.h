@@ -45,6 +45,8 @@ namespace Audio {
     */
     void intersection();
 
+    void play_goal();
+
     /**
     *  Informs user to turn in the specified direction
     *  \param dir for user to turn
