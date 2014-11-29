@@ -20,7 +20,7 @@ bool Locator::is_located() {
 
     // If all possible paths reduced to 1, then we have found our location
     if (path_num == 1) {
-        retb = true;
+     //   retb = true;
     }
 
     return retb;
@@ -117,7 +117,7 @@ cardinalDirection Locator::next_step_m() {
         }
     }
 
-  reset_state();
+    reset_state();
 
     return 0;
 }
@@ -152,6 +152,23 @@ cardinalDirection Locator::next_step(Arduino_Packet &packet) {
     return INVALID_DIRECTION;
 }
 
+int intersection_check(Arduino_Packet & check) {
+    int retV = 0;
+
+
+    // Check if there are openings in any direction but the front
+    // that exceed the detection thresholds
+
+    // if theere are then mark this as an intersection
+
+    // note that I will likely need to implement some sort of voting
+    // procedure where values must occur twice in a row in order to be confirmed as an intersection.
+
+
+    return retV;
+
+}
+
 void Locator::run_locator() {
 
     graphInt step;
@@ -161,6 +178,7 @@ void Locator::run_locator() {
     old_intersection = intersection;
 
     res = proc.step_detect(this->camera, intersection);
+    intersection = intersection_check(this->recent_metrics);
 
     locatorState new_light = (res ^ old_res) & res;
 
@@ -170,12 +188,12 @@ void Locator::run_locator() {
         // Prompt user that he has reached intersection
         Audio::intersection();
 
-
         if (locator_graph.path_count() == 1) {
             this->last_node = locator_graph.get_last_node(locator_graph.get_depth());
 
-            if (!goal_progression) {
 
+            if (!goal_progression) {
+                Audio::play_goal();
                 this->goal_list = locator_graph.find_path(last_node, GOAL_NODE);
 
                 goal_progression = TRUE;
@@ -203,7 +221,7 @@ void Locator::run_locator() {
         Audio::turn_dir(turn_command);
     }
 
-    // Need
+    // Indicate to user that we have passed under a light.
     if (new_light) {
         Audio::play_light();
         ///
@@ -242,13 +260,13 @@ Locator::Locator(std::string file_uri, int run_type) {
         #endif
 
     } else if (run_type == SIMULATION) {
-        this->camera = Camera_Connector(IMAGE_FOLDER, file_uri, 0);
+        this->camera = Camera_Connector(IMAGE_FOLDER, file_uri, 180);
     }
 
     this->res = 0;
     this->old_res = 1;
     this->intersection = 0;
-    this->old_intersection = 0;
+    this->old_intersection = 1;
 
 }
 
