@@ -152,7 +152,7 @@ cardinalDirection Locator::next_step(Arduino_Packet &packet) {
     return INVALID_DIRECTION;
 }
 
-int intersection_check(Arduino_Packet & check) {
+int Locator::intersection_check(Arduino_Packet & check) {
     int retV = 0;
 
 
@@ -178,7 +178,7 @@ void Locator::run_locator() {
     old_intersection = intersection;
 
     res = proc.step_detect(this->camera, intersection);
-    intersection = intersection_check(this->recent_metrics);
+    //intersection = intersection_check(this->recent_metrics);
 
     locatorState new_light = (res ^ old_res) & res;
 
