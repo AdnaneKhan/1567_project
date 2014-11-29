@@ -184,6 +184,36 @@ void image_processor_test() {
 
 }
 
+void live_processor_test() {
+    std::cout << "BEGIN TEST OF LIVE IMAGE PROCESSOR:\n----------------------\n";
+
+
+#ifdef __arm__
+        Camera_Connector con(RASPBERRY_PI_CAM,"",0);
+    #else
+    Camera_Connector con(USB_WEBCAM,"",0);
+#endif
+
+    Image_Processor cv_processor = Image_Processor();
+
+
+    for (int i = 0; i < 200; i++) {
+        cv::Mat img = con.get_image();
+        int res = cv_processor.circle_detect(img);
+        int light_res = cv_processor.rectangle_detect(img);
+
+        if (res) {
+            Audio::intersection();
+        } else if (light_res) {
+            Audio::play_light();
+        }
+
+        std::cout << " For Image " << i << ":";
+        std::cout << " The light was " << light_res << " and the circle was " << res << std::endl;
+
+    }
+}
+
 int main() {
 
     //test_connector();
@@ -192,6 +222,7 @@ int main() {
     audio_test();
     //camera_connector_test();
     image_processor_test();
+    live_processor_test();
     graph_search_test();
 
 
