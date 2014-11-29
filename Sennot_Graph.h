@@ -61,7 +61,8 @@ public:
     */
     std::list<nodeLabel> find_path(Node * start, Node * finish);
     std::list<nodeLabel> find_path(nodeLabel start, nodeLabel finish);
-
+    // Progress on current edge
+    graphInt edge_progress;
 
 private:
 
@@ -71,9 +72,6 @@ private:
 
     std::array<Node *, NODE_COUNT> graph;
     std::array<std::list<Node *>, NODE_COUNT> step_lists;
-
-    // Progress on current edge
-    graphInt edge_progress;
 
     // Depth (in number of intersections of traversal)
     graphInt depth;

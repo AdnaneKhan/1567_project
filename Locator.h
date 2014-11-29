@@ -88,64 +88,67 @@ public:
     Locator(std::string file_uri, int run_type);
 
     ~Locator();
+
 private:
 
+    // Metrics from sensors
+    // TODO: transfer handling of camera readings to this struct
+
     typedef struct Camera_Readings {
-        std::list<detectionResult> result_cache;
+        std::list<detectionResult> light_result_cache;
+        std::list<detectionResult> intersection_result_cache;
         
     } Camera_Readings;
 
     Arduino_Packet recent_metrics;
 
-    Camera_Connector camera;
 
+    ///=======================================
+    /// CONNECTORS AND PROCESSORS FOR HARDWARE
+    Camera_Connector camera;
     Image_Processor proc;
     Arduino_Connector * con;
-    Sennot_Graph locator_graph;
+    ///////////////===========================
 
-    bool goal_progression;
-    std::list<nodeLabel> goal_list;
+
+
+    Sennot_Graph locator_graph;
     nodeLabel last_node;
+    std::list<nodeLabel> goal_list;
+
+    bool goal_progression; // Are we on path to goal?
 
     cardinalDirection curr_heading;
+    bool init_intersect;
 
+    // Variable for tracking light
+    detectionResult old_res;
+    detectionResult res;
 
-    int old_res;
-    int res;
-
+    // Variable for tracking intersection
     detectionResult intersection;
     detectionResult old_intersection;
 
-
+    // Checks the distances reported from the Arduino to determine whether hallway openings suggest
+    // The presence of an intersection
     int intersection_check(Arduino_Packet & check);
-    cardinalDirection next_step(Arduino_Packet &packet);
 
-    int next_step_m();
+    // Checks openings and returns a direction for user to turn
+    cardinalDirection next_step(Arduino_Packet &packet);
+    int next_step_m(); // Manually asks for openings
+
+    ////////////////////////////////////////////////
 
     /**
     *  Parses sensor data to check which directions are open for the user to turn into
     */
     graphInt check_openings(Arduino_Packet &packet, std::vector<int> &directions, int curr_direction);
 
-
-
-    /**
-    *  Finds a path to the solution from the given node, returns as a list of pair <Node, int> where int is
-    *  a parameter to turn direction
-    */
-    void find_goal();
-
-    /**
-    * Guides user to walk until goal hallway open, then
-    */
-    void goal_walk();
-
     /**
     *  Resets the state of the graph so that user is located at any of ndes matching current
     *  charactersistics
     */
     locatorState reset_state();
-
 
 };
 

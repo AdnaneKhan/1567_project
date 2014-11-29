@@ -14,9 +14,6 @@ typedef int detectionResult;
 
 class Image_Processor {
 
-
-
-
     bool check_within(Mat &mat, float bounding_percent, cv::Vector<cv::Point> contour);
 
 public:

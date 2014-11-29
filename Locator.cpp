@@ -3,6 +3,16 @@
 locatorState Locator::reset_state() {
     // Reset Graph State
 
+
+    // Play reset information for user FULL_STOP!!
+    this->goal_progression = 0;
+    this->init_intersect = 0;
+    this->goal_list.clear();
+
+    locator_graph.~Sennot_Graph();
+
+    locator_graph = Sennot_Graph();
+
     return 1;
 }
 
@@ -172,17 +182,32 @@ int Locator::intersection_check(Arduino_Packet & check) {
 void Locator::run_locator() {
 
     graphInt step;
-
     // Rising edge for ceiling light detection
     old_res = res;
     old_intersection = intersection;
 
     res = proc.step_detect(this->camera, intersection);
-    //intersection = intersection_check(this->recent_metrics);
 
     locatorState new_light = (res ^ old_res) & res;
 
     // Need to ensure we don't count circles as lights too
+    if (intersection) {
+        new_light = 0;
+    }
+
+    // If intersection detected from hallway opening
+    intersection |= intersection_check(this->recent_metrics);
+
+    if (!init_intersect) {
+        // First intersection reached
+        locator_graph.edge_progress = 0;
+    }
+
+
+
+    // Check to make sure we don't double count intersection that we are standing under
+    // If accelerometers can be incorporated into this that data can also be used
+    // to verify.
     if ((intersection ^ old_intersection) & intersection) {
 
         // Prompt user that he has reached intersection
@@ -191,7 +216,7 @@ void Locator::run_locator() {
         if (locator_graph.path_count() == 1) {
             this->last_node = locator_graph.get_last_node(locator_graph.get_depth());
 
-
+            // if first time goal progression is it
             if (!goal_progression) {
                 Audio::play_goal();
                 this->goal_list = locator_graph.find_path(last_node, GOAL_NODE);
@@ -212,7 +237,6 @@ void Locator::run_locator() {
         // We are at intersection, check to see which paths we could possibly be on, if we
         // have narrowed to one and located, then this serves as navigation
         cardinalDirection dir = this->locator_graph.intersection_action(to_turn);
-
 
         cardinalDirection turn_command = Graph_Utils::convert_dir(turn_command, this->curr_heading);
             #ifdef DEBUG
@@ -267,6 +291,7 @@ Locator::Locator(std::string file_uri, int run_type) {
     this->old_res = 1;
     this->intersection = 0;
     this->old_intersection = 1;
+    this->init_intersect = 0;
 
 }
 
@@ -276,6 +301,4 @@ Locator::~Locator() {
     do {
         end = con->stop_thread();
     } while (!end);
-
-
 }
