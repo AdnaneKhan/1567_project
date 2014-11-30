@@ -120,10 +120,18 @@ int Graph_Utils::confirmDirection(nodeLabel node1, std::vector<cardinalDirection
     return confirmation;
 }
 
-int Graph_Utils::convert_dir(int to_convert, int current_heading) {
+int Graph_Utils::cardinal_to_hand(int to_convert, int current_heading) {
     int new_dir;
 
-    new_dir = (current_heading + to_convert) % MAX_NEIGHBORS;
+    new_dir = abs(current_heading - to_convert);
+
+    return new_dir;
+}
+
+int Graph_Utils::hand_to_cardinal(int to_convert, int current_heading) {
+    int new_dir;
+
+    new_dir = abs(to_convert - current_heading);
 
     return new_dir;
 }

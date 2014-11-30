@@ -3,6 +3,16 @@
 
 namespace Audio {
 
+    void play_start() {
+#ifdef __arm__
+        system("omxplayer -o local audio_prompts/begun.m4a &");
+        #else
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/begun.m4a &");
+#endif
+
+        std::cout << "Program Started." << std::endl;
+    }
+
     // Currently methods stubbed with calls to print
     // Playing actual sounds is to be implemented once all logic has been worked out
 

@@ -6,6 +6,7 @@
 #include "Audio.h"
 #include "Camera_Connector.h"
 #include "Image_Processor.h"
+#include "Graph_Utils.hpp"
 
 
 #define MOCK_IMAGE_FOLDER "harvested_images/"
@@ -89,6 +90,15 @@ void graph_search_test() {
     }
     std::cout << std::endl;
     // Destination
+
+
+    result = loc.find_path('S','E');
+
+
+    for (graphInt n : result) {
+        std::cout << (char)n << "->";
+    }
+    std::cout << std::endl;
 }
 
 void test_connector() {
@@ -214,6 +224,36 @@ void live_processor_test() {
     }
 }
 
+void graph_direction_test() {
+    std::cout << "BEGIN TEST OF GRAPH_UTILS:\n----------------------\n";
+
+    // SOUTH
+    int turn = DIR_S;
+
+    // HEADING EAST
+
+    int heading = DIR_E;
+
+    int res = Graph_Utils::cardinal_to_hand(turn, heading);
+
+    if (res != 1) {
+        std::cout <<"Problem with dir convertor!\n";
+        std::cout <<"We excpected" << 1 << " but got back " << res;
+    }
+
+
+    // WEST
+    turn = DIR_W;
+    heading = DIR_N;
+
+    res = Graph_Utils::cardinal_to_hand(turn, heading);
+    if (res != 3) {
+        std::cout <<"Problem with dir convertor!\n";
+        std::cout <<"We excpected" << 1 << " but got back " << res;
+    }
+
+}
+
 int main() {
 
     //test_connector();
@@ -221,10 +261,10 @@ int main() {
     test_graph();
     audio_test();
     //camera_connector_test();
-    image_processor_test();
-    live_processor_test();
+    graph_direction_test();
     graph_search_test();
-
+    //image_processor_test();
+    //live_processor_test();
 
     return 0;
 }

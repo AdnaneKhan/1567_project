@@ -36,7 +36,7 @@ public:
     Sennot_Graph();
     ~Sennot_Graph();
 
-    graphInt intersection_action(cardinalDirection next_dir);
+    void intersection_action(cardinalDirection next_dir);
 
     // Makes a step along the current edge
     graphInt edge_step();

@@ -86,6 +86,10 @@ std::mutex mutex;
         return to_return;
     }
 
+    Arduino_Packet() {
+        this->Values = {0};
+    }
+
 
 } Arduino_Packet;
 

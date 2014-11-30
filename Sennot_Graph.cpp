@@ -74,7 +74,7 @@ Sennot_Graph::Sennot_Graph() {
 /**
 *  \param step_count number of steps that were travelled along edge to reach this node (intersection)
 */
-cardinalDirection Sennot_Graph::intersection_action(cardinalDirection next_dir) {
+void Sennot_Graph::intersection_action(cardinalDirection next_dir) {
     bool increment = false;
 
     #ifdef LOGGING
@@ -118,7 +118,6 @@ cardinalDirection Sennot_Graph::intersection_action(cardinalDirection next_dir) 
         depth++;
     }
 
-    return next_dir;
 }
 
 /**
@@ -200,6 +199,10 @@ std::list<nodeLabel> Sennot_Graph::find_path(nodeLabel start, nodeLabel finish) 
 
 std::list<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
     std::list<nodeLabel> to_return;
+
+#ifdef LOGGING
+    std::cout << "We are searching for a path from " << start->node_id << " to " << finish->node_id << std::endl;
+#endif
 
     // Used to mark nodes as visited
     // 0 -> clear
@@ -287,7 +290,7 @@ std::list<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
 
     while (prev[iter - CHAR_TO_POSITION] != INVALID_PREV) {
         #ifdef LOGGING
-        std::cout << "Adding " << iter << std::endl;
+    //    std::cout << "Adding " << iter << std::endl;
         #endif
 
         to_return.push_front(iter);

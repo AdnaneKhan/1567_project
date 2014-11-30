@@ -32,7 +32,7 @@
 
 #define INTERSECTION_THRESHOLD 12
 
-#define GOAL_NODE 'Y'
+#define GOAL_NODE 'U'
 
 #define INVALID_DIRECTION -1
 

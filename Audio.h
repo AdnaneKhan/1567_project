@@ -6,6 +6,8 @@
 
 namespace Audio {
 
+    void play_start();
+
     /**
     *  Plays a prompt to tell user light was encountered
     */

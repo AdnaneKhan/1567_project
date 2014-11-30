@@ -44,10 +44,21 @@ namespace Graph_Utils {
     /**
     *  Allows conversion between world N,S,W,E and L,R,F,B for user
     *
-    *  \param dir to turn relative to heading
+    *  \param to_convert direction (cardinal) that we would like to go next
     *  \param current_heading we are facing
     */
-    int convert_dir(int to_convert, int current_heading);
+    int cardinal_to_hand(int to_convert, int current_heading);
+
+    /**
+    *     *  Allows conversion users current heading, a direction they turned relative to heading)
+    *
+    *
+    *  \param to_convert direction (hand) that we turned in/would like to turn in
+    *  \param current_heading we are facing in cardinal
+    *
+    *  \returns direction in cardinal that the user needs to turn
+    */
+    int hand_to_cardinal(int to_cnvert,int current_heading);
 
 }
 

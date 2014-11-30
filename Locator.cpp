@@ -86,11 +86,13 @@ int Locator::check_openings(Arduino_Packet &packet, std::vector<int> &directions
 
 cardinalDirection Locator::next_step_m() {
 
-    std::vector<int> directions = {N, E, S, W};
+    std::vector<int> directions = {DIR_N, DIR_E, DIR_S, DIR_W};
     int origin;
     int l;
     int r;
     int f;
+    // Reverse is obviously open
+    int b = 1;
 
     std::cout << "What direction are you facing?" << std::endl;
     std::cin >> origin;
@@ -106,28 +108,40 @@ cardinalDirection Locator::next_step_m() {
     std::cin >> r;
 
     if (!l) {
-        directions[(3 + origin) % 4] = -1;
+        directions[Graph_Utils::hand_to_cardinal(LEFT, curr_heading)] = -1;
     }
 
     if (!r) {
-        directions[(1 + origin) % 4] = -1;
+        directions[Graph_Utils::hand_to_cardinal(RIGHT, curr_heading)] = -1;
     }
 
     if (!f) {
-        directions[origin] = -1;
+        directions[Graph_Utils::hand_to_cardinal(FORWARD, curr_heading)] = -1;
     }
 
-    int opposite_dir = (origin + 2) % 4;
-    // We can not decide to direct our turn the way we came
-    directions[opposite_dir] = -1;
+//    for (int i = 0; i < directions.size(); i++) {
+ //       if (directions[i] != -1) {
+  //          return directions[i];
+   //     }
+   // }
 
-    for (int i = 0; i < directions.size(); i++) {
-        if (directions[i] != -1) {
-            return directions[i] / 2;
-        }
+    if (directions[DIR_E] != -1 ) {
+        return directions[DIR_E];
     }
 
-    reset_state();
+    if (directions[DIR_N] != -1) {
+        return directions[DIR_N];
+    }
+
+    if (directions[DIR_S] != -1) {
+        return directions[DIR_S];
+    }
+
+    if (directions[DIR_W] != -1) {
+        return directions[DIR_W];
+    }
+
+    //reset_state();
 
     return 0;
 }
@@ -234,13 +248,12 @@ void Locator::run_locator() {
             to_turn = this->next_step_m();
         }
 
-        // We are at intersection, check to see which paths we could possibly be on, if we
-        // have narrowed to one and located, then this serves as navigation
-        cardinalDirection dir = this->locator_graph.intersection_action(to_turn);
+        // Update state of graph based on direction that we turned
+        this->locator_graph.intersection_action(to_turn);
 
-        cardinalDirection turn_command = Graph_Utils::convert_dir(turn_command, this->curr_heading);
+        cardinalDirection turn_command = Graph_Utils::cardinal_to_hand(to_turn, this->curr_heading);
             #ifdef DEBUG
-                    std::cout << "The path was " << dir << std::endl;
+                    std::cout << "The turn was " << to_turn << std::endl;
             #endif
         Audio::turn_dir(turn_command);
     }
@@ -269,6 +282,8 @@ int Locator::start(std::string data_source, int source_type) {
         retv =  1;
     }
 
+    Audio::play_start();
+
     return retv;
 }
 
@@ -292,6 +307,7 @@ Locator::Locator(std::string file_uri, int run_type) {
     this->intersection = 0;
     this->old_intersection = 1;
     this->init_intersect = 0;
+
 
 }
 
