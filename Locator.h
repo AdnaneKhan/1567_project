@@ -32,11 +32,9 @@
 
 #define INTERSECTION_THRESHOLD 12
 
-#define GOAL_NODE 'U'
+#define GOAL_NODE 'S'
 
 #define INVALID_DIRECTION -1
-
-
 
 #define FORWARD 0
 #define RIGHT 1
@@ -114,7 +112,7 @@ private:
 
     Sennot_Graph locator_graph;
     nodeLabel last_node;
-    std::list<nodeLabel> goal_list;
+    std::vector<nodeLabel> goal_list;
 
     bool goal_progression; // Are we on path to goal?
 

@@ -14,9 +14,11 @@
 #include <raspicam/raspicam_cv.h>
 #endif
 
-#define RASPBERRY_PI_CAM 1
-#define USB_WEBCAM 2
-#define IMAGE_FOLDER 3
+#include "ConstantDefs.hpp"
+
+//#define RASPBERRY_PI_CAM 1
+//#define USB_WEBCAM 2
+//#define IMAGE_FOLDER 3
 #define USB_ID 500
 
 // Location where images will be written to when write_images is called.
@@ -36,7 +38,9 @@ Image folder (STILL WIP) that contains images
 images will be loaded in order provided by folder and returned sequentially every
 time get image is called
 */
+
 class Camera_Connector {
+
 
 private:
 
@@ -44,7 +48,7 @@ private:
     std::queue<std::string> f_name_queue; ///< file names in folder (for hdd image source)
     std::string file_folder; ///< folder to look in for images
 
-    int camera_source; /// <camera source based on dfinitions
+    CTypeEnum camera_source; /// <camera source based on dfinitions
     #ifdef __arm__
         raspicam::RaspiCam_Cv Camera;
     #endif
@@ -65,7 +69,7 @@ public:
     Camera_Connector() {
     }
 
-    Camera_Connector(int camera_source, std::string source, int camera_number);
+    Camera_Connector(CTypeEnum camera_source, std::string source, int camera_number);
 
     ~Camera_Connector();
 };

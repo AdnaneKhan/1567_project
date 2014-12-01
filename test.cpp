@@ -74,7 +74,7 @@ void graph_search_test() {
 
 
 
-     std::list<nodeLabel> result = loc.find_path('A','I');
+     std::vector<nodeLabel> result = loc.find_path('A','I');
 
 
     for (graphInt n : result) {
@@ -141,9 +141,9 @@ void camera_connector_test() {
     std::cout << "BEGIN TEST OF CAMERA_CONNECION:\n----------------------\n";
 
     #ifdef __arm__
-        Camera_Connector camera(RASPBERRY_PI_CAM,"",0);
+        Camera_Connector camera(Camera_Type::RASPBERRY_PI_CAM_E,"",0);
     #else
-        Camera_Connector camera(USB_WEBCAM,"",0);
+        Camera_Connector camera(Camera_Type ::USB_WEBCAMS_E,"",0);
     #endif
 
     std::chrono::milliseconds timespan(40000);
@@ -177,7 +177,7 @@ void audio_test() {
 void image_processor_test() {
     std::cout << "BEGIN TEST OF IMAGE PROCESSOR:\n----------------------\n";
 
-    Camera_Connector con (IMAGE_FOLDER, MOCK_IMAGE_FOLDER, 190);
+    Camera_Connector con (Camera_Type::IMAGE_FOLDER_E, MOCK_IMAGE_FOLDER, 190);
     Image_Processor cv_processor = Image_Processor();
 
 
@@ -199,9 +199,9 @@ void live_processor_test() {
 
 
 #ifdef __arm__
-        Camera_Connector con(RASPBERRY_PI_CAM,"",0);
+        Camera_Connector con(Camera_Type ::RASPBERRY_PI_CAM_E,"",0);
     #else
-    Camera_Connector con(USB_WEBCAM,"",0);
+    Camera_Connector con(Camera_Type ::USB_WEBCAMS_E,"",0);
 #endif
 
     Image_Processor cv_processor = Image_Processor();
@@ -236,9 +236,9 @@ void graph_direction_test() {
 
     int res = Graph_Utils::cardinal_to_hand(turn, heading);
 
-    if (res != 1) {
+    if (res != LEFT) {
         std::cout <<"Problem with dir convertor!\n";
-        std::cout <<"We excpected" << 1 << " but got back " << res;
+        std::cout <<"We excpected " << LEFT << " but got back " << res << std::endl;
     }
 
 
@@ -247,10 +247,41 @@ void graph_direction_test() {
     heading = DIR_N;
 
     res = Graph_Utils::cardinal_to_hand(turn, heading);
-    if (res != 3) {
+    if (res != RIGHT) {
         std::cout <<"Problem with dir convertor!\n";
-        std::cout <<"We excpected" << 1 << " but got back " << res;
+        std::cout <<"We excpected " << LEFT << " but got back " << res << std::endl;
     }
+
+
+    turn = LEFT;
+    heading = DIR_N;
+
+    res = Graph_Utils::hand_to_cardinal(turn, heading);
+    if (res != DIR_W) {
+        std::cout <<"Problem with hand dir convertor!\n";
+        std::cout <<"We excpected " << DIR_W << " but got back " << res << std::endl;
+    }
+
+
+    turn = RIGHT;
+    heading = DIR_S;
+
+    res = Graph_Utils::hand_to_cardinal(turn, heading);
+    if (res != DIR_W) {
+        std::cout <<"Problem with hand dir convertor!\n";
+        std::cout <<"We excpected " << DIR_W << " but got back " << res << std::endl;
+    }
+
+
+    turn = FORWARD;
+    heading = DIR_E;
+
+    res = Graph_Utils::hand_to_cardinal(turn, heading);
+    if (res != DIR_E) {
+        std::cout <<"Problem with hand dir convertor!\n";
+        std::cout <<"We excpected " << DIR_E << " but got back " << res << std::endl;
+    }
+
 
 }
 

@@ -28,7 +28,7 @@ namespace Graph_Utils {
 
         returns
      */
-    cardinalDirection check_connection(nodeLabel node1, nodeLabel node2, Sennot_Graph graph);
+    cardinalDirection check_connection(nodeLabel node1, nodeLabel node2, Sennot_Graph & graph);
 
     /*
         Checks the node and a packet, checks whether data from the packet aligns with characteristics of a node.

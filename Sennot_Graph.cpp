@@ -17,13 +17,13 @@ nodeLabel Sennot_Graph::get_last_node(int path_length) {
 
     if (num_paths == 1) {
         for (std::list<Node*> list : step_lists) {
-            if (list.size() == path_length) {
+            if (list.size() ==( path_length+1)) {
 
-                #ifdef LOGGING
-                    std::cout << "Returning " << ret << " from get last node. \n";
-                #endif
+
                 ret = list.back()->node_id;
-
+#ifdef LOGGING
+                std::cout << "Returning " << ret << " from get last node. \n";
+#endif
                 break;
             }
         }
@@ -52,9 +52,10 @@ Node * Sennot_Graph::get_node(nodeLabel node) {
 
     int index = node - CHAR_TO_POSITION;
     if (index < this->graph.size()) {
-        return_node = this->graph.at(index);
+        return_node = this->graph[index];
     } else {
-        // Problem
+        // Problem!!
+
     }
 
     return return_node;
@@ -81,7 +82,7 @@ void Sennot_Graph::intersection_action(cardinalDirection next_dir) {
         std::cout << next_dir << " is our next step (cardinal).\n";
     #endif
     for (int i = 0; i < NODE_COUNT; i++) {
-        if (step_lists[i].size() > depth) {
+        if (step_lists[i].size() == (depth+1)) {
             Node *temp = step_lists[i].back();
 
 
@@ -190,15 +191,15 @@ void Sennot_Graph::initialize_graph() {
     }
 }
 
-std::list<nodeLabel> Sennot_Graph::find_path(nodeLabel start, nodeLabel finish) {
+std::vector<nodeLabel> Sennot_Graph::find_path(nodeLabel start, nodeLabel finish) {
     Node * source = graph[start - CHAR_TO_POSITION];
     Node * dest = graph[finish - CHAR_TO_POSITION];
 
     return find_path(source, dest);
 }
 
-std::list<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
-    std::list<nodeLabel> to_return;
+std::vector<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
+    std::vector<nodeLabel> to_return;
 
 #ifdef LOGGING
     std::cout << "We are searching for a path from " << start->node_id << " to " << finish->node_id << std::endl;
@@ -293,10 +294,10 @@ std::list<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
     //    std::cout << "Adding " << iter << std::endl;
         #endif
 
-        to_return.push_front(iter);
+        to_return.insert(to_return.begin(),iter);
         iter = prev[iter - CHAR_TO_POSITION];
     }
-    to_return.push_front(start->node_id);
+    to_return.insert(to_return.begin(),start->node_id);
 
 
     #ifdef LOGGING

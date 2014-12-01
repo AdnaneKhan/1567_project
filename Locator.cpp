@@ -119,30 +119,24 @@ cardinalDirection Locator::next_step_m() {
         directions[Graph_Utils::hand_to_cardinal(FORWARD, curr_heading)] = -1;
     }
 
-//    for (int i = 0; i < directions.size(); i++) {
- //       if (directions[i] != -1) {
-  //          return directions[i];
-   //     }
-   // }
 
-    if (directions[DIR_E] != -1 ) {
-        return directions[DIR_E];
+    if (directions[Graph_Utils::hand_to_cardinal(LEFT, curr_heading)] != -1 ) {
+        return directions[Graph_Utils::hand_to_cardinal(LEFT, curr_heading)];
     }
 
-    if (directions[DIR_N] != -1) {
-        return directions[DIR_N];
+    if (directions[Graph_Utils::hand_to_cardinal(RIGHT, curr_heading)] != -1) {
+        return directions[Graph_Utils::hand_to_cardinal(RIGHT, curr_heading)];
     }
 
-    if (directions[DIR_S] != -1) {
-        return directions[DIR_S];
+    if (directions[Graph_Utils::hand_to_cardinal(FORWARD, curr_heading)] != -1) {
+        return directions[Graph_Utils::hand_to_cardinal(FORWARD, curr_heading)];
     }
 
-    if (directions[DIR_W] != -1) {
-        return directions[DIR_W];
+    if (directions[Graph_Utils::hand_to_cardinal(BACK, curr_heading)] != -1) {
+        return directions[Graph_Utils::hand_to_cardinal(BACK, curr_heading)];
     }
 
     //reset_state();
-
     return 0;
 }
 
@@ -162,7 +156,7 @@ cardinalDirection Locator::next_step(Arduino_Packet &packet) {
     // remove directions that are not open
     check_openings(packet, directions, to_turn / 6);
 
-    int opposite_dir = (to_turn + 4) % 8;
+    cardinalDirection opposite_dir = (to_turn + 4) % 8;
     // We can not decide to direct our turn the way we came
     directions[opposite_dir - 1] = INVALID_DIRECTION;
 
@@ -180,7 +174,16 @@ int Locator::intersection_check(Arduino_Packet & check) {
     int retV = 0;
 
 
-    // Check if there are openings in any direction but the front
+    int d_e;
+    std::cout << "Are you at a dead end 1/0?" << std::endl;
+    std::cin >> d_e;
+
+    if (d_e) {
+        retV = 1;
+    }
+
+    // Check if there are op
+    //enings in any direction but the front
     // that exceed the detection thresholds
 
     // if theere are then mark this as an intersection
@@ -212,22 +215,27 @@ void Locator::run_locator() {
     // If intersection detected from hallway opening
     intersection |= intersection_check(this->recent_metrics);
 
-    if (!init_intersect) {
-        // First intersection reached
-        locator_graph.edge_progress = 0;
-    }
-
-
 
     // Check to make sure we don't double count intersection that we are standing under
     // If accelerometers can be incorporated into this that data can also be used
     // to verify.
     if ((intersection ^ old_intersection) & intersection) {
 
+
+
         // Prompt user that he has reached intersection
         Audio::intersection();
 
-        if (locator_graph.path_count() == 1) {
+        if (!init_intersect) {
+            // First intersection reached
+            locator_graph.edge_progress = 0;
+            init_intersect = 1;
+        }
+
+        cardinalDirection to_turn;
+
+
+        if (locator_graph.path_count() == 1 && !goal_progression) {
             this->last_node = locator_graph.get_last_node(locator_graph.get_depth());
 
             // if first time goal progression is it
@@ -238,31 +246,42 @@ void Locator::run_locator() {
                 goal_progression = TRUE;
             }
         }
-        cardinalDirection to_turn;
 
         if (this->goal_progression) {
-            // Check connection between current and front of goal list
-            to_turn = Graph_Utils::check_connection(last_node, this->goal_list.front() , this->locator_graph);
+
+
+            if (goal_list.size() == 1) {
+                Audio::play_destination();
+            } else {
+                // Check connection between current and front of goal list
+                to_turn = Graph_Utils::check_connection( this->goal_list.front(), this->goal_list.at(1), this->locator_graph);
+
+                this->next_step_m();
+                this->goal_list.erase(goal_list.begin());
+            }
+
 
         } else {
             to_turn = this->next_step_m();
+            this->locator_graph.intersection_action(to_turn);
         }
 
         // Update state of graph based on direction that we turned
-        this->locator_graph.intersection_action(to_turn);
+
 
         cardinalDirection turn_command = Graph_Utils::cardinal_to_hand(to_turn, this->curr_heading);
-            #ifdef DEBUG
-                    std::cout << "The turn was " << to_turn << std::endl;
-            #endif
+#ifdef DEBUG
+        std::cout << "The turn was " << to_turn << std::endl;
+#endif
         Audio::turn_dir(turn_command);
+
     }
 
     // Indicate to user that we have passed under a light.
     if (new_light) {
         Audio::play_light();
-        ///
-        locator_graph.edge_step();
+        /// Trims paths based on edge_weights
+        //locator_graph.edge_step();
     }
 }
 
@@ -293,13 +312,13 @@ Locator::Locator(std::string file_uri, int run_type) {
 
     if (run_type == ARDUINO) {
         #ifdef __arm__
-        this->camera = Camera_Connector(RASPBERRY_PI_CAM, file_uri, 0);
+        this->camera = Camera_Connector(Camera_Type::RASPBERRY_PI_CAM_E, file_uri, 0);
         #else
-        this->camera = Camera_Connector(USB_WEBCAM, file_uri, DEFAULT_CAMERA);
+        this->camera = Camera_Connector(Camera_Type::USB_WEBCAMS_E , file_uri, DEFAULT_CAMERA);
         #endif
 
     } else if (run_type == SIMULATION) {
-        this->camera = Camera_Connector(IMAGE_FOLDER, file_uri, 180);
+        this->camera = Camera_Connector(Camera_Type::IMAGE_FOLDER_E, file_uri, 180);
     }
 
     this->res = 0;
@@ -307,8 +326,6 @@ Locator::Locator(std::string file_uri, int run_type) {
     this->intersection = 0;
     this->old_intersection = 1;
     this->init_intersect = 0;
-
-
 }
 
 Locator::~Locator() {

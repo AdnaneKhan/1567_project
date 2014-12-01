@@ -101,7 +101,16 @@ namespace Audio {
         #else
         system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/goal.m4a &");
 #endif
-        std::cout << "You have arrived at an intersection." << std::endl;
+        std::cout << "The goal has been located.." << std::endl;
+    }
+
+    void play_destination() {
+#ifdef __arm__
+        system("omxplayer -o local audio_prompts/goal.m4a &");
+        #else
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/goal.m4a &");
+#endif
+        std::cout << "The goal has been reached" << std::endl;
     }
 
     void turn_dir(int dir) {

@@ -17,7 +17,7 @@ and returns that, if it is an actual camera then returns from pre-initialized re
 cv::Mat Camera_Connector::get_image() {
     cv::Mat ret_image;
 
-    if (camera_source == IMAGE_FOLDER) {
+    if (camera_source == Camera_Type::IMAGE_FOLDER_E) {
         if (f_name_queue.size() > 0) {
             std::string file_name = f_name_queue.front();
             f_name_queue.pop();
@@ -29,7 +29,7 @@ cv::Mat Camera_Connector::get_image() {
             throw camera_ex;
         }
 
-    } else if (camera_source == RASPBERRY_PI_CAM) {
+    } else if (camera_source == Camera_Type::RASPBERRY_PI_CAM_E) {
     #ifdef __arm__
        Camera.grab();
        std::cout << "We just grabbed an image from raspberry_Pi cam\n" << std::flush;
@@ -78,7 +78,7 @@ int pi_camera_init( raspicam::RaspiCam_Cv & to_init ) {
 #endif
 
 void Camera_Connector::close_camera() {
-    if(camera_source == RASPBERRY_PI_CAM) {
+    if(camera_source == Camera_Type::RASPBERRY_PI_CAM_E) {
         #ifdef __arm__
            Camera.release();
         #endif
@@ -106,21 +106,21 @@ void Camera_Connector::write_image(std::string filename, cv::Mat &img) {
 *     2 - USB_WEBCAM
 *     3 - IMAGE_FOLDER
 */
-Camera_Connector::Camera_Connector(int camera_source, std::string source, int camera_number) {
+Camera_Connector::Camera_Connector(CTypeEnum camera_source, std::string source, int camera_number) {
     Camera_Connector::camera_source = camera_source;
     switch (camera_source) {
-        case USB_WEBCAM:
+        case Camera_Type::USB_WEBCAMS_E:
             usb_camera_init(cam, camera_number);
 
             break;
 #ifdef __arm__
-        case RASPBERRY_PI_CAM:
+        case Camera_Type::RASPBERRY_PI_CAM_E:
 
             // Initialize pi_cam
             pi_camera_init(Camera);
             break;
 #endif
-        case IMAGE_FOLDER:
+        case Camera_Type::IMAGE_FOLDER_E:
             this->file_folder = source;
             // Note that all of the file names are in a defined format
 

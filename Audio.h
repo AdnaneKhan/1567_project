@@ -49,6 +49,7 @@ namespace Audio {
 
     void play_goal();
 
+    void play_destination();
     /**
     *  Informs user to turn in the specified direction
     *  \param dir for user to turn
