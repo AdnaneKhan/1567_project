@@ -40,6 +40,7 @@ Node::~Node() {
     delete(neighbors);
 }
 
+
 int Node::num_neighbors() {
     return neighbor_count;
 }

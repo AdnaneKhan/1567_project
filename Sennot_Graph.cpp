@@ -5,7 +5,6 @@
 
 #define LOGGING
 
-
  Sennot_Graph::~Sennot_Graph() {
     for (int i = 0; i < NODE_COUNT; i++) {
         delete(this->graph[i]);
@@ -17,7 +16,7 @@ nodeLabel Sennot_Graph::get_last_node(int path_length) {
 
     if (num_paths == 1) {
         for (std::list<Node*> list : step_lists) {
-            if (list.size() ==( path_length+1)) {
+            if (list.size() == ( path_length+1)) {
 
 
                 ret = list.back()->node_id;
@@ -45,8 +44,6 @@ graphInt Sennot_Graph::get_depth() {
     return depth;
 }
 
-
-
 Node * Sennot_Graph::get_node(nodeLabel node) {
     Node * return_node = nullptr;
 
@@ -61,7 +58,6 @@ Node * Sennot_Graph::get_node(nodeLabel node) {
     return return_node;
 }
 
-
 Sennot_Graph::Sennot_Graph() {
     initialize_paths();
     initialize_graph();
@@ -71,11 +67,31 @@ Sennot_Graph::Sennot_Graph() {
     num_paths = NODE_COUNT;
 }
 
+bool check_valid(Node * curr, std::vector<cardinalDirection> & dirs_open) {
+
+    std::cout << "Checking Node " << curr->node_id << std::endl;
+
+    std::cout << "Checking N " << dirs_open[0];
+    std::cout << "Checking E " << dirs_open[1];
+    std::cout << "Checking S " << dirs_open[2];
+    std::cout << "Checking W " << dirs_open[3];
+
+
+    for (int i = 0; i < MAX_NEIGHBORS; i++) {
+
+        if( ((dirs_open[i] != INVALID_NEIGHBOR) && curr->neighbors[i].second == INVALID_NEIGHBOR ))  {
+            return false;
+        }
+
+    }
+
+    return true;
+}
 
 /**
 *  \param step_count number of steps that were travelled along edge to reach this node (intersection)
 */
-void Sennot_Graph::intersection_action(cardinalDirection next_dir) {
+void Sennot_Graph::intersection_update(cardinalDirection next_dir,std::vector<cardinalDirection> & dirs_open) {
     bool increment = false;
 
     #ifdef LOGGING
@@ -86,7 +102,9 @@ void Sennot_Graph::intersection_action(cardinalDirection next_dir) {
             Node *temp = step_lists[i].back();
 
 
-            if (temp->neighbors[next_dir].second != -1) {
+            if (check_valid (temp,dirs_open) && temp->neighbors[next_dir].second != INVALID_NEIGHBOR /*&& ((this->edge_progress+1) >= (temp->neighbors[next_dir].second) && (this->edge_progress-1) <= (temp->neighbors[next_dir].second))*/){
+
+
                 // Check if we have an opening
 
                 // Turn in this direction
@@ -118,7 +136,6 @@ void Sennot_Graph::intersection_action(cardinalDirection next_dir) {
     if (increment) {
         depth++;
     }
-
 }
 
 /**
@@ -133,7 +150,7 @@ graphInt Sennot_Graph::edge_step() {
     edge_progress++;
 
     for (int i = 0; i < NODE_COUNT; i++) {
-        if (step_lists[i].size() > depth) {
+        if (step_lists[i].size() >= depth) {
 
             Node *temp = step_lists[i].back();
 
@@ -144,7 +161,7 @@ graphInt Sennot_Graph::edge_step() {
             for (int j = 0; j < MAX_NEIGHBORS; j++) {
                 // If at least one of the neighbors of the node represents a valid movement we can keep this traversal
                 // in set of possible routes
-                if (temp->neighbors[j].second != -1 && temp->neighbors[j].second >= edge_progress) {
+                if (temp->neighbors[j].second != INVALID_NEIGHBOR && (temp->neighbors[j].second +1) >= edge_progress) {
                     #ifdef LOGGING
                     std::cout << " with " <<temp->neighbors[j].first->node_id<< ",Cost:" << temp->neighbors[j].second;
                     #endif
@@ -159,7 +176,7 @@ graphInt Sennot_Graph::edge_step() {
 
             if (!keep_path) {
 
-                num_paths--;
+           //     num_paths--;
                 #ifdef LOGGING
                 std::cout << "We have reached a point where we would have removed steps, but keeping.\n";
                 #endif
@@ -291,7 +308,7 @@ std::vector<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
 
     while (prev[iter - CHAR_TO_POSITION] != INVALID_PREV) {
         #ifdef LOGGING
-    //    std::cout << "Adding " << iter << std::endl;
+        std::cout << "Adding " << iter << std::endl;
         #endif
 
         to_return.insert(to_return.begin(),iter);

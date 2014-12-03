@@ -18,19 +18,20 @@
 #define STOP_SENTINEL '#'
 #define START_SENTINEL '$'
 
-
-
 #define TRUE 1
 #define FALSE 0
 
+#define FRONT_DISTANCE 0
+#define FRONT_LEFT 1
+#define LEFT_DISTANCE  2
+#define FRONT_RIGHT 3
+#define RIGHT_DISTANCE 4
+#define TURNING 5
+#define HEADING_OK 6
+#define DIST_OK 7
 
-#define LEFT_DISTANCE  0
-#define RIGHT_DISTANCE 1
-#define BACK_DISTANCE  2
-#define FRONT_DISTANCE 3
-#define HEADING 4
 
-
+//#define DEBUG
 typedef float sensorDistance;
 typedef float sensorValue;
 
@@ -38,31 +39,32 @@ typedef float sensorValue;
 typedef struct Arduino_Packet {
 std::mutex mutex;
 
-
+private:
     struct Values {
         sensorDistance l_distance;
-        sensorDistance r_distance;
-        sensorDistance back_distance;
+        sensorDistance l_2_distance;
         sensorDistance front_distance;
-        float heading;
-        float x_tilt;
-        float y_tilt;
-        float z_tilt;
+        sensorDistance r_2_distance;
+        sensorDistance r_distance;
+        sensorValue turn_flag;
+        sensorValue heading_ok;
+        sensorValue dist_ok;
 
     } Values;
 
+public:
     void update(int value_select, sensorValue new_val) {
 
         mutex.lock();
         switch(value_select) {
             case LEFT_DISTANCE: Values.l_distance = new_val; break;
-            case RIGHT_DISTANCE: Values.r_distance = new_val; break;
-            case 2: Values.back_distance = new_val; break;
+            case FRONT_LEFT: Values.l_2_distance = new_val; break;
             case FRONT_DISTANCE: Values.front_distance = new_val; break;
-            case HEADING: Values.heading = new_val; break;
-            case 5: Values.x_tilt = new_val; break;
-            case 6: Values.y_tilt = new_val;  break;
-            case 7: Values. z_tilt = new_val; break;
+            case FRONT_RIGHT: Values.r_2_distance = new_val; break;
+            case RIGHT_DISTANCE: Values.r_distance = new_val; break;
+            case TURNING: Values.turn_flag = new_val; break;
+            case HEADING_OK: Values.heading_ok = new_val;  break;
+            case DIST_OK: Values.dist_ok = new_val; break;
         }
         mutex.unlock();
     }
@@ -72,14 +74,14 @@ std::mutex mutex;
         sensorValue to_return = 0;
         mutex.lock();
         switch(value_select) {
-            case 0: to_return = Values.l_distance; break;
-            case 1: to_return = Values.r_distance; break;
-            case 2: to_return = Values.back_distance; break;
-            case 3: to_return = Values.front_distance; break;
-            case 4: to_return = Values.heading; break;
-            case 5: to_return = Values.x_tilt; break;
-            case 6: to_return = Values.y_tilt;  break;
-            case 7: to_return = Values. z_tilt; break;
+            case LEFT_DISTANCE: to_return = Values.l_distance; break;
+            case FRONT_LEFT: to_return = Values.l_2_distance; break;
+            case FRONT_DISTANCE: to_return =Values.front_distance; break;
+            case FRONT_RIGHT:to_return = Values.r_2_distance; break;
+            case RIGHT_DISTANCE:to_return = Values.r_distance; break;
+            case TURNING: to_return =Values.turn_flag; break;
+            case HEADING_OK: to_return =Values.heading_ok;  break;
+            case DIST_OK: to_return =Values.dist_ok ; break;
         }
         mutex.unlock();
 
@@ -89,7 +91,6 @@ std::mutex mutex;
     Arduino_Packet() {
         this->Values = {0};
     }
-
 
 } Arduino_Packet;
 
@@ -120,8 +121,6 @@ private:
     int serial_id;
     int thread_halt;
     std::thread arduino_connection;
-
-
 };
 
 

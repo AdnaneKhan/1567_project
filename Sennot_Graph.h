@@ -11,6 +11,8 @@
 #define EDGE_COUNT 20
 #define CHAR_TO_POSITION 65
 
+#define inrange(a,b) ((a)>(b)?(a):(b))
+
 #define DIR_N 0
 #define DIR_E 1
 #define DIR_S 2
@@ -38,7 +40,7 @@ public:
     Sennot_Graph();
     ~Sennot_Graph();
 
-    void intersection_action(cardinalDirection next_dir);
+    void intersection_update(cardinalDirection next_dir,std::vector<cardinalDirection> & dirs_open);
 
     // Makes a step along the current edge
     graphInt edge_step();

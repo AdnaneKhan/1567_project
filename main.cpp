@@ -42,20 +42,17 @@ void run_simulation(const char * image_folder, const char * mock_data_file) {
 }
 
 
-
-
 /*
 Runs the actual locater using data from camera and arduino serial connection
  */
 void run_full(const char * serial_port) {
     Locator * loc = new Locator("", ARDUINO);
-    std::chrono::milliseconds timespan(500);
+    std::chrono::milliseconds timespan(250);
     int res = loc->start(serial_port, ARDUINO_DATA);
 
     if (res) {
         while (!loc->is_located()) {
             loc->run_locator();
-            std::this_thread::sleep_for(timespan);
         }
     } else {
         std::cout << "There was a problem with initializing the locator.\n";

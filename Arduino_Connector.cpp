@@ -1,5 +1,6 @@
 #include "Arduino_Connector.hpp"
 
+
 Arduino_Connector::Arduino_Connector(Arduino_Packet *data_in, std::string source_info, int connection_type) {
     this->data_holder = data_in;
 
@@ -36,7 +37,6 @@ void Arduino_Connector::start_thread() {
     } else if (type == ARDUINO) {
         arduino_connection = std::thread(&Arduino_Connector::serial_read, this, serial_id);
     }
-
 }
 
 int Arduino_Connector::stop_thread() {
@@ -125,14 +125,9 @@ int Arduino_Connector::serial_read(int serial_handle) {
                 parse_packet(this->buffer, string_counter, *this->data_holder );
                 string_counter = 0;
 
-
                 #ifdef DEBUG
                     std::cout << this->buffer << "\n";
                 #endif
-
-                std::chrono::milliseconds dura( 250 );
-                std::this_thread::sleep_for(dura);
-
             } else {
                 this->buffer[string_counter++] = byte_in;
             }

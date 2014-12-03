@@ -38,8 +38,6 @@ void test_node() {
     std::cout << "The ID of the node was " << temp.node_id << std::endl;
     std::cout << " We expected B\n";
 
-
-
 }
 
 void test_graph() {
@@ -53,14 +51,14 @@ void test_graph() {
     loc.edge_step();
     std::cout << loc.path_count() << std::endl;
     loc.edge_step();
-    loc.intersection_action(2);
+    loc.intersection_update(2);
     std::cout << loc.path_count() << std::endl;
     loc.edge_step();
     std::cout << loc.path_count() << std::endl;
     loc.edge_step();
 
     std::cout << loc.path_count() << std::endl;
-    loc.intersection_action(2);
+    loc.intersection_update(2);
     std::cout << loc.path_count() << std::endl;
 
 }
@@ -230,7 +228,7 @@ void graph_direction_test() {
     // SOUTH
     int turn = DIR_S;
 
-    // HEADING EAST
+    // TURNING EAST
 
     int heading = DIR_E;
 

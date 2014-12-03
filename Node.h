@@ -4,6 +4,7 @@
 #define MAX_NEIGHBORS 4
 #define INVALID_NEIGHBOR -1
 
+
 typedef char nodeLabel;
 
 class Node {

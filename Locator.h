@@ -30,7 +30,8 @@
 #define DEFAULT_CAMERA 500
 #define MAX_NEIGHBORS 4
 
-#define INTERSECTION_THRESHOLD 12
+#define INTERSECTION_THRESHOLD 70
+#define FRONT_TRESHOLD 40
 
 #define GOAL_NODE 'S'
 
@@ -46,6 +47,15 @@
 
 typedef int locatorState;
 typedef int handDirection;
+
+
+typedef struct Intersect_Info {
+    handDirection dir_f;
+    handDirection dir_r;
+    handDirection dir_l;
+    handDirection dir_b;
+
+} IInfo;
 /*
     This class represents the Sennot Square navigation problem.
     A text file is specified in the constructor which contains information to initialize
@@ -88,6 +98,8 @@ public:
     ~Locator();
 
 private:
+
+
 
     // Metrics from sensors
     // TODO: transfer handling of camera readings to this struct
@@ -133,14 +145,16 @@ private:
 
     // Checks openings and returns a direction for user to turn
     cardinalDirection next_step(Arduino_Packet &packet);
-    int next_step_m(); // Manually asks for openings
+    cardinalDirection next_step_m(std::vector<cardinalDirection> & directions); // Manually asks for openings
+
+    std::vector<cardinalDirection> check_open_m();
 
     ////////////////////////////////////////////////
 
     /**
     *  Parses sensor data to check which directions are open for the user to turn into
     */
-    graphInt check_openings(Arduino_Packet &packet, std::vector<int> &directions, int curr_direction);
+    std::vector<cardinalDirection> check_openings(Arduino_Packet &packet, cardinalDirection curr_direction);
 
     /**
     *  Resets the state of the graph so that user is located at any of ndes matching current
@@ -148,6 +162,13 @@ private:
     */
     locatorState reset_state();
 
+    int goalDirection();
+
+    int standardDirection(int to_turn);
+
+    void goal_setup();
+
+    void intersection_verify(detectionResult intersect, detectionResult old_intersect);
 };
 
 #endif
