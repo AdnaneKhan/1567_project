@@ -1,9 +1,6 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
-
-// TODO MAKE THIS THRADED BY QUEING ON WORKER TREAD ASYNCHRONOUSLY
-
 namespace Audio {
 
     void play_start();
@@ -46,6 +43,8 @@ namespace Audio {
     *  Informs user that in intersection has been reached.
     */
     void intersection();
+
+    void play_reset();
 
     void play_goal();
 

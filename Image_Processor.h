@@ -1,10 +1,7 @@
 #ifndef IMAGE_PROCESSOR_H
 #define IMAGE_PROCESSOR_H
 
-
-
 #include "Camera_Connector.h"
-
 
 
 #define CIRCLE_ATTEMPTS 3
@@ -19,6 +16,7 @@ class Image_Processor {
 
 public:
 
+    //
     detectionResult circle_detect(Camera_Connector &camera);
 
     detectionResult circle_detect(Mat &src);

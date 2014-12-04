@@ -107,19 +107,38 @@ public:
     void start_thread();
     int stop_thread();
 private:
+
+    // Parses a packet in the following format:
+    // {val1_val2_val3_val4_val5_val6_val7_val8}
+    // Where indixes coresspond to values in recent data
     void parse_packet(char * string_in,int buf_max, Arduino_Packet & to_update);
 
+    // Reads packets from a text file instead of Arduino serial
+    // for running simulations
     int file_read(std::string data_source);
+
+    // Reads data from serial
     int serial_read(int serial_handle);
+    // name of data file for simulation reading
+    std::string data_file_name;
+
+
+    //
     int init_serial(std::string serial_info);
     char buffer[200];
     Arduino_Packet * data_holder;
 
 
-    std::string data_file_name;
     int type;
+
+    // ID of serial connection
     int serial_id;
+
+    // Indicates that the thread needs to stop
     int thread_halt;
+
+    // Runs the arduino connection as a seperate thread to receive packets from
+    // arduino over serial USB.
     std::thread arduino_connection;
 };
 

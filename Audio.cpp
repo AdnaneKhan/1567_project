@@ -143,4 +143,15 @@ namespace Audio {
 
         std::cout << "You have walked under a light." << std::endl;
     }
+
+    void play_reset() {
+
+#ifdef __arm__
+        system("omxplayer -o local audio_prompts/reset.m4a &");
+        #else
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/reset.m4a &");
+#endif
+
+        std::cout << "Graph has been reset." << std::endl;
+    }
 }

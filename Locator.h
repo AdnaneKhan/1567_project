@@ -11,7 +11,6 @@
 #include <list>
 #include <cmath>
 
-
 #include "Camera_Connector.h"
 #include "Image_Processor.h"
 #include "Node.h"
@@ -22,7 +21,6 @@
 
 #define ARDUINO_DATA 1
 #define SIMULATED_DATA 2
-
 
 #define TRUE 1
 #define FALSE 0
@@ -46,7 +44,7 @@
 
 
 typedef int locatorState;
-typedef int handDirection;
+
 
 
 typedef struct Intersect_Info {
@@ -98,8 +96,6 @@ public:
     ~Locator();
 
 private:
-
-
 
     // Metrics from sensors
     // TODO: transfer handling of camera readings to this struct

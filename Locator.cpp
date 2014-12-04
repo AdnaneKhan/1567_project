@@ -3,7 +3,7 @@
 locatorState Locator::reset_state() {
     // Reset Graph State
 
-
+    Audio::play_reset();
     // Play reset information for user FULL_STOP!!
     this->goal_progression = 0;
     this->init_intersect = 0;
@@ -102,10 +102,10 @@ std::vector<cardinalDirection> Locator::check_open_m(){
     int f;
     // Reverse is obviously open
     int b = 1;
-
-    std::cout << "What direction are you facing?" << std::endl;
-    std::cin >> origin;
-    curr_heading = origin;
+//
+//    std::cout << "What direction are you facing?" << std::endl;
+//    std::cin >> origin;
+//    curr_heading = origin;
 
     std::cout << "Is left open 0/1?" << std::endl;
     std::cin >> l;
@@ -117,15 +117,15 @@ std::vector<cardinalDirection> Locator::check_open_m(){
     std::cin >> r;
 
     if (!l) {
-        directions[Graph_Utils::hand_to_cardinal(LEFT, curr_heading)] = -1;
+        directions[LEFT] = -1;
     }
 
     if (!r) {
-        directions[Graph_Utils::hand_to_cardinal(RIGHT, curr_heading)] = -1;
+        directions[RIGHT] = -1;
     }
 
     if (!f) {
-        directions[Graph_Utils::hand_to_cardinal(FORWARD, curr_heading)] = -1;
+        directions[FORWARD] = -1;
     }
 
     return directions;
@@ -133,23 +133,44 @@ std::vector<cardinalDirection> Locator::check_open_m(){
 
 cardinalDirection Locator::next_step_m(std::vector<cardinalDirection > & directions) {
 
-    if (directions[Graph_Utils::hand_to_cardinal(FORWARD, curr_heading)] != -1) {
-        return directions[Graph_Utils::hand_to_cardinal(FORWARD, curr_heading)];
+//    if (directions[Graph_Utils::hand_to_cardinal(FORWARD, curr_heading)] != -1) {
+//        return directions[Graph_Utils::hand_to_cardinal(FORWARD, curr_heading)];
+//    }
+//
+//
+//    if (directions[Graph_Utils::hand_to_cardinal(LEFT, curr_heading)] != -1 ) {
+//        return directions[Graph_Utils::hand_to_cardinal(LEFT, curr_heading)];
+//    }
+//
+//    if (directions[Graph_Utils::hand_to_cardinal(RIGHT, curr_heading)] != -1) {
+//        return directions[Graph_Utils::hand_to_cardinal(RIGHT, curr_heading)];
+//    }
+//
+//
+//    if (directions[Graph_Utils::hand_to_cardinal(BACK, curr_heading)] != -1) {
+//        return directions[Graph_Utils::hand_to_cardinal(BACK, curr_heading)];
+//    }
+
+
+    if (directions[FORWARD] != INVALID_NEIGHBOR) {
+        return FORWARD;
     }
 
 
-    if (directions[Graph_Utils::hand_to_cardinal(LEFT, curr_heading)] != -1 ) {
-        return directions[Graph_Utils::hand_to_cardinal(LEFT, curr_heading)];
-    }
-
-    if (directions[Graph_Utils::hand_to_cardinal(RIGHT, curr_heading)] != -1) {
-        return directions[Graph_Utils::hand_to_cardinal(RIGHT, curr_heading)];
+    if (directions[RIGHT] != INVALID_NEIGHBOR) {
+        return RIGHT;
     }
 
 
-    if (directions[Graph_Utils::hand_to_cardinal(BACK, curr_heading)] != -1) {
-        return directions[Graph_Utils::hand_to_cardinal(BACK, curr_heading)];
+    if (directions[LEFT] != INVALID_NEIGHBOR) {
+        return LEFT;
     }
+
+    if (directions[BACK] != INVALID_NEIGHBOR) {
+        return BACK;
+    }
+
+
 
     return 0;
 }
@@ -165,7 +186,7 @@ this indicates that locator is in an unknown state and re-setting may be necessa
 cardinalDirection Locator::next_step(Arduino_Packet &packet) {
     cardinalDirection to_turn = Graph_Utils::parse_direction(packet.read(TURNING));
 
-    std::vector<handDirection> directions = {FORWARD, RIGHT, BACK, LEFT};
+    std::vector<cardinalDirection> directions = {N, E, S, W};
 
     // remove directions that are not open
     check_openings(packet, to_turn / 6);
@@ -184,21 +205,25 @@ cardinalDirection Locator::next_step(Arduino_Packet &packet) {
     return INVALID_DIRECTION;
 }
 
+
 int Locator::intersection_check(Arduino_Packet & check) {
     int retV = 0;
 
-
-    if((check.read(TURNING) != 0) && ((check.read(FRONT_DISTANCE) < FRONT_TRESHOLD) || (check.read(RIGHT_DISTANCE) > INTERSECTION_THRESHOLD) || check.read(LEFT_DISTANCE) > INTERSECTION_THRESHOLD)) {
-        retV = 1;
-    }
-
-//    int d_e;
-//    std::cout << "Are you at a intersection 1/0?" << std::endl;
-//    std::cin >> d_e;
-//
-//    if (d_e) {
+//    // If th
+//    if((check.read(TURNING) != 1)  // If the user is not turning
+//            && ((check.read(FRONT_DISTANCE) < FRONT_TRESHOLD)  // If user has hit a dead end
+//            || (check.read(RIGHT_DISTANCE) > INTERSECTION_THRESHOLD) // If left is open
+//            || check.read(LEFT_DISTANCE) > INTERSECTION_THRESHOLD)) { // If right is open
 //        retV = 1;
 //    }
+
+    int d_e;
+    std::cout << "Are you at a intersection 1/0?" << std::endl;
+    std::cin >> d_e;
+
+    if (d_e) {
+        retV = 1;
+    }
 
     // Check if there are op
     //enings in any direction but the front
@@ -215,12 +240,12 @@ int Locator::intersection_check(Arduino_Packet & check) {
 
 void Locator::run_locator() {
 
-    std::cout << "Front: " <<this->recent_metrics.read(FRONT_DISTANCE) << std::endl;
-    std::cout << "Right: " <<this->recent_metrics.read(RIGHT_DISTANCE)<< std::endl;
-    std::cout << "Left: " <<this->recent_metrics.read(LEFT_DISTANCE) << std::endl;
-    std::cout << "Heading: " <<this->recent_metrics.read(TURNING) << std::endl;
+//    std::cout << "Front: " <<this->recent_metrics.read(FRONT_DISTANCE) << std::endl;
+//    std::cout << "Right: " <<this->recent_metrics.read(RIGHT_DISTANCE)<< std::endl;
+//    std::cout << "Left: " <<this->recent_metrics.read(LEFT_DISTANCE) << std::endl;
+//    std::cout << "Heading: " <<this->recent_metrics.read(TURNING) << std::endl;
 
-    curr_heading = (Graph_Utils::parse_direction(this->recent_metrics.read(TURNING)) -1)/2;
+   // curr_heading = (Graph_Utils::parse_direction(this->recent_metrics.read(TURNING)) -1)/2;
 
     // Rising edge for ceiling light detection
     old_res = res;
@@ -244,6 +269,9 @@ void Locator::run_locator() {
     // to verify.
     intersection_verify(intersection, old_intersection);
 
+
+
+
     // Indicate to user that we have passed under a light.
     if (new_light) {
         Audio::play_light();
@@ -266,18 +294,41 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
 
         if (goal_progression) {
             to_turn = goalDirection();
+
+            handDirection turn_prompt = Graph_Utils::cardinal_to_hand(to_turn, curr_heading);
+            std::cout << "Returning " << to_turn;
+            std::cout << "Curr" << curr_heading;
+
+            curr_heading = to_turn;
+
+            Audio::turn_dir(turn_prompt);
+
         } else {
             to_turn = standardDirection(to_turn);
+
+            if (locator_graph.path_count() == 1 && !goal_progression) {
+                goal_setup();
+                to_turn = goalDirection();
+                handDirection turn_prompt = Graph_Utils::cardinal_to_hand(to_turn, curr_heading);
+                curr_heading = to_turn;
+
+                Audio::turn_dir(turn_prompt);
+            } else {
+                Audio::turn_dir(to_turn);
+            }
+
+
+
         }
 
         // Update state of graph based on direction that we turned
 
 
-        cardinalDirection turn_command = Graph_Utils::cardinal_to_hand(to_turn, curr_heading);
-#ifdef DEBUG
-        std::__1::cout << "The turn was " << to_turn << std::__1::endl;
-#endif
-        Audio::turn_dir(turn_command);
+//        cardinalDirection turn_command = Graph_Utils::cardinal_to_hand(to_turn, curr_heading);
+//#ifdef DEBUG
+//        std::__1::cout << "The turn was " << to_turn << std::__1::endl;
+//#endif
+
 
     }
 }
@@ -287,7 +338,12 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
 // changes further commands to guide user via shortest path
 // to goal.
 void Locator::goal_setup() {
-    last_node = locator_graph.get_last_node(locator_graph.get_depth());
+    nodeLabel parent;
+    last_node = locator_graph.get_last_node(locator_graph.get_depth(),parent);
+    this->curr_heading = Graph_Utils::check_connection(parent, last_node, this->locator_graph);
+
+
+    // Identify location direction
 
 
     if (!goal_progression) {
@@ -299,14 +355,17 @@ void Locator::goal_setup() {
 }
 
 cardinalDirection Locator::standardDirection(cardinalDirection to_turn) {
-    std::vector<cardinalDirection> openings =  check_openings(this->recent_metrics, curr_heading);
+    std::vector<cardinalDirection> openings = check_open_m();
+//    std::vector<cardinalDirection> openings =  check_openings(this->recent_metrics, curr_heading);
     to_turn = this->next_step_m(openings);
     if (!init_intersect) {
                 // First intersection reached
                 locator_graph.edge_progress = 0;
                 init_intersect = 1;
             }
-        locator_graph.intersection_update(to_turn,openings);
+ //  locator_graph.intersection_update(to_turn,openings);
+   locator_graph.intersection_update(openings);
+
 
     return to_turn;
 }
@@ -318,7 +377,8 @@ cardinalDirection Locator::goalDirection() {
             } else {
                 // Check connection between current and front of goal list
                 to_turn = Graph_Utils::check_connection( goal_list.front(), goal_list.at(1), locator_graph);
-                std::vector<cardinalDirection> temp_v = check_openings(this->recent_metrics, curr_heading);
+
+               // std::vector<cardinalDirection> temp_v = check_openings(this->recent_metrics, curr_heading);
              //   std::vector<cardinalDirection> temp_v = check_open_m();
                 goal_list.erase(goal_list.begin());
             }

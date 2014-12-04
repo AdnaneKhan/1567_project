@@ -19,6 +19,23 @@ void Node::add_neighbor(Node *neighbor, int cost, int direction) {
     neighbors[direction].second = cost;
 }
 
+bool Node::add_neighbor(Node *neighbor, int cost) {
+    bool returnV;
+
+
+    if (neighbor_count < 4) {
+        neighbors[neighbor_count].first = neighbor;
+        neighbors[neighbor_count].second = cost;
+        neighbor_count++;
+
+        returnV = true;
+    } else {
+        returnV = false;
+    }
+
+    return returnV;
+}
+
 Node::Node(nodeLabel id) {
     neighbor_count = 0;
     neighbors = new std::pair<Node *, int>[MAX_NEIGHBORS];
@@ -39,7 +56,6 @@ Node::Node() {
 Node::~Node() {
     delete(neighbors);
 }
-
 
 int Node::num_neighbors() {
     return neighbor_count;
