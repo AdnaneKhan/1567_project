@@ -34,7 +34,6 @@ public:
     Sennot_Graph();
     ~Sennot_Graph();
 
-    bool intersection_update(cardinalDirection next_dir,std::vector<cardinalDirection> & dirs_open);
     bool intersection_update(std::vector<handDirection> & dirs_open);
 
      int add_node(Node * root ,int tree_depth, int num_neighbors, int add_cost);
@@ -75,8 +74,6 @@ private:
     // Graph representing sennot square floor 5
     std::array<Node *, NODE_COUNT> graph;
 
-    // Array of lists that represent starting paths
-    std::array<std::list<Node *>, NODE_COUNT> step_lists;
 
     std::array<Node*,NODE_COUNT> progression_tree;
 

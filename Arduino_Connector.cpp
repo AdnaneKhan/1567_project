@@ -56,9 +56,7 @@ void Arduino_Connector::parse_packet(char * string_in,int buf_max, Arduino_Packe
     int val_count = 0;
     int start = 0;
 
-    #ifdef DEBUG
-        std::cout << "About to parse " << string_in << " to " << buf_max <<std::endl;
-    #endif
+
 
     for (int i = 0; i < buf_max; i++) {
 
@@ -68,10 +66,10 @@ void Arduino_Connector::parse_packet(char * string_in,int buf_max, Arduino_Packe
 
             float parsed_value = strtof((string_in + start), nullptr);
 
-            #ifdef DEBUG
-                 std::cout << "Just parsed:" << parsed_value << " ";
-            std::cout << start << " to " << i-1 <<std::endl;
-            #endif
+            //#ifdef DEBUG
+           //      std::cout << "Just parsed:" << parsed_value << " ";
+           // std::cout << start << " to " << i-1 <<std::endl;
+           // #endif
             to_update.update(val_count, parsed_value);
             val_count++;
             start = 0;

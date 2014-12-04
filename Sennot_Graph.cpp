@@ -5,12 +5,18 @@
 
 //#define LOGGING
 
+
  Sennot_Graph::~Sennot_Graph() {
     for (int i = 0; i < NODE_COUNT; i++) {
         delete(this->graph[i]);
     }
-}
 
+     // Change to recursively delete children
+     for (Node * n : this->progression_tree) {
+         delete(n);
+     }
+
+}
 
 nodeLabel Sennot_Graph::get_last_node(Node * root, int deeper, nodeLabel & parent) {
     if (deeper == 0) {
@@ -31,7 +37,7 @@ nodeLabel Sennot_Graph::get_last_node(Node * root, int deeper, nodeLabel & paren
             }
         }
 
-        return -1;
+        return INVALID_NEIGHBOR;
     }
 }
 
@@ -47,31 +53,6 @@ nodeLabel Sennot_Graph::get_last_node(int deeper,nodeLabel & parent) {
 
     return -1;
 }
-
-//nodeLabel Sennot_Graph::get_last_node(int path_length) {
-//    nodeLabel ret;
-//
-//    if (num_paths == 1) {
-//        for (std::list<Node*> list : step_lists) {
-//            if (list.size() == ( path_length+1)) {
-//
-//
-//                ret = list.back()->node_id;
-//#ifdef LOGGING
-//                std::cout << "Returning " << ret << " from get last node. \n";
-//#endif
-//                break;
-//            }
-//        }
-//    } else {
-//        #ifdef LOGGING
-//        std::cout << "There was no step list that matched the current depth";
-//        #endif
-//        ret = -1;
-//    }
-//
-//    return ret;
-//}
 
 graphInt Sennot_Graph::path_count() {
     return num_paths;
@@ -106,14 +87,6 @@ Sennot_Graph::Sennot_Graph() {
 
 bool check_valid(Node * curr, std::vector<cardinalDirection> & dirs_open) {
 
-//    std::cout << "Checking Node " << curr->node_id << std::endl;
-//
-//    std::cout << "Checking N " << dirs_open[0];
-//    std::cout << "Checking E " << dirs_open[1];
-//    std::cout << "Checking S " << dirs_open[2];
-//    std::cout << "Checking W " << dirs_open[3];
-
-
     for (int i = 0; i < MAX_NEIGHBORS; i++) {
 
         if( ((dirs_open[i] != INVALID_NEIGHBOR) && curr->neighbors[i].second == INVALID_NEIGHBOR ))  {
@@ -144,13 +117,14 @@ int Sennot_Graph::add_node(Node * root ,int tree_depth, int num_neighbors, int a
 
                     std::cout << "The node ID was " << ref->neighbors[i].first->node_id << "\n";
                     if (root->add_neighbor(to_add,add_cost)) {
-                        return 1;
+                        to_ret+= 1;
                     }
               //  } else {
              //       return 0;
               //  }
             }
         }
+        return to_ret;
 
     } else {
         for (int i = 0; i < MAX_NEIGHBORS;i++) {
@@ -203,54 +177,6 @@ bool Sennot_Graph::intersection_update( std::vector<handDirection> & dirs_open) 
     }
 }
 
-/**
-*  \param step_count number of steps that were travelled along edge to reach this node (intersection)
-*/
-bool Sennot_Graph::intersection_update(cardinalDirection next_dir,std::vector<cardinalDirection> & dirs_open) {
-    bool increment = false;
-
-    #ifdef LOGGING
-        std::cout << next_dir << " is our next step (cardinal).\n";
-    #endif
-    for (int i = 0; i < NODE_COUNT; i++) {
-        if (step_lists[i].size() == (depth+1)) {
-            Node *temp = step_lists[i].back();
-
-
-            if (check_valid (temp,dirs_open) && temp->neighbors[next_dir].second != INVALID_NEIGHBOR /*&& ((this->edge_progress+1) >= (temp->neighbors[next_dir].second) && (this->edge_progress-1) <= (temp->neighbors[next_dir].second))*/){
-
-
-                // Check if we have an opening
-
-                // Turn in this direction
-                increment = true;
-                step_lists[i].push_back(temp->neighbors[next_dir].first);
-
-                    #ifdef LOGGING
-                    std::cout << " We are potentially going from " << temp->node_id << " to " << temp->neighbors[next_dir].first->node_id << std::endl;
-                    #endif
-
-
-            } else {
-                // Reduce the number of paths
-                if (num_paths > 1) {
-                    num_paths--;
-                } else {
-                    #ifdef LOGGING
-                      std::cout << " We are in a state where we would be reducing paths below one.\n";
-                    #endif
-                }
-
-            }
-        }
-    }
-    // reset progress
-    edge_progress = 0;
-
-    // If a turn was made then depth is increased correspondingly
-    return increment;
-}
-
 
 /**
 * Prunes possible paths through graph to correspond with how many lights the current path has passed.
@@ -260,44 +186,7 @@ bool Sennot_Graph::intersection_update(cardinalDirection next_dir,std::vector<ca
 */
 graphInt Sennot_Graph::edge_step() {
 
-    int keep_path = 0;
     edge_progress++;
-
-    for (int i = 0; i < NODE_COUNT; i++) {
-        if (step_lists[i].size() >= depth) {
-
-            Node *temp = step_lists[i].back();
-
-            #ifdef LOGGING
-            std::cout << "We are checking " << temp->node_id << " curr prog:" << edge_progress;
-            #endif
-
-            for (int j = 0; j < MAX_NEIGHBORS; j++) {
-                // If at least one of the neighbors of the node represents a valid movement we can keep this traversal
-                // in set of possible routes
-                if (temp->neighbors[j].second != INVALID_NEIGHBOR && (temp->neighbors[j].second +1) >= edge_progress) {
-                    #ifdef LOGGING
-                    std::cout << " with " <<temp->neighbors[j].first->node_id<< ",Cost:" << temp->neighbors[j].second;
-                    #endif
-                    //
-                    keep_path = 1;
-                }
-
-            }
-            #ifdef LOGGING
-                std::cout << std::endl;
-            #endif
-
-            if (!keep_path) {
-
-           //     num_paths--;
-                #ifdef LOGGING
-                std::cout << "We have reached a point where we would have removed steps, but keeping.\n";
-                #endif
-                keep_path = 0;
-            }
-        }
-    }
 
     return 0;
 }
@@ -306,7 +195,6 @@ void Sennot_Graph::initialize_paths() {
     for (int i = 0; i < NODE_COUNT; i++) {
         // set initial steps
         (graph[i]) = new Node(nodes[i]);
-        step_lists.at(i).push_back(graph[i]);
         this->progression_tree[i] = new Node(graph[i]->node_id);
     }
 }

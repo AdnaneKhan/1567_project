@@ -28,8 +28,9 @@
 #define DEFAULT_CAMERA 500
 #define MAX_NEIGHBORS 4
 
-#define INTERSECTION_THRESHOLD 70
+#define INTERSECTION_THRESHOLD 60
 #define FRONT_TRESHOLD 40
+#define INTERSECTION 1
 
 #define GOAL_NODE 'S'
 
@@ -47,13 +48,6 @@ typedef int locatorState;
 
 
 
-typedef struct Intersect_Info {
-    handDirection dir_f;
-    handDirection dir_r;
-    handDirection dir_l;
-    handDirection dir_b;
-
-} IInfo;
 /*
     This class represents the Sennot Square navigation problem.
     A text file is specified in the constructor which contains information to initialize
@@ -135,13 +129,15 @@ private:
     detectionResult intersection;
     detectionResult old_intersection;
 
+    int left_distance;
+    int right_distance;
+    int forward_distance;
+
     // Checks the distances reported from the Arduino to determine whether hallway openings suggest
     // The presence of an intersection
-    int intersection_check(Arduino_Packet & check);
+    detectionResult intersection_check();
 
-    // Checks openings and returns a direction for user to turn
-    cardinalDirection next_step(Arduino_Packet &packet);
-    cardinalDirection next_step_m(std::vector<cardinalDirection> & directions); // Manually asks for openings
+    cardinalDirection next_step(std::vector<cardinalDirection> &directions); // Manually asks for openings
 
     std::vector<cardinalDirection> check_open_m();
 
@@ -157,6 +153,7 @@ private:
     *  charactersistics
     */
     locatorState reset_state();
+    void read_distances();
 
     int goalDirection();
 
