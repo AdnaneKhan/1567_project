@@ -168,8 +168,10 @@ bool Sennot_Graph::intersection_update( std::vector<handDirection> & dirs_open) 
 
     this->num_paths = added;
     // If we are unable to add at all we are fucked.
+    this->edge_progress = 0;
 
     if (added) {
+
         depth++;
         return true;
     } else {

@@ -176,13 +176,15 @@ void Locator::run_locator() {
     // Check to make sure we don't double count intersection that we are standing under
     // If accelerometers can be incorporated into this that data can also be used
     // to verify.
+    // TODO: change so that this method
+    // holds position for 5 seconds and reads values to average so that openings are correctly determined
     intersection_verify(intersection, old_intersection);
 
 
     // Indicate to user that we have passed under a light.
     if (new_light) {
         Audio::play_light();
-        /// Trims paths based on edge_weights
+
         locator_graph.edge_step();
     }
 }
@@ -195,9 +197,9 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
 
         cardinalDirection to_turn;
 
-        if (locator_graph.path_count() == 1 && !goal_progression) {
-            goal_setup();
-        }
+//        if (locator_graph.path_count() == 1 && !goal_progression) {
+//            goal_setup();
+//        }
 
         if (goal_progression) {
             to_turn = goalDirection();
