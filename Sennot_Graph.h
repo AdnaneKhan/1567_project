@@ -34,6 +34,8 @@ public:
     Sennot_Graph();
     ~Sennot_Graph();
 
+            void reset_graph();
+
     bool intersection_update(std::vector<handDirection> & dirs_open);
 
      int add_node(Node * root ,int tree_depth, int num_neighbors, int add_cost);
@@ -73,13 +75,15 @@ private:
 
     // Graph representing sennot square floor 5
     std::array<Node *, NODE_COUNT> graph;
-            bool neighbor_logic(int n1, int n2);
+
 
     std::array<Node*,NODE_COUNT> progression_tree;
 
 
     // Num of candidate paths being tracked
     graphInt num_paths;
+
+            bool neighbor_logic(int n1, int n2);
 
 };
 

@@ -8,9 +8,7 @@ locatorState Locator::reset_state() {
     this->goal_progression = 0;
     this->goal_list.clear();
 
-    locator_graph.~Sennot_Graph();
-
-    locator_graph = Sennot_Graph();
+   locator_graph.reset_graph();
 
     return 1;
 }
@@ -29,6 +27,12 @@ bool Locator::is_located() {
     }
 
     return retb;
+}
+
+static void sleep_loc(int n) {
+    std::chrono::seconds timespan(n);
+
+  //  std::this_thread::sleep_for(timespan);
 }
 
 /**
@@ -53,10 +57,9 @@ std::vector<cardinalDirection> Locator::check_openings(Sonar_Distances & distanc
     float max_r = curr_cycle.right_distance;
 
     for (int i = 0; i < 10; i++) {
-        std::chrono::milliseconds timespan(1000);
 
         read_distances();
-        std::this_thread::sleep_for( timespan);
+        sleep_loc(1);
         if (curr_cycle.right_distance > max_r) {
             max_r = curr_cycle.right_distance;
         }
@@ -150,7 +153,7 @@ detectionResult Locator::intersection_check() {
         retV = INTERSECTION;
     }
 
-    if (this->curr_cycle.forward_distance < FRONT_TRESHOLD && this->curr_cycle.forward_distance > 0 ) {
+    if (this->curr_cycle.forward_distance < FRONT_TRESHOLD ) {
 
         std::cout << "The right value was: " << this->curr_cycle.right_distance<< std::endl;
         std::cout <<  "The left value was: " <<this->curr_cycle.left_distance << std::endl;
@@ -238,26 +241,28 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
 
     if ((intersect ^ old_intersect) & intersect) {
         Audio::intersection();
-        std::chrono::milliseconds timespan(1000);
-        std::chrono::milliseconds timespan2(5000);
 
         // Prompt user that he has reached intersection
 
-
         cardinalDirection to_turn;
 
-//        if (locator_graph.path_count() == 1 && !goal_progression) {
-//            goal_setup();
-//        }
+
 
         if (goal_progression) {
-            to_turn = goalDirection();
+            if (goal_list.size() > 0) {
+                to_turn = goalDirection();
 
-            handDirection turn_prompt = Graph_Utils::cardinal_to_hand(to_turn, curr_heading);
-            curr_heading = to_turn;
 
-            Audio::turn_dir(turn_prompt);
+                handDirection turn_prompt = Graph_Utils::cardinal_to_hand(to_turn, curr_heading);
+                curr_heading = to_turn;
 
+                Audio::turn_dir(turn_prompt);
+            } else {
+                // At this point we should be at goal, in case we are not we reset after 10 seconds
+                sleep_loc(15);
+
+                this->reset_state();
+            }
         } else {
             to_turn = standardDirection(to_turn);
 
@@ -266,16 +271,16 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
                 to_turn = goalDirection();
                 handDirection turn_prompt = Graph_Utils::cardinal_to_hand(to_turn, curr_heading);
                 curr_heading = to_turn;
-                std::this_thread::sleep_for( timespan);
+sleep_loc(1);
 
                 Audio::turn_dir(turn_prompt);
             } else {
-                std::this_thread::sleep_for( timespan);
+             sleep_loc(1);
                 Audio::turn_dir(to_turn);
             }
         }
 
-        std::this_thread::sleep_for( timespan2);
+       sleep_loc(5);
     }
 }
 
@@ -320,7 +325,7 @@ cardinalDirection Locator::standardDirection(cardinalDirection to_turn) {
 }
 
 cardinalDirection Locator::goalDirection() {
-    cardinalDirection to_turn;
+    cardinalDirection to_turn = INVALID_DIRECTION;
     if (goal_list.size() == 1) {
                 Audio::play_destination();
             } else {
@@ -329,6 +334,7 @@ cardinalDirection Locator::goalDirection() {
 
                 goal_list.erase(goal_list.begin());
             }
+
     return to_turn;
 }
 
@@ -346,9 +352,6 @@ int Locator::start(std::string data_source, int source_type) {
         con->start_thread();
         retv = 1;
 
-        // Sleep locator to give time for connection to stabilize
-        std::chrono::milliseconds timespan(2000);
-        std::this_thread::sleep_for( timespan);
 
     } else if (source_type == SIMULATED_DATA) {
         con = new Arduino_Connector(&this->newest_metrics, data_source, SIMULATION);
@@ -357,6 +360,7 @@ int Locator::start(std::string data_source, int source_type) {
     }
 
     Audio::play_start();
+    sleep_loc(10);
 
     return retv;
 }

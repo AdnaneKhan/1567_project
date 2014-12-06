@@ -11,10 +11,17 @@
         delete(this->graph[i]);
     }
 
-     // Change to recursively delete children
-     for (Node * n : this->progression_tree) {
-         delete(n);
-     }
+}
+
+void Sennot_Graph::reset_graph() {
+    for (Node * n : this->graph) {
+          n->visitor = INVALID_NEIGHBOR;
+    }
+
+
+    for (Node * n : this->progression_tree) {
+        n->clear_tree();
+    }
 
 }
 
@@ -69,6 +76,7 @@ Node * Sennot_Graph::get_node(nodeLabel node) {
     if (index < this->graph.size()) {
         return_node = this->graph[index];
     } else {
+        std::cout << "Node get error.\n";
         // Problem!!
 
     }

@@ -1,6 +1,18 @@
 #include <array>
 #include "Node.h"
 
+void Node::clear_tree() {
+    for (int i = 0; i < MAX_NEIGHBORS; i++) {
+        if( this->neighbors[i].second != INVALID_NEIGHBOR) {
+            this->neighbors[i].first->clear_tree();
+            delete(this->neighbors[i].first);
+            this->neighbors[i].second = INVALID_NEIGHBOR;
+        }
+    }
+
+
+}
+
 bool Node::get_neighbor(Node &neighbor_ret, int direction) {
     bool retV = false;
 

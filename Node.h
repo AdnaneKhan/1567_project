@@ -30,6 +30,8 @@ public:
 
     ~Node();
 
+    void clear_tree();
+
     void add_neighbor(Node *neighbor, int cost, int direction);
 
     // Adds neighbor in an undirected manner

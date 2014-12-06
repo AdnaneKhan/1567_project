@@ -50,6 +50,8 @@ void run_full(const char * serial_port) {
     std::chrono::milliseconds timespan(250);
     int res = loc->start(serial_port, ARDUINO_DATA);
 
+
+    std::this_thread::sleep_for(timespan);
     if (res) {
         while (!loc->is_located()) {
             loc->run_locator();
