@@ -29,8 +29,11 @@
 #define MAX_NEIGHBORS 4
 
 #define INTERSECTION_THRESHOLD 60
-#define FRONT_TRESHOLD 40
+#define LEFT_INTERSECTION_TRESHOLD 65
+#define FRONT_TRESHOLD 50
 #define INTERSECTION 1
+
+#define INTERSECTION_BUF_SIZE 15
 
 #define GOAL_NODE 'S'
 
@@ -43,10 +46,7 @@
 
 #define DEBUG
 
-
 typedef int locatorState;
-
-
 
 /*
     This class represents the Sennot Square navigation problem.
@@ -100,7 +100,17 @@ private:
         
     } Camera_Readings;
 
-    Arduino_Packet recent_metrics;
+    typedef struct Sonar_Distances {
+        sensorValue left_distance;
+        sensorValue right_distance;
+        sensorValue forward_distance;
+    } Sonar_Distances;
+
+    // Holds most recent metrics from
+    // Arduino, if reading more than one value it is
+    // necessary to use start read and end read calls to
+    // ensure that all data originated from same packet.
+    Arduino_Packet newest_metrics;
 
 
     ///=======================================
@@ -111,15 +121,19 @@ private:
     ///////////////===========================
 
 
-
     Sennot_Graph locator_graph;
     nodeLabel last_node;
     std::vector<nodeLabel> goal_list;
 
+    std::deque<detectionResult> intersect_buffer;
+
     bool goal_progression; // Are we on path to goal?
 
+
+    // Value is non valid until location has occured, afterwards value
+    // is consistent with "sennot cardinals" as long as user makes appropriate
+    // turns in hand direction.
     cardinalDirection curr_heading;
-    bool init_intersect;
 
     // Variable for tracking light
     detectionResult old_res;
@@ -129,9 +143,9 @@ private:
     detectionResult intersection;
     detectionResult old_intersection;
 
-    int left_distance;
-    int right_distance;
-    int forward_distance;
+    // Holds the sonar distances read in per loop of locator
+    Sonar_Distances curr_cycle;
+
 
     // Checks the distances reported from the Arduino to determine whether hallway openings suggest
     // The presence of an intersection
@@ -146,13 +160,17 @@ private:
     /**
     *  Parses sensor data to check which directions are open for the user to turn into
     */
-    std::vector<cardinalDirection> check_openings(Arduino_Packet &packet, cardinalDirection curr_direction);
+    std::vector<cardinalDirection> check_openings(Sonar_Distances & distances);
 
     /**
     *  Resets the state of the graph so that user is located at any of ndes matching current
     *  charactersistics
+    *
+    * Essentially restarts the locator and pathfinding
     */
     locatorState reset_state();
+
+    // Reads distances from arduino packet into sonar struct
     void read_distances();
 
     int goalDirection();

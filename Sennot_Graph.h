@@ -73,7 +73,7 @@ private:
 
     // Graph representing sennot square floor 5
     std::array<Node *, NODE_COUNT> graph;
-
+            bool neighbor_logic(int n1, int n2);
 
     std::array<Node*,NODE_COUNT> progression_tree;
 

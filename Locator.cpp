@@ -6,7 +6,6 @@ locatorState Locator::reset_state() {
     Audio::play_reset();
     // Play reset information for user FULL_STOP!!
     this->goal_progression = 0;
-    this->init_intersect = 0;
     this->goal_list.clear();
 
     locator_graph.~Sennot_Graph();
@@ -42,24 +41,43 @@ bool Locator::is_located() {
 *
 * \return whether any F,L,R values were detected as open
 */
-std::vector<cardinalDirection> Locator::check_openings(Arduino_Packet &packet, cardinalDirection curr_direction) {
+std::vector<cardinalDirection> Locator::check_openings(Sonar_Distances & distances) {
     std::vector<cardinalDirection> directions = {DIR_N, DIR_E, DIR_S, DIR_W};
-    int l;
-    int r;
-    int f;
-    // Reverse is obviously open
-    int b = 1;
 
-    if (this->left_distance  < INTERSECTION_THRESHOLD) {
-        directions[LEFT] = -1;
+
+    std::cout << "The right value was: " << this->curr_cycle.right_distance<< std::endl;
+    std::cout <<  "The left value was: " <<this->curr_cycle.left_distance << std::endl;
+    std::cout <<  "The front value was: " <<this->curr_cycle.forward_distance << std::endl;
+
+    float max_l = curr_cycle.left_distance;
+    float max_r = curr_cycle.right_distance;
+
+    for (int i = 0; i < 10; i++) {
+        std::chrono::milliseconds timespan(1000);
+
+        read_distances();
+        std::this_thread::sleep_for( timespan);
+        if (curr_cycle.right_distance > max_r) {
+            max_r = curr_cycle.right_distance;
+        }
+
+        if (curr_cycle.left_distance > max_l) {
+            max_l = curr_cycle.left_distance;
+        }
     }
 
-    if (this->right_distance < INTERSECTION_THRESHOLD) {
-        directions[RIGHT] = -1;
+
+    if (max_l  < INTERSECTION_THRESHOLD) {
+
+        directions[LEFT] = INVALID_DIRECTION;
     }
 
-    if (this->forward_distance < INTERSECTION_THRESHOLD) {
-        directions[FORWARD] = -1;
+    if (max_l < INTERSECTION_THRESHOLD) {
+        directions[RIGHT] = INVALID_DIRECTION;
+    }
+
+    if (curr_cycle.forward_distance < 80) {
+        directions[FORWARD] = INVALID_DIRECTION;
     }
 
 
@@ -69,13 +87,11 @@ std::vector<cardinalDirection> Locator::check_openings(Arduino_Packet &packet, c
 std::vector<cardinalDirection> Locator::check_open_m(){
 
     std::vector<cardinalDirection> directions = {DIR_N, DIR_E, DIR_S, DIR_W};
-    int origin;
     int l;
     int r;
     int f;
 
     int b = 1;
-
 
     std::cout << "Is left open 0/1?" << std::endl;
     std::cin >> l;
@@ -126,15 +142,20 @@ cardinalDirection Locator::next_step(std::vector<cardinalDirection> &directions)
 detectionResult Locator::intersection_check() {
     detectionResult retV = 0;
 
-    std::cout << this->right_distance<< std::endl;
-    std::cout << this->left_distance << std::endl;
+    if (this->curr_cycle.right_distance > INTERSECTION_THRESHOLD || this->curr_cycle.left_distance > INTERSECTION_THRESHOLD) {
 
-    // If left or right side shows distances corresponding with an intersection
-    if (this->right_distance > INTERSECTION_THRESHOLD || this->left_distance > INTERSECTION_THRESHOLD) {
+        std::cout << "The right value was: " << this->curr_cycle.right_distance<< std::endl;
+        std::cout <<  "The left value was: " <<this->curr_cycle.left_distance << std::endl;
+        std::cout <<  "The front value was: " <<this->curr_cycle.forward_distance << std::endl;
         retV = INTERSECTION;
     }
 
-    if (this->forward_distance < FRONT_TRESHOLD) {
+    if (this->curr_cycle.forward_distance < FRONT_TRESHOLD && this->curr_cycle.forward_distance > 0 ) {
+
+        std::cout << "The right value was: " << this->curr_cycle.right_distance<< std::endl;
+        std::cout <<  "The left value was: " <<this->curr_cycle.left_distance << std::endl;
+        std::cout <<  "The front value was: " <<this->curr_cycle.forward_distance << std::endl;
+
         retV = INTERSECTION;
     }
 
@@ -143,14 +164,28 @@ detectionResult Locator::intersection_check() {
 };
 
 void Locator::read_distances() {
-    this->recent_metrics.start_read();
+    this->newest_metrics.start_read();
 
-    this->forward_distance = recent_metrics.read(FRONT_DISTANCE);
-    this->left_distance = recent_metrics.read(LEFT_DISTANCE);
-    this->right_distance= recent_metrics.read(RIGHT_DISTANCE);
+    this->curr_cycle.right_distance  = newest_metrics.read(RIGHT_DISTANCE);
+    this->curr_cycle.left_distance = newest_metrics.read(LEFT_DISTANCE);
+    this->curr_cycle.forward_distance = newest_metrics.read(FORWARD);
 
-    this->recent_metrics.end_read();
+
+    this->newest_metrics.end_read();
 }
+
+float intersect_bounce(std::deque<detectionResult> intersect_buf) {
+    int detected= 0;
+
+    for (detectionResult d : intersect_buf) {
+        if (d) {
+            detected++;
+        }
+    }
+
+    return  ((float)detected/ INTERSECTION_BUF_SIZE);
+}
+
 
 void Locator::run_locator() {
 
@@ -172,12 +207,20 @@ void Locator::run_locator() {
     // If intersection detected from hallway opening
     intersection |= intersection_check();
 
+    this->intersect_buffer.push_front(intersection);
+    if (intersect_buffer.size() > 15)  {
+        intersect_buffer.pop_back();
+    }
+
+    float intersect_average = intersect_bounce(this->intersect_buffer);
+
+    if (intersect_average > .8 && res) {
+        intersection = 1;
+    }
 
     // Check to make sure we don't double count intersection that we are standing under
     // If accelerometers can be incorporated into this that data can also be used
     // to verify.
-    // TODO: change so that this method
-    // holds position for 5 seconds and reads values to average so that openings are correctly determined
     intersection_verify(intersection, old_intersection);
 
 
@@ -189,11 +232,17 @@ void Locator::run_locator() {
     }
 }
 
+
 void Locator::intersection_verify(detectionResult intersect, detectionResult old_intersect) {
+
+
     if ((intersect ^ old_intersect) & intersect) {
+        Audio::intersection();
+        std::chrono::milliseconds timespan(1000);
+        std::chrono::milliseconds timespan2(5000);
 
         // Prompt user that he has reached intersection
-        Audio::intersection();
+
 
         cardinalDirection to_turn;
 
@@ -205,9 +254,6 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
             to_turn = goalDirection();
 
             handDirection turn_prompt = Graph_Utils::cardinal_to_hand(to_turn, curr_heading);
-            std::cout << "Returning " << to_turn;
-            std::cout << "Curr" << curr_heading;
-
             curr_heading = to_turn;
 
             Audio::turn_dir(turn_prompt);
@@ -220,12 +266,16 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
                 to_turn = goalDirection();
                 handDirection turn_prompt = Graph_Utils::cardinal_to_hand(to_turn, curr_heading);
                 curr_heading = to_turn;
+                std::this_thread::sleep_for( timespan);
 
                 Audio::turn_dir(turn_prompt);
             } else {
+                std::this_thread::sleep_for( timespan);
                 Audio::turn_dir(to_turn);
             }
         }
+
+        std::this_thread::sleep_for( timespan2);
     }
 }
 
@@ -255,12 +305,16 @@ void Locator::goal_setup() {
 }
 
 cardinalDirection Locator::standardDirection(cardinalDirection to_turn) {
-    std::vector<cardinalDirection> openings = check_openings(this->recent_metrics, curr_heading);
+    this->read_distances();
+    std::vector<cardinalDirection> openings = check_openings(this->curr_cycle);
 
     to_turn = this->next_step(openings);
 
- //  locator_graph.intersection_update(to_turn,openings);
-   locator_graph.intersection_update(openings);
+    bool result = locator_graph.intersection_update(openings);
+
+    if (!result) {
+        this->reset_state();
+    }
 
     return to_turn;
 }
@@ -283,14 +337,21 @@ int Locator::start(std::string data_source, int source_type) {
 
     if (source_type == ARDUINO_DATA) {
         // Initialize the serial read
-        con = new Arduino_Connector(&this->recent_metrics, data_source, ARDUINO);
+        con = new Arduino_Connector(&this->newest_metrics, data_source, ARDUINO);
 
+        // Initialize connection with arduino
         con->init_connection();
+
+        // Start thread to read packets from connection
         con->start_thread();
         retv = 1;
 
+        // Sleep locator to give time for connection to stabilize
+        std::chrono::milliseconds timespan(2000);
+        std::this_thread::sleep_for( timespan);
+
     } else if (source_type == SIMULATED_DATA) {
-        con = new Arduino_Connector(&this->recent_metrics, data_source, SIMULATION);
+        con = new Arduino_Connector(&this->newest_metrics, data_source, SIMULATION);
         con->start_thread();
         retv =  1;
     }
@@ -319,7 +380,8 @@ Locator::Locator(std::string file_uri, int run_type) {
     this->old_res = 1;
     this->intersection = 0;
     this->old_intersection = 1;
-    this->init_intersect = 0;
+
+
 }
 
 Locator::~Locator() {

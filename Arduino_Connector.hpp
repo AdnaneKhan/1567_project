@@ -114,7 +114,10 @@ public:
 
     void start_thread();
     int stop_thread();
+
 private:
+
+    void write_packet(char * string_in,int buf_max);
 
     // Parses a packet in the following format:
     // {val1_val2_val3_val4_val5_val6_val7_val8}
@@ -144,6 +147,9 @@ private:
 
     // Indicates that the thread needs to stop
     int thread_halt;
+
+    std::ofstream w_file;
+    void open_file_w();
 
     // Runs the arduino connection as a seperate thread to receive packets from
     // arduino over serial USB.

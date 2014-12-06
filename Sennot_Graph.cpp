@@ -97,7 +97,22 @@ bool check_valid(Node * curr, std::vector<cardinalDirection> & dirs_open) {
     return true;
 }
 
+bool Sennot_Graph::neighbor_logic(int n1, int n2) {
+    bool  retb = false;
 
+    if (n1 == 1 && n2 != 1) {
+        retb = false;
+    } else if( n1 == 3 && n2 == 2) {
+        retb = true;
+    } else if (n1 == 4 && n2 == 3) {
+        retb = true;
+    } else if (n1 == n2 ) {
+        retb = true;
+    }
+
+    return retb;
+
+}
 
 int Sennot_Graph::add_node(Node * root ,int tree_depth, int num_neighbors, int add_cost) {
 
@@ -108,7 +123,8 @@ int Sennot_Graph::add_node(Node * root ,int tree_depth, int num_neighbors, int a
         Node * ref = get_node(root->node_id);
 
         for (int i = 0; i < MAX_NEIGHBORS; i ++) {
-            if (ref->neighbors[i].second != INVALID_NEIGHBOR && ref->neighbors[i].first->num_neighbors() == num_neighbors && ref->neighbors[i].first->visitor != ref->node_id /* && ref->neighbors[i].second-1 <= add_cost || ref->neighbors[i].second+1 >= add_cost*/) {
+
+            if (ref->neighbors[i].second != INVALID_NEIGHBOR && neighbor_logic(ref->neighbors[i].first->num_neighbors() , num_neighbors) && ref->neighbors[i].first->visitor != ref->node_id /* && ref->neighbors[i].second-1 <= add_cost || ref->neighbors[i].second+1 >= add_cost*/) {
                // cardinalDirection rev_dir = (ref->neighbors[i].second + 2) % 4;
              //   if ((ref->neighbors[i].first->neighbors[rev_dir].second != INVALID_NEIGHBOR && (ref->neighbors[i].first->neighbors[rev_dir].first->node_id != ref->node_id))) {
                     // Creating a new node with same ID as the potential neighbor
@@ -171,7 +187,6 @@ bool Sennot_Graph::intersection_update( std::vector<handDirection> & dirs_open) 
     this->edge_progress = 0;
 
     if (added) {
-
         depth++;
         return true;
     } else {

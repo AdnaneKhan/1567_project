@@ -37,6 +37,8 @@ namespace Graph_Utils {
     */
     int hand_to_cardinal(int to_cnvert,int current_heading);
 
+
+
 }
 
 #endif

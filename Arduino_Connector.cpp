@@ -56,13 +56,10 @@ void Arduino_Connector::parse_packet(char * string_in,int buf_max, Arduino_Packe
     int val_count = 0;
     int start = 0;
 
-
-
     for (int i = 0; i < buf_max; i++) {
 
         // Mark the close of the float
         if (( string_in[i] == '_' || string_in[i] == '}') && start) {
-
 
             float parsed_value = strtof((string_in + start), nullptr);
 
@@ -81,7 +78,6 @@ void Arduino_Connector::parse_packet(char * string_in,int buf_max, Arduino_Packe
         }
     }
 }
-
 
 int Arduino_Connector::file_read(std::string data_source) {
     std::ifstream file_in(data_source);
@@ -119,8 +115,9 @@ int Arduino_Connector::serial_read(int serial_handle) {
                 #ifdef DEBUG
                     std::cout << "Newline read\n";
                 #endif
-
+                this->buffer[string_counter] = 0;
                 parse_packet(this->buffer, string_counter, *this->data_holder );
+                write_packet(this->buffer,string_counter);
                 string_counter = 0;
 
                 #ifdef DEBUG
@@ -135,9 +132,18 @@ int Arduino_Connector::serial_read(int serial_handle) {
     return 0;
 }
 
+void Arduino_Connector::open_file_w() {
+    this->w_file = std::ofstream("/Users/adnankhan/Box Sync/Robots/1567_project/test_data/dummy.txt");
+}
+
+void Arduino_Connector::write_packet(char * string_in,int buf_max) {
+    w_file << string_in;
+
+}
+
 void Arduino_Connector::init_connection() {
     char start = START_SENTINEL;
-
+this->open_file_w();
     int writeout = write(serial_id, &start, 1);
 
    #ifdef DEBUG
