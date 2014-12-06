@@ -148,8 +148,10 @@ private:
     // Indicates that the thread needs to stop
     int thread_halt;
 
+    #ifndef __arm__
     std::ofstream w_file;
     void open_file_w();
+    #endif
 
     // Runs the arduino connection as a seperate thread to receive packets from
     // arduino over serial USB.

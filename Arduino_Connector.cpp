@@ -117,7 +117,10 @@ int Arduino_Connector::serial_read(int serial_handle) {
                 #endif
                 this->buffer[string_counter] = 0;
                 parse_packet(this->buffer, string_counter, *this->data_holder );
+
+                #ifndef __arm__
                 write_packet(this->buffer,string_counter);
+                #endif
                 string_counter = 0;
 
                 #ifdef DEBUG
@@ -136,11 +139,12 @@ void Arduino_Connector::open_file_w() {
     this->w_file = std::ofstream("/Users/adnankhan/Box Sync/Robots/1567_project/test_data/dummy.txt");
 }
 
+#ifndef __arm__
 void Arduino_Connector::write_packet(char * string_in,int buf_max) {
     w_file << string_in;
 
 }
-
+#endif
 void Arduino_Connector::init_connection() {
     char start = START_SENTINEL;
 this->open_file_w();

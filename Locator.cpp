@@ -32,7 +32,7 @@ bool Locator::is_located() {
 static void sleep_loc(int n) {
     std::chrono::seconds timespan(n);
 
-  //  std::this_thread::sleep_for(timespan);
+   std::this_thread::sleep_for(timespan);
 }
 
 /**
