@@ -59,20 +59,17 @@ void Arduino_Connector::parse_packet(char * string_in,int buf_max, Arduino_Packe
     for (int i = 0; i < buf_max; i++) {
 
         // Mark the close of the float
-        if (( string_in[i] == '_' || string_in[i] == '}') && start) {
+        if (( string_in[i] == ',' || string_in[i] == '}') && start) {
 
             float parsed_value = strtof((string_in + start), nullptr);
 
-            //#ifdef DEBUG
-           //      std::cout << "Just parsed:" << parsed_value << " ";
-           // std::cout << start << " to " << i-1 <<std::endl;
-           // #endif
+
             to_update.update(val_count, parsed_value);
             val_count++;
             start = 0;
         }
 
-        if ((string_in[i] == '{' || string_in[i] == '_') && !start ) {
+        if ((string_in[i] == '{' || string_in[i] == ',') && !start ) {
             start = 1 + i;
 
         }

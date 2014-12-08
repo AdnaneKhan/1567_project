@@ -19,8 +19,7 @@
 #define INVALID_PREV '!'
 
 typedef int graphInt;
-typedef int cardinalDirection;
-typedef int handDirection;
+
 
 // Nodes in the graph by label
 const char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M' ,'N','O','P','Q','R','S'};
@@ -83,7 +82,7 @@ private:
     // Num of candidate paths being tracked
     graphInt num_paths;
 
-            bool neighbor_logic(int n1, int n2);
+            bool neighbor_match(int n1, int n2);
 
 };
 

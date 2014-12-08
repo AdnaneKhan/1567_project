@@ -7,7 +7,6 @@ cardinalDirection Graph_Utils::check_connection(nodeLabel node1, nodeLabel node2
 
     std::cout << "Checking " << first_node->node_id <<std::endl;
 
-
     // We iterate through the list of neighbors of the start node, we check which in which direction
     // the second node is (from the first) and return that direction.
     for (int i = 0; i < MAX_NEIGHBORS; i++) {
@@ -20,51 +19,52 @@ cardinalDirection Graph_Utils::check_connection(nodeLabel node1, nodeLabel node2
     return retV;
 }
 
-int Graph_Utils::cardinal_to_hand(int to_convert, int current_heading) {
-    int new_dir;
+
+handDirection Graph_Utils::cardinal_to_hand(cardinalDirection new_direction, cardinalDirection current_heading) {
+    handDirection new_dir;
 
     switch(current_heading){
         case DIR_E:
-               if ( to_convert == DIR_N) {
+               if ( new_direction == DIR_N) {
                     new_dir = LEFT;
-               } else if (to_convert == DIR_E) {
+               } else if (new_direction == DIR_E) {
                     new_dir = FORWARD;
-               } else if (to_convert == DIR_S) {
+               } else if (new_direction == DIR_S) {
                     new_dir = RIGHT;
-               } else if (to_convert == DIR_W) {
+               } else if (new_direction == DIR_W) {
                     new_dir = BACK;
                }
             break;
         case DIR_S:
-            if ( to_convert == DIR_N) {
+            if ( new_direction == DIR_N) {
                 new_dir = BACK;
-            } else if (to_convert == DIR_E) {
+            } else if (new_direction == DIR_E) {
                 new_dir = LEFT;
-            } else if (to_convert == DIR_S) {
+            } else if (new_direction == DIR_S) {
                 new_dir = FORWARD;
-            } else if (to_convert == DIR_W) {
+            } else if (new_direction == DIR_W) {
                 new_dir = RIGHT;
             }
             break;
         case DIR_W:
-            if ( to_convert == DIR_N) {
+            if ( new_direction == DIR_N) {
                 new_dir = RIGHT;
-            } else if (to_convert == DIR_E) {
+            } else if (new_direction == DIR_E) {
                 new_dir = BACK;
-            } else if (to_convert == DIR_S) {
+            } else if (new_direction == DIR_S) {
                 new_dir = LEFT;
-            } else if (to_convert == DIR_W) {
+            } else if (new_direction == DIR_W) {
                 new_dir = FORWARD;
             }
             break;
         case DIR_N:
-            if ( to_convert == DIR_N) {
+            if ( new_direction == DIR_N) {
                 new_dir = FORWARD;
-            } else if (to_convert == DIR_E) {
+            } else if (new_direction == DIR_E) {
                 new_dir = RIGHT;
-            } else if (to_convert == DIR_S) {
+            } else if (new_direction == DIR_S) {
                 new_dir = BACK;
-            } else if (to_convert == DIR_W) {
+            } else if (new_direction == DIR_W) {
                 new_dir = LEFT;
             }
             break;

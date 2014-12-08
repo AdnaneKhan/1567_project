@@ -13,24 +13,9 @@ locatorState Locator::reset_state() {
     return 1;
 }
 
-/**
-*  \return retb true/false whether the locator has reduced set of traversals to one
-*/
-bool Locator::is_located() {
-    bool retb = false;
-
-    int path_num = this->locator_graph.path_count();
-
-    // If all possible paths reduced to 1, then we have found our location
-    if (path_num == 1) {
-     //   retb = true;
-    }
-
-    return retb;
-}
 
 static void sleep_loc(int n) {
-    std::chrono::seconds timespan(n);
+   std::chrono::seconds timespan(n);
 
    std::this_thread::sleep_for(timespan);
 }
@@ -46,8 +31,8 @@ static void sleep_loc(int n) {
 * \return whether any F,L,R values were detected as open
 */
 std::vector<cardinalDirection> Locator::check_openings(Sonar_Distances & distances) {
-    std::vector<cardinalDirection> directions = {DIR_N, DIR_E, DIR_S, DIR_W};
 
+    std::vector<cardinalDirection> directions = {DIR_N, DIR_E, DIR_S, DIR_W};
 
     std::cout << "The right value was: " << this->curr_cycle.right_distance<< std::endl;
     std::cout <<  "The left value was: " <<this->curr_cycle.left_distance << std::endl;
@@ -60,6 +45,7 @@ std::vector<cardinalDirection> Locator::check_openings(Sonar_Distances & distanc
 
         read_distances();
         sleep_loc(1);
+
         if (curr_cycle.right_distance > max_r) {
             max_r = curr_cycle.right_distance;
         }
@@ -69,56 +55,24 @@ std::vector<cardinalDirection> Locator::check_openings(Sonar_Distances & distanc
         }
     }
 
-
     if (max_l  < INTERSECTION_THRESHOLD) {
 
         directions[LEFT] = INVALID_DIRECTION;
     }
 
     if (max_l < INTERSECTION_THRESHOLD) {
+
         directions[RIGHT] = INVALID_DIRECTION;
     }
 
     if (curr_cycle.forward_distance < 80) {
+
         directions[FORWARD] = INVALID_DIRECTION;
     }
 
-
     return directions;
 }
 
-std::vector<cardinalDirection> Locator::check_open_m(){
-
-    std::vector<cardinalDirection> directions = {DIR_N, DIR_E, DIR_S, DIR_W};
-    int l;
-    int r;
-    int f;
-
-    int b = 1;
-
-    std::cout << "Is left open 0/1?" << std::endl;
-    std::cin >> l;
-
-    std::cout << "Is forward open 0/1?" << std::endl;
-    std::cin >> f;
-
-    std::cout << "Is r open 0/1?" << std::endl;
-    std::cin >> r;
-
-    if (!l) {
-        directions[LEFT] = -1;
-    }
-
-    if (!r) {
-        directions[RIGHT] = -1;
-    }
-
-    if (!f) {
-        directions[FORWARD] = -1;
-    }
-
-    return directions;
-}
 
 cardinalDirection Locator::next_step(std::vector<cardinalDirection> &directions) {
 
@@ -163,7 +117,6 @@ detectionResult Locator::intersection_check() {
     }
 
     return retV;
-
 };
 
 void Locator::read_distances() {
@@ -189,18 +142,17 @@ float intersect_bounce(std::deque<detectionResult> intersect_buf) {
     return  ((float)detected/ INTERSECTION_BUF_SIZE);
 }
 
-
 void Locator::run_locator() {
 
     this->read_distances();
 
     // Rising edge for ceiling light detection
-    old_res = res;
+    old_light_res = light_res;
     old_intersection = intersection;
 
-    res = proc.step_detect(this->camera, intersection);
+    light_res = proc.step_detect(this->camera, intersection);
 
-    locatorState new_light = (res ^ old_res) & res;
+    locatorState new_light = (light_res ^ old_light_res) & light_res;
 
     // Need to ensure we don't count circles as lights too
     if (intersection) {
@@ -217,7 +169,7 @@ void Locator::run_locator() {
 
     float intersect_average = intersect_bounce(this->intersect_buffer);
 
-    if (intersect_average > .8 && res) {
+    if (intersect_average > .8 && light_res) {
         intersection = 1;
     }
 
@@ -238,14 +190,12 @@ void Locator::run_locator() {
 
 void Locator::intersection_verify(detectionResult intersect, detectionResult old_intersect) {
 
-
     if ((intersect ^ old_intersect) & intersect) {
         Audio::intersection();
 
         // Prompt user that he has reached intersection
 
         cardinalDirection to_turn;
-
 
 
         if (goal_progression) {
@@ -264,17 +214,21 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
                 this->reset_state();
             }
         } else {
+
             to_turn = standardDirection(to_turn);
 
             if (locator_graph.path_count() == 1 && !goal_progression) {
+
                 goal_setup();
                 to_turn = goalDirection();
                 handDirection turn_prompt = Graph_Utils::cardinal_to_hand(to_turn, curr_heading);
                 curr_heading = to_turn;
-sleep_loc(1);
+
+            sleep_loc(1);
 
                 Audio::turn_dir(turn_prompt);
             } else {
+
              sleep_loc(1);
                 Audio::turn_dir(to_turn);
             }
@@ -290,11 +244,11 @@ sleep_loc(1);
 // to goal.
 void Locator::goal_setup() {
     nodeLabel parent;
+
     last_node = locator_graph.get_last_node(locator_graph.get_depth(),parent);
 
     if(last_node == INVALID_NEIGHBOR) {
         this->reset_state();
-
     } else {
         this->curr_heading = Graph_Utils::check_connection(parent, last_node, this->locator_graph);
 
@@ -310,13 +264,19 @@ void Locator::goal_setup() {
 }
 
 cardinalDirection Locator::standardDirection(cardinalDirection to_turn) {
+    // Update Distances
     this->read_distances();
+
+    // Check openings based on most recent read
     std::vector<cardinalDirection> openings = check_openings(this->curr_cycle);
 
+    // Get turn in Open direction
     to_turn = this->next_step(openings);
 
+    // Update the graph state to correspond with node we are at
     bool result = locator_graph.intersection_update(openings);
 
+    // If no paths were advanced, then state is inconsistent; reset graph
     if (!result) {
         this->reset_state();
     }
@@ -380,11 +340,11 @@ Locator::Locator(std::string file_uri, int run_type) {
         this->camera = Camera_Connector(Camera_Type::IMAGE_FOLDER_E, file_uri, 180);
     }
 
-    this->res = 0;
-    this->old_res = 1;
+    // Set Light and intersection indicators to 0
+    this->light_res = 0;
+    this->old_light_res = 0;
     this->intersection = 0;
-    this->old_intersection = 1;
-
+    this->old_intersection = 0;
 
 }
 

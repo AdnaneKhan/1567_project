@@ -5,6 +5,15 @@
 
 //#define LOGGING
 
+Sennot_Graph::Sennot_Graph() {
+    initialize_paths();
+    initialize_graph();
+
+    edge_progress = 0;
+    depth = 0;
+    num_paths = NODE_COUNT;
+}
+
 
  Sennot_Graph::~Sennot_Graph() {
     for (int i = 0; i < NODE_COUNT; i++) {
@@ -18,6 +27,7 @@ void Sennot_Graph::reset_graph() {
           n->visitor = INVALID_NEIGHBOR;
     }
 
+    this->depth = 0;
 
     for (Node * n : this->progression_tree) {
         n->clear_tree();
@@ -27,8 +37,6 @@ void Sennot_Graph::reset_graph() {
 
 nodeLabel Sennot_Graph::get_last_node(Node * root, int deeper, nodeLabel & parent) {
     if (deeper == 0) {
-
-
         return root->node_id;
 
     } else {
@@ -84,14 +92,6 @@ Node * Sennot_Graph::get_node(nodeLabel node) {
     return return_node;
 }
 
-Sennot_Graph::Sennot_Graph() {
-    initialize_paths();
-    initialize_graph();
-
-    edge_progress = 0;
-    depth = 0;
-    num_paths = NODE_COUNT;
-}
 
 bool check_valid(Node * curr, std::vector<cardinalDirection> & dirs_open) {
 
@@ -105,16 +105,10 @@ bool check_valid(Node * curr, std::vector<cardinalDirection> & dirs_open) {
     return true;
 }
 
-bool Sennot_Graph::neighbor_logic(int n1, int n2) {
+bool Sennot_Graph::neighbor_match(int n1, int n2) {
     bool  retb = false;
 
-    if (n1 == 1 && n2 != 1) {
-        retb = false;
-    } else if( n1 == 3 && n2 == 2) {
-        retb = true;
-    } else if (n1 == 4 && n2 == 3) {
-        retb = true;
-    } else if (n1 == n2 ) {
+    if (n1 == n2) {
         retb = true;
     }
 
@@ -132,10 +126,8 @@ int Sennot_Graph::add_node(Node * root ,int tree_depth, int num_neighbors, int a
 
         for (int i = 0; i < MAX_NEIGHBORS; i ++) {
 
-            if (ref->neighbors[i].second != INVALID_NEIGHBOR && neighbor_logic(ref->neighbors[i].first->num_neighbors() , num_neighbors) && ref->neighbors[i].first->visitor != ref->node_id /* && ref->neighbors[i].second-1 <= add_cost || ref->neighbors[i].second+1 >= add_cost*/) {
-               // cardinalDirection rev_dir = (ref->neighbors[i].second + 2) % 4;
-             //   if ((ref->neighbors[i].first->neighbors[rev_dir].second != INVALID_NEIGHBOR && (ref->neighbors[i].first->neighbors[rev_dir].first->node_id != ref->node_id))) {
-                    // Creating a new node with same ID as the potential neighbor
+            if (ref->neighbors[i].second != INVALID_NEIGHBOR && neighbor_match(ref->neighbors[i].first->num_neighbors(), num_neighbors) && ref->neighbors[i].first->visitor != ref->node_id /* && ref->neighbors[i].second-1 <= add_cost || ref->neighbors[i].second+1 >= add_cost*/) {
+
                     Node * to_add = new Node( ref->neighbors[i].first->node_id );
                     ref->neighbors[i].first->visitor = ref->node_id;
 
@@ -143,9 +135,6 @@ int Sennot_Graph::add_node(Node * root ,int tree_depth, int num_neighbors, int a
                     if (root->add_neighbor(to_add,add_cost)) {
                         to_ret+= 1;
                     }
-              //  } else {
-             //       return 0;
-              //  }
             }
         }
         return to_ret;
@@ -157,8 +146,6 @@ int Sennot_Graph::add_node(Node * root ,int tree_depth, int num_neighbors, int a
                 to_ret += add_node(root->neighbors[i].first,tree_depth-1,num_neighbors,add_cost);
             }
         }
-
-
     }
 
     return to_ret;

@@ -1,6 +1,5 @@
 #define DEBUG
 
-
 #include "Locator.h"
 
 #define SIMULATION 2
@@ -41,7 +40,6 @@ void run_simulation(const char * image_folder, const char * mock_data_file) {
     }
 }
 
-
 /*
 Runs the actual locater using data from camera and arduino serial connection
  */
@@ -53,7 +51,7 @@ void run_full(const char * serial_port) {
 
     std::this_thread::sleep_for(timespan);
     if (res) {
-        while (!loc->is_located()) {
+        while (true) {
             loc->run_locator();
         }
     } else {

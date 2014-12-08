@@ -1,6 +1,9 @@
 #ifndef NODE_H
 #define NODE_H
 
+typedef int cardinalDirection;
+typedef int handDirection;
+
 #define MAX_NEIGHBORS 4
 #define INVALID_NEIGHBOR -1
 
@@ -11,10 +14,6 @@ typedef float compassData;
 class Node {
 private:
     int neighbor_count;
-    compassData north_data;
-    compassData south_data;
-    compassData west_data;
-    compassData east_data;
 
 public:
     std::pair<Node *, int> * neighbors;
@@ -30,9 +29,10 @@ public:
 
     ~Node();
 
+    // Clears neighbors of the node
     void clear_tree();
 
-    void add_neighbor(Node *neighbor, int cost, int direction);
+    void add_neighbor(Node *neighbor, int cost, cardinalDirection direction);
 
     // Adds neighbor in an undirected manner
     // If no more space returns false
@@ -42,15 +42,18 @@ public:
     // mmeory leaks.
     bool add_neighbor(Node * neighbor, int cost);
 
+
+    /*
+        Reeturns the number of neighbors this Node has.
+     */
     int num_neighbors();
 
+    /*
+        Returns a reference to neighbor in given direction if it exists.
+     */
     bool get_neighbor(Node &neighbor_ret, int direction);
 
-    /**
-    * Checks whether neighbor in the specified direction
-    * is valid.
-    */
-    bool neighbor_valid(int direction);
+
 
 };
 

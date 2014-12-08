@@ -28,7 +28,7 @@
 #define DEFAULT_CAMERA 500
 #define MAX_NEIGHBORS 4
 
-#define INTERSECTION_THRESHOLD 60
+#define INTERSECTION_THRESHOLD 50
 #define LEFT_INTERSECTION_TRESHOLD 65
 #define FRONT_TRESHOLD 50
 #define INTERSECTION 1
@@ -50,12 +50,6 @@ typedef int locatorState;
 
 /*
     This class represents the Sennot Square navigation problem.
-    A text file is specified in the constructor which contains information to initialize
-    a graph.
-
-    Formatting for the graph is as follows:
-
-    Node {neighbor1:cost1,neighbor2:cost2,neighbor3:cost3}
 
     Cost should be measured by the number of rectangular lights that seperate the two graph.
     Nodes are intersections of two or more hallways.
@@ -77,13 +71,6 @@ public:
     If the connection fails, exit without starting the therad.
     */
     int start(std::string serial_info,int source_type);
-
-    /*
-    Returns TRUE if the locator has joined possible paths and the location has been narrowed down.
-    Returns FALSE if the locator has not yet definitively identified the path that has been taken.
-
-     */
-    bool is_located();
 
     Locator(std::string file_uri, int run_type);
 
@@ -136,8 +123,8 @@ private:
     cardinalDirection curr_heading;
 
     // Variable for tracking light
-    detectionResult old_res;
-    detectionResult res;
+    detectionResult old_light_res;
+    detectionResult light_res;
 
     // Variable for tracking intersection
     detectionResult intersection;
@@ -152,8 +139,6 @@ private:
     detectionResult intersection_check();
 
     cardinalDirection next_step(std::vector<cardinalDirection> &directions); // Manually asks for openings
-
-    std::vector<cardinalDirection> check_open_m();
 
     ////////////////////////////////////////////////
 

@@ -12,19 +12,21 @@ namespace Graph_Utils {
     /*
         Checks the connection between two nodes.
 
-        Returns the direction of the connection (from node1 to node2) if it exists
+        Returns the direction of the connection (from node1 to node2) if the connection exists
 
-        returns
      */
     cardinalDirection check_connection(nodeLabel node1, nodeLabel node2, Sennot_Graph & graph);
 
     /**
-    *  Allows conversion between world N,S,W,E and L,R,F,B for user
+    *
     *
     *  \param to_convert direction (cardinal) that we would like to go next
-    *  \param current_heading we are facing
+    *  \param current_heading (cardinal) that we are facing
+    *
+    *   Returns direction user has to go so that face the new_direction
+    *
     */
-    int cardinal_to_hand(int to_convert, int current_heading);
+    handDirection cardinal_to_hand(cardinalDirection new_direction, cardinalDirection current_heading);
 
     /**
     *     *  Allows conversion users current heading, a direction they turned relative to heading)
@@ -35,9 +37,7 @@ namespace Graph_Utils {
     *
     *  \returns direction in cardinal that the user needs to turn
     */
-    int hand_to_cardinal(int to_cnvert,int current_heading);
-
-
+    cardinalDirection hand_to_cardinal(handDirection to_cnvert,cardinalDirection current_heading);
 
 }
 

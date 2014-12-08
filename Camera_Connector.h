@@ -16,10 +16,6 @@
 
 #include "ConstantDefs.hpp"
 
-//#define RASPBERRY_PI_CAM 1
-//#define USB_WEBCAM 2
-//#define IMAGE_FOLDER 3
-#define USB_ID 500
 
 // Location where images will be written to when write_images is called.
 #ifdef __arm__
@@ -40,7 +36,6 @@ time get image is called
 */
 
 class Camera_Connector {
-
 
 private:
 

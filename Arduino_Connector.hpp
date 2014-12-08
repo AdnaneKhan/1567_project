@@ -11,7 +11,6 @@
 #include <iostream>
 #include <fstream>
 
-
 #define ARDUINO 1
 #define SIMULATION 2
 
@@ -107,17 +106,32 @@ class Arduino_Connector {
 
 public:
 
+    /*
+        \param data_in pointer to Arduino Packet which has latest data filled into if
+     */
     Arduino_Connector(Arduino_Packet *data_in, std::string source_info, int connection_type);
 
+
+    // Initializes the serial connection with Arduino
     void init_connection();
+
+    // Closes serial connection with arduino
     int end_connection();
 
+    // Starts thread reading from Arduino
     void start_thread();
+
+    // Stops the thread connecting to Arduino
     int stop_thread();
 
 private:
 
-    void write_packet(char * string_in,int buf_max);
+    #ifndef __arm__
+
+        // Writes packet to file if we are not running on Raspberry Pi
+        void write_packet(char * string_in,int buf_max);
+
+    #endif
 
     // Parses a packet in the following format:
     // {val1_val2_val3_val4_val5_val6_val7_val8}
@@ -130,33 +144,37 @@ private:
 
     // Reads data from serial
     int serial_read(int serial_handle);
+
     // name of data file for simulation reading
     std::string data_file_name;
 
-
-    //
+    // Initialize connection with Arduino on given serial port
     int init_serial(std::string serial_info);
-    char buffer[200];
+
+    // Type of connection (simulation or arduino read)
+    int type;
+
     Arduino_Packet * data_holder;
 
-
-    int type;
+    // Buffer to hold string from Arduino
+    char buffer[200];
 
     // ID of serial connection
     int serial_id;
 
     // Indicates that the thread needs to stop
+    // used when ending connection
     int thread_halt;
 
+    // If we are NOT running on Raspberry Pi then file open to write packet data to
     #ifndef __arm__
-    std::ofstream w_file;
-    void open_file_w();
+        std::ofstream w_file;
+        void open_file_w();
     #endif
 
     // Runs the arduino connection as a seperate thread to receive packets from
     // arduino over serial USB.
     std::thread arduino_connection;
 };
-
 
 #endif
