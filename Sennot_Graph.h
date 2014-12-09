@@ -37,7 +37,7 @@ public:
 
     bool intersection_update(std::vector<handDirection> & dirs_open);
 
-     int add_node(Node * root ,int tree_depth, int num_neighbors, int add_cost);
+     int add_node(Node *root, int tree_depth, int num_neighbors,int add_cost);
 
     // Makes a step along the current edge
     graphInt edge_step();

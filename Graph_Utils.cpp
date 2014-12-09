@@ -19,7 +19,6 @@ cardinalDirection Graph_Utils::check_connection(nodeLabel node1, nodeLabel node2
     return retV;
 }
 
-
 handDirection Graph_Utils::cardinal_to_hand(cardinalDirection new_direction, cardinalDirection current_heading) {
     handDirection new_dir;
 
@@ -69,7 +68,6 @@ handDirection Graph_Utils::cardinal_to_hand(cardinalDirection new_direction, car
             }
             break;
     }
-
     return new_dir;
 }
 

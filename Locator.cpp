@@ -13,10 +13,8 @@ locatorState Locator::reset_state() {
     return 1;
 }
 
-
 static void sleep_loc(int n) {
    std::chrono::seconds timespan(n);
-
    std::this_thread::sleep_for(timespan);
 }
 
@@ -55,12 +53,12 @@ std::vector<cardinalDirection> Locator::check_openings(Sonar_Distances & distanc
         }
     }
 
-    if (max_l  < INTERSECTION_THRESHOLD) {
+    if (max_l < INTERSECTION_THRESHOLD) {
 
         directions[LEFT] = INVALID_DIRECTION;
     }
 
-    if (max_l < INTERSECTION_THRESHOLD) {
+    if (max_r < INTERSECTION_THRESHOLD) {
 
         directions[RIGHT] = INVALID_DIRECTION;
     }
@@ -99,7 +97,7 @@ cardinalDirection Locator::next_step(std::vector<cardinalDirection> &directions)
 detectionResult Locator::intersection_check() {
     detectionResult retV = 0;
 
-    if (this->curr_cycle.right_distance > INTERSECTION_THRESHOLD || this->curr_cycle.left_distance > INTERSECTION_THRESHOLD) {
+    if (this->curr_cycle.right_distance > INTERSECTION_THRESHOLD || this->curr_cycle.left_distance > INTERSECTION_THRESHOLD*1.5) {
 
         std::cout << "The right value was: " << this->curr_cycle.right_distance<< std::endl;
         std::cout <<  "The left value was: " <<this->curr_cycle.left_distance << std::endl;
@@ -107,7 +105,7 @@ detectionResult Locator::intersection_check() {
         retV = INTERSECTION;
     }
 
-    if (this->curr_cycle.forward_distance < FRONT_TRESHOLD ) {
+    if (this->curr_cycle.forward_distance < FRONT_TRESHOLD && this->curr_cycle.forward_distance > 12) {
 
         std::cout << "The right value was: " << this->curr_cycle.right_distance<< std::endl;
         std::cout <<  "The left value was: " <<this->curr_cycle.left_distance << std::endl;
@@ -178,7 +176,6 @@ void Locator::run_locator() {
     // to verify.
     intersection_verify(intersection, old_intersection);
 
-
     // Indicate to user that we have passed under a light.
     if (new_light) {
         Audio::play_light();
@@ -233,7 +230,6 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
                 Audio::turn_dir(to_turn);
             }
         }
-
        sleep_loc(5);
     }
 }
@@ -345,7 +341,6 @@ Locator::Locator(std::string file_uri, int run_type) {
     this->old_light_res = 0;
     this->intersection = 0;
     this->old_intersection = 0;
-
 }
 
 Locator::~Locator() {

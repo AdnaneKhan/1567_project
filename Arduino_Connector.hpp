@@ -101,7 +101,6 @@ public:
 
 } Arduino_Packet;
 
-
 class Arduino_Connector {
 
 public:

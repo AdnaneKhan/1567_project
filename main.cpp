@@ -31,7 +31,7 @@ void run_simulation(const char * image_folder, const char * mock_data_file) {
     int res = loc->start(mock_data_file, SIMULATED_DATA);
 
     if (res) {
-        while(!loc->is_located()) {
+        while(true) {
             loc->run_locator();
             std::this_thread::sleep_for(timespan);
         }

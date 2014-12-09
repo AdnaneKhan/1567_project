@@ -116,7 +116,7 @@ bool Sennot_Graph::neighbor_match(int n1, int n2) {
 
 }
 
-int Sennot_Graph::add_node(Node * root ,int tree_depth, int num_neighbors, int add_cost) {
+int Sennot_Graph::add_node(Node *root, int tree_depth, int num_neighbors, int add_cost) {
 
     int to_ret = 0;
     // If we are at leaf level
@@ -126,7 +126,7 @@ int Sennot_Graph::add_node(Node * root ,int tree_depth, int num_neighbors, int a
 
         for (int i = 0; i < MAX_NEIGHBORS; i ++) {
 
-            if (ref->neighbors[i].second != INVALID_NEIGHBOR && neighbor_match(ref->neighbors[i].first->num_neighbors(), num_neighbors) && ref->neighbors[i].first->visitor != ref->node_id /* && ref->neighbors[i].second-1 <= add_cost || ref->neighbors[i].second+1 >= add_cost*/) {
+            if (ref->neighbors[i].second != INVALID_NEIGHBOR && neighbor_match(ref->neighbors[i].first->num_neighbors(), num_neighbors) && (ref->neighbors[i].first->visitor != ref->node_id  && (ref->neighbors[i].second-1 <= add_cost || ref->neighbors[i].second+1 >= add_cost))) {
 
                     Node * to_add = new Node( ref->neighbors[i].first->node_id );
                     ref->neighbors[i].first->visitor = ref->node_id;
@@ -143,7 +143,7 @@ int Sennot_Graph::add_node(Node * root ,int tree_depth, int num_neighbors, int a
         for (int i = 0; i < MAX_NEIGHBORS;i++) {
             if (root->neighbors[i].second != INVALID_NEIGHBOR  ) {
 
-                to_ret += add_node(root->neighbors[i].first,tree_depth-1,num_neighbors,add_cost);
+                to_ret += add_node(root->neighbors[i].first, tree_depth - 1, num_neighbors, add_cost);
             }
         }
     }
@@ -170,7 +170,7 @@ bool Sennot_Graph::intersection_update( std::vector<handDirection> & dirs_open) 
     int added = 0;
 
     for (Node * n : progression_tree) {
-        added += add_node(n, this->depth, opencount,this->edge_progress);
+        added += add_node(n, this->depth, opencount, this->edge_progress);
     }
 
     std::cout << "In updating: " << added << " were added to graph.\n";
