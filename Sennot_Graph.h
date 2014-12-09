@@ -33,11 +33,11 @@ public:
     Sennot_Graph();
     ~Sennot_Graph();
 
-            void reset_graph();
+    void reset_graph();
 
     bool intersection_update(std::vector<handDirection> & dirs_open);
 
-     int add_node(Node *root, int tree_depth, int num_neighbors,int add_cost);
+     int add_node(Node *root, int tree_depth, int num_neighbors,int add_cost,std::vector<handDirection> & dirs_open);
 
     // Makes a step along the current edge
     graphInt edge_step();
@@ -72,17 +72,19 @@ private:
     void initialize_paths();
     void initialize_graph();
 
+    // Checks whether we can arrive at node possible step from the approach direction and see the following directions open
+    // returns true if this possibility is valid according to the graph.
+    bool neighbor_match(Node *possible_step, cardinalDirection approach_dir,std::vector<handDirection> & dirs_open);
+
     // Graph representing sennot square floor 5
     std::array<Node *, NODE_COUNT> graph;
 
-
-    std::array<Node*,NODE_COUNT> progression_tree;
-
+    std::list<Node*> progression_tree;
 
     // Num of candidate paths being tracked
     graphInt num_paths;
 
-            bool neighbor_match(int n1, int n2);
+    int init_intersect;
 
 };
 

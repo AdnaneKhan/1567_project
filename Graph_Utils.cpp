@@ -71,7 +71,7 @@ handDirection Graph_Utils::cardinal_to_hand(cardinalDirection new_direction, car
     return new_dir;
 }
 
-int Graph_Utils::hand_to_cardinal(int to_convert, int current_heading) {
+int Graph_Utils::hand_to_cardinal(handDirection to_convert, cardinalDirection current_heading) {
     int new_dir;
 
     new_dir = (to_convert + current_heading) % 4;

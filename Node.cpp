@@ -61,6 +61,7 @@ Node::Node(nodeLabel id) {
 
 Node::Node() {
     neighbor_count = 0;
+    this->valid = 1;
     neighbors = new std::pair<Node *, int>[MAX_NEIGHBORS];
     for (int i = 0; i < MAX_NEIGHBORS; i++) {
         neighbors[i].second = INVALID_NEIGHBOR;

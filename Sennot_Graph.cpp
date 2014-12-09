@@ -1,5 +1,6 @@
 
 #include "Sennot_Graph.h"
+#include "Graph_Utils.hpp"
 
 #include <iostream>
 
@@ -9,6 +10,7 @@ Sennot_Graph::Sennot_Graph() {
     initialize_paths();
     initialize_graph();
 
+    init_intersect = 0;
     edge_progress = 0;
     depth = 0;
     num_paths = NODE_COUNT;
@@ -19,27 +21,33 @@ Sennot_Graph::Sennot_Graph() {
     for (int i = 0; i < NODE_COUNT; i++) {
         delete(this->graph[i]);
     }
-
 }
 
 void Sennot_Graph::reset_graph() {
+
     for (Node * n : this->graph) {
           n->visitor = INVALID_NEIGHBOR;
     }
 
     this->depth = 0;
+    this->init_intersect = 0;
+    this->edge_progress = 0;
+    this->num_paths = NODE_COUNT;
 
+    // Clear progression trees and set all as valid start points
     for (Node * n : this->progression_tree) {
         n->clear_tree();
+        n->valid = 1;
     }
 
 }
 
 nodeLabel Sennot_Graph::get_last_node(Node * root, int deeper, nodeLabel & parent) {
+
     if (deeper == 0) {
         return root->node_id;
-
     } else {
+
         for (int i = 0 ; i < MAX_NEIGHBORS;i++) {
             if (root->neighbors[i].second != INVALID_NEIGHBOR) {
                 nodeLabel temp = get_last_node(root->neighbors[i].first,deeper -1,parent);
@@ -51,7 +59,6 @@ nodeLabel Sennot_Graph::get_last_node(Node * root, int deeper, nodeLabel & paren
                 return temp;
             }
         }
-
         return INVALID_NEIGHBOR;
     }
 }
@@ -86,14 +93,13 @@ Node * Sennot_Graph::get_node(nodeLabel node) {
     } else {
         std::cout << "Node get error.\n";
         // Problem!!
-
     }
 
     return return_node;
 }
 
 
-bool check_valid(Node * curr, std::vector<cardinalDirection> & dirs_open) {
+bool check_valid(Node * curr, std::array<cardinalDirection,4> & dirs_open) {
 
     for (int i = 0; i < MAX_NEIGHBORS; i++) {
 
@@ -105,18 +111,27 @@ bool check_valid(Node * curr, std::vector<cardinalDirection> & dirs_open) {
     return true;
 }
 
-bool Sennot_Graph::neighbor_match(int n1, int n2) {
+bool Sennot_Graph::neighbor_match( Node *possible_step, cardinalDirection approach_dir,std::vector<handDirection> & dirs_open) {
     bool  retb = false;
 
-    if (n1 == n2) {
+    std::array<cardinalDirection,4> node_match = {-1,-1,-1,-1};
+
+    for (int i = 0; i < MAX_NEIGHBORS; i++){
+        if (dirs_open[i] != INVALID_DIRECTION) {
+            cardinalDirection potential = ( Graph_Utils::hand_to_cardinal( dirs_open[i] , approach_dir) );
+
+            node_match[potential] = potential;
+        }
+    }
+
+    if (check_valid(possible_step,node_match)) {
         retb = true;
     }
 
     return retb;
-
 }
 
-int Sennot_Graph::add_node(Node *root, int tree_depth, int num_neighbors, int add_cost) {
+int Sennot_Graph::add_node(Node *root, int tree_depth, int num_neighbors, int add_cost,std::vector<handDirection> & dirs_open) {
 
     int to_ret = 0;
     // If we are at leaf level
@@ -126,12 +141,13 @@ int Sennot_Graph::add_node(Node *root, int tree_depth, int num_neighbors, int ad
 
         for (int i = 0; i < MAX_NEIGHBORS; i ++) {
 
-            if (ref->neighbors[i].second != INVALID_NEIGHBOR && neighbor_match(ref->neighbors[i].first->num_neighbors(), num_neighbors) && (ref->neighbors[i].first->visitor != ref->node_id  && (ref->neighbors[i].second-1 <= add_cost || ref->neighbors[i].second+1 >= add_cost))) {
+            if (ref->neighbors[i].second != INVALID_NEIGHBOR && neighbor_match( ref->neighbors[i].first,i,dirs_open) && ref->neighbors[i].first->visitor != ref->node_id  && (ref->neighbors[i].second-1 <= add_cost || ref->neighbors[i].second+1 >= add_cost)) {
 
                     Node * to_add = new Node( ref->neighbors[i].first->node_id );
                     ref->neighbors[i].first->visitor = ref->node_id;
 
-                    std::cout << "The node ID was " << ref->neighbors[i].first->node_id << "\n";
+                    std::cout << "The node ID was " << ref->neighbors[i].first->node_id << " coming from " << ref->node_id << "\n";
+
                     if (root->add_neighbor(to_add,add_cost)) {
                         to_ret+= 1;
                     }
@@ -143,7 +159,7 @@ int Sennot_Graph::add_node(Node *root, int tree_depth, int num_neighbors, int ad
         for (int i = 0; i < MAX_NEIGHBORS;i++) {
             if (root->neighbors[i].second != INVALID_NEIGHBOR  ) {
 
-                to_ret += add_node(root->neighbors[i].first, tree_depth - 1, num_neighbors, add_cost);
+                to_ret += add_node(root->neighbors[i].first, tree_depth - 1, num_neighbors, add_cost,dirs_open);
             }
         }
     }
@@ -154,8 +170,9 @@ int Sennot_Graph::add_node(Node *root, int tree_depth, int num_neighbors, int ad
 
 // S
 bool Sennot_Graph::intersection_update( std::vector<handDirection> & dirs_open) {
-
+    int added = 0;
     int opencount= 0;
+
     for (handDirection d : dirs_open) {
         if (d != INVALID_NEIGHBOR) {
             opencount++;
@@ -167,10 +184,23 @@ bool Sennot_Graph::intersection_update( std::vector<handDirection> & dirs_open) 
         n->visitor = -1;
     }
 
-    int added = 0;
 
-    for (Node * n : progression_tree) {
-        added += add_node(n, this->depth, opencount, this->edge_progress);
+    if(!init_intersect) {
+        for (Node * n : progression_tree) {
+            if (n->valid == 1) {
+                added += add_node(n, this->depth, opencount, this->edge_progress,dirs_open);
+            }
+        }
+    } else {
+
+        for (Node * n : progression_tree) {
+            if (n->num_neighbors() == opencount) {
+                added++;
+            } else {
+                n->valid = INVALID_NEIGHBOR;
+            }
+
+        }
     }
 
     std::cout << "In updating: " << added << " were added to graph.\n";
@@ -206,8 +236,12 @@ graphInt Sennot_Graph::edge_step() {
 void Sennot_Graph::initialize_paths() {
     for (int i = 0; i < NODE_COUNT; i++) {
         // set initial steps
-        (graph[i]) = new Node(nodes[i]);
-        this->progression_tree[i] = new Node(graph[i]->node_id);
+        Node * temp = new Node(nodes[i]);
+        graph[i] = temp;
+
+        // Make starting progression trees with possibilities
+        // As all possible nodes in graph
+        progression_tree.push_back(new Node(temp->node_id));
     }
 }
 

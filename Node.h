@@ -7,19 +7,19 @@ typedef int handDirection;
 #define MAX_NEIGHBORS 4
 #define INVALID_NEIGHBOR -1
 
-
 typedef char nodeLabel;
-typedef float compassData;
 
 class Node {
 private:
     int neighbor_count;
 
 public:
+
     std::pair<Node *, int> * neighbors;
     nodeLabel node_id;
 
     nodeLabel visitor;
+    nodeLabel valid;
 
     // ID is the label of this node, neighbor ID is that of the neighbor, cost is num lights
     // to reach neighbor, direction is 0-3 (N S E W) that the neighbor is in
@@ -42,9 +42,8 @@ public:
     // mmeory leaks.
     bool add_neighbor(Node * neighbor, int cost);
 
-
     /*
-        Reeturns the number of neighbors this Node has.
+       Reeturns the number of neighbors this Node has.
      */
     int num_neighbors();
 
@@ -52,8 +51,6 @@ public:
         Returns a reference to neighbor in given direction if it exists.
      */
     bool get_neighbor(Node &neighbor_ret, int direction);
-
-
 
 };
 
