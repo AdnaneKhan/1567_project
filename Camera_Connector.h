@@ -77,7 +77,7 @@ public:
     /*
      Initialize a new camera connection
      */
-    Camera_Connector(CTypeEnum camera_source, std::string source, int camera_number);
+    void config_connector(CTypeEnum camera_source, std::string source, int camera_number);
 
     ~Camera_Connector();
 };
