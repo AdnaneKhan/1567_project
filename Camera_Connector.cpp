@@ -19,6 +19,7 @@ cv::Mat Camera_Connector::get_image() {
 
     if (camera_source == Camera_Type::IMAGE_FOLDER_E) {
         if (f_name_queue.size() > 0) {
+
             std::string file_name = f_name_queue.front();
             f_name_queue.pop();
 
@@ -75,7 +76,7 @@ void usb_camera_init(cv::VideoCapture &to_init, int camera_id) {
 
 #ifdef __arm__
 int pi_camera_init( raspicam::RaspiCam_Cv & to_init ) {
-    to_init.set(CV_CAP_PROP_FORMAT, CV_8UC3 );
+    to_init.set(CV_CAP_PROP_FORMAT, CV_8UC1 );
 
     if (!to_init.open()) {
         // Problem
