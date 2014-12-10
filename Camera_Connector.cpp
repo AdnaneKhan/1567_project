@@ -114,7 +114,7 @@ void Camera_Connector::write_image(std::string filename, cv::Mat &img) {
 *     2 - USB_WEBCAM
 *     3 - IMAGE_FOLDER
 */
-Camera_Connector::Camera_Connector(CTypeEnum camera_source, std::string source, int camera_number) {
+void Camera_Connector::config_connector(CTypeEnum camera_source, std::string source, int camera_number) {
     Camera_Connector::camera_source = camera_source;
     switch (camera_source) {
         case Camera_Type::USB_WEBCAMS_E:

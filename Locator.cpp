@@ -303,13 +303,13 @@ Locator::Locator(std::string file_uri, int run_type) {
 
     if (run_type == ARDUINO) {
         #ifdef __arm__
-        this->camera = Camera_Connector(Camera_Type::RASPBERRY_PI_CAM_E, file_uri, 0);
+         this->camera.config_camera(Camera_Type::RASPBERRY_PI_CAM_E, file_uri, 0);
         #else
-        this->camera = Camera_Connector(Camera_Type::USB_WEBCAMS_E , file_uri, DEFAULT_CAMERA);
+        this->camera.config_connector(Camera_Type::USB_WEBCAMS_E , file_uri, DEFAULT_CAMERA);
         #endif
 
     } else if (run_type == SIMULATION) {
-        this->camera = Camera_Connector(Camera_Type::IMAGE_FOLDER_E, file_uri, 180);
+        this->camera.config_connector(Camera_Type::IMAGE_FOLDER_E, file_uri, 180);
     }
 
     // Set Light and intersection indicators to 0
@@ -320,7 +320,6 @@ Locator::Locator(std::string file_uri, int run_type) {
 }
 
 Locator::~Locator() {
-
     int end = 0;
     do {
         end = con->stop_thread();

@@ -79,7 +79,7 @@ public:
     sensorValue read(int value_select) {
 
         sensorValue to_return = 0;
-        //mutex.lock();
+
         switch(value_select) {
             case LEFT_DISTANCE: to_return = Values.l_distance; break;
             case FRONT_LEFT: to_return = Values.l_2_distance; break;
@@ -90,7 +90,7 @@ public:
             case HEADING_OK: to_return =Values.heading_ok;  break;
             case DIST_OK: to_return =Values.dist_ok ; break;
         }
-       // mutex.unlock();
+
 
         return to_return;
     }
