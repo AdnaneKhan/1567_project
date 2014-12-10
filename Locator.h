@@ -33,8 +33,6 @@
 #define FRONT_TRESHOLD 50
 #define INTERSECTION 1
 
-#define INTERSECTION_BUF_SIZE 15
-
 #define GOAL_NODE 'S'
 
 #define INVALID_DIRECTION -1
@@ -84,7 +82,7 @@ private:
     typedef struct Camera_Readings {
         std::list<detectionResult> light_result_cache;
         std::list<detectionResult> intersection_result_cache;
-        
+
     } Camera_Readings;
 
     typedef struct Sonar_Distances {
@@ -112,7 +110,6 @@ private:
     nodeLabel last_node;
     std::vector<nodeLabel> goal_list;
 
-    std::deque<detectionResult> intersect_buffer;
 
     bool goal_progression; // Are we on path to goal?
 

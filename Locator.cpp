@@ -128,18 +128,6 @@ void Locator::read_distances() {
     this->newest_metrics.end_read();
 }
 
-float intersect_bounce(std::deque<detectionResult> intersect_buf) {
-    int detected= 0;
-
-    for (detectionResult d : intersect_buf) {
-        if (d) {
-            detected++;
-        }
-    }
-
-    return  ((float)detected/ INTERSECTION_BUF_SIZE);
-}
-
 void Locator::run_locator() {
 
     this->read_distances();
@@ -159,17 +147,6 @@ void Locator::run_locator() {
 
     // If intersection detected from hallway opening
     intersection |= intersection_check();
-
-    this->intersect_buffer.push_front(intersection);
-    if (intersect_buffer.size() > 15)  {
-        intersect_buffer.pop_back();
-    }
-
-    float intersect_average = intersect_bounce(this->intersect_buffer);
-
-    if (intersect_average > .8 && light_res) {
-        intersection = 1;
-    }
 
     // Check to make sure we don't double count intersection that we are standing under
     // If accelerometers can be incorporated into this that data can also be used
@@ -349,4 +326,7 @@ Locator::~Locator() {
     do {
         end = con->stop_thread();
     } while (!end);
+
+    con->end_connection();
+    camera.close_camera();
 }

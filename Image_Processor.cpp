@@ -1,36 +1,5 @@
 #include "Image_Processor.h"
 
-//#define DEBUG
-/**
-*  \param n number of times to take sample
-*  \param interval time in ms to wait in between samples
-*  \param camera connection with image source
-*
-*/
-void Image_Processor::test_image(int n, int interval, Camera_Connector &camera) {
-    std::chrono::milliseconds timespan(interval);
-
-    int test;
-    int hall_count = 0;
-    int old_res = 0;
-    int res = 0;
-
-    for (int i = 0; i < n; i++) {
-        old_res = res;
-        res = this->step_detect(camera, test);
-        if ((res ^ old_res) & res) {
-            hall_count += 1;
-            std::cout << "Lights: " << hall_count << std::endl;
-        }
-
-        std::this_thread::sleep_for(timespan);
-    }
-
-    std::cout << "The number of lights we passed: " << hall_count << std::endl;
-
-    return;
-}
-
 /**
 *  Checks whether the points of the counter are all located within a bounding rectangle that is
 *  bounding_percent away from the edges of the matrix
@@ -188,7 +157,6 @@ detectionResult Image_Processor::rectangle_detect(Mat &src) {
 
     vector<vector<Point> > contours; // Vector for storing contour
     vector<Vec4i> hierarchy;
-    int largest_contour_index = -1;
 
     // Init this to be large enough to represent a light
     int largest_area = 0;
@@ -199,10 +167,8 @@ detectionResult Image_Processor::rectangle_detect(Mat &src) {
         if (contours[i].size() > 0 && check_within(src, .20, contours[i])) {
             double a = contourArea(contours[i], false);  //  Find the area of contour
 
-
             if (a > largest_area) {
                 largest_area = a;
-                largest_contour_index = i;                //Store the index of largest contour
             }
         }
     }

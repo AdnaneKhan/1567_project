@@ -18,14 +18,12 @@ public:
 
     //
     detectionResult circle_detect(Camera_Connector &camera);
-
     detectionResult circle_detect(Mat &src);
 
-    detectionResult rectangle_detect(Camera_Connector &camera);
 
+    detectionResult rectangle_detect(Camera_Connector &camera);
     detectionResult rectangle_detect(Mat &src);
 
-    void test_image(int n, int interval, Camera_Connector &camera);
 
     detectionResult step_detect(Camera_Connector &camera, int &intersection);
 };
