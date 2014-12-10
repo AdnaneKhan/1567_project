@@ -156,7 +156,7 @@ void Locator::run_locator()
     old_intersection = intersection;
 
     light_res = proc.step_detect(this->camera, intersection);
-    std::cout << "Checking light\n";
+
     locatorState new_light = (light_res ^ old_light_res) & light_res;
 
     // Need to ensure we don't count circles as lights too

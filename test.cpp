@@ -134,30 +134,30 @@
 //void test_image_processor_rectangle() {
 //    std::cout << "BEGIN TEST OF IMAGE_PROCESSOR (RECTANGLE, LIT):\n----------------------\n";
 //}
-//
-//void camera_connector_test() {
-//    std::cout << "BEGIN TEST OF CAMERA_CONNECION:\n----------------------\n";
-//
-//    #ifdef __arm__
-//        Camera_Connector camera(Camera_Type::RASPBERRY_PI_CAM_E,"",0);
-//    #else
-//        Camera_Connector camera(Camera_Type ::USB_WEBCAMS_E,"",0);
-//    #endif
-//
-//    std::chrono::milliseconds timespan(40000);
-//    std::chrono::milliseconds shortspan(1000);
-//    std::this_thread::sleep_for(timespan);
-//
-//    for (int i = 0; i < 20; i++) {
-//        cv::Mat cam_img = camera.get_image();
-//        std::cout << "Wrote image: " << i << std::endl;
-//        camera.write_image("test" + std::to_string(i), cam_img);
-//        std::chrono::milliseconds shortspan(1000);
-//    }
-//
-//    camera.close_camera();
-//}
-//
+
+void camera_connector_test() {
+    std::cout << "BEGIN TEST OF CAMERA_CONNECION:\n----------------------\n";
+
+    #ifdef __arm__
+        Camera_Connector camera(Camera_Type::RASPBERRY_PI_CAM_E,"",0);
+    #else
+        Camera_Connector camera(Camera_Type ::USB_WEBCAMS_E,"",0);
+    #endif
+
+    std::chrono::milliseconds timespan(40000);
+    std::chrono::milliseconds shortspan(1000);
+    std::this_thread::sleep_for(timespan);
+
+    for (int i = 0; i < 20; i++) {
+        cv::Mat cam_img = camera.get_image();
+        std::cout << "Wrote image: " << i << std::endl;
+        camera.write_image("test" + std::to_string(i), cam_img);
+        std::chrono::milliseconds shortspan(1000);
+    }
+
+    camera.close_camera();
+}
+
 //void audio_test() {
 //    std::cout << "BEGIN TEST OF AUDIO:\n----------------------\n";
 //
@@ -289,8 +289,8 @@ int main()
 ////    //test_connector();
 ////    test_node();
 ////    test_graph();
-////    audio_test();
-////    //camera_connector_test();
+    //audio_test();
+    camera_connector_test();
 ////    graph_direction_test();
 ////    graph_search_test();
 ////    //image_processor_test();
