@@ -108,7 +108,7 @@ void Camera_Connector::close_camera()
 {
     if (camera_source == Camera_Type::RASPBERRY_PI_CAM_E)
     {
-#ifdef __arm__
+        #ifdef __arm__
            Camera.release();
         #endif
     }
@@ -172,5 +172,5 @@ void Camera_Connector::config_connector(CTypeEnum camera_source, std::string sou
 
 Camera_Connector::~Camera_Connector()
 {
-    close_camera();
+   // close_camera();
 }
