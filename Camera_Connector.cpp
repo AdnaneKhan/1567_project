@@ -42,18 +42,8 @@ cv::Mat Camera_Connector::get_image()
     {
 #ifdef __arm__
 
-        if (Camera.open()) {
-
            Camera.grab();
            Camera.retrieve(ret_image);
-
-        } else {
-            Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3 );
-
-           Camera.grab();
-           Camera.retrieve(ret_image);
-            std::cout << "Problem with retrieving image from Pi camera. \n";
-        }
 
     #endif
     }
@@ -172,5 +162,5 @@ void Camera_Connector::config_connector(CTypeEnum camera_source, std::string sou
 
 Camera_Connector::~Camera_Connector()
 {
-   // close_camera();
+   close_camera();
 }
