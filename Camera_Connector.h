@@ -50,19 +50,33 @@ private:
 
 public:
 
+    /*
+    CLoses the connection with the camera
+     */
     void close_camera();
     /**
     * Writes the matrix to a png file with the given filename
     */
     static void write_image(std::string filename, cv::Mat &img);
 
+
+    /*
+    Configure camera properties
+     */
     void config_camera(int exp, int saturation, int interval);
 
+
+    /*
+    Gets a new image from the camera
+     */
     cv::Mat get_image();
 
     Camera_Connector() {
     }
 
+    /*
+     Initialize a new camera connection
+     */
     Camera_Connector(CTypeEnum camera_source, std::string source, int camera_number);
 
     ~Camera_Connector();

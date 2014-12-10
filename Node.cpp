@@ -3,13 +3,13 @@
 
 void Node::clear_tree() {
 
-    // Clears
     for (int i = 0; i < MAX_NEIGHBORS; i++) {
         if (this->neighbors[i].second != INVALID_NEIGHBOR) {
 
-            this->neighbors[i].first->clear_tree();
-            delete(this->neighbors[i].first);
-            this->neighbors[i].second = INVALID_NEIGHBOR;
+            this->neighbors[i].first->clear_tree(); // CLear children of child
+
+            delete(this->neighbors[i].first); // Now this child node can be deleted
+            this->neighbors[i].second = INVALID_NEIGHBOR; // Set child as invalid
 
         }
     }
@@ -52,7 +52,9 @@ bool Node::add_neighbor(Node *neighbor, int cost) {
 
 Node::Node(nodeLabel id) {
     neighbor_count = 0;
+
     neighbors = new std::pair<Node *, int>[MAX_NEIGHBORS];
+
     for (int i = 0; i < MAX_NEIGHBORS; i++) {
         neighbors[i].second = INVALID_NEIGHBOR;
     }
@@ -60,9 +62,12 @@ Node::Node(nodeLabel id) {
 }
 
 Node::Node() {
+
     neighbor_count = 0;
     this->valid = 1;
+
     neighbors = new std::pair<Node *, int>[MAX_NEIGHBORS];
+
     for (int i = 0; i < MAX_NEIGHBORS; i++) {
         neighbors[i].second = INVALID_NEIGHBOR;
     }

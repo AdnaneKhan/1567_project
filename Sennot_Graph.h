@@ -28,15 +28,29 @@ const char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'
 const char edges[EDGE_COUNT][4] = {{'A','B',3,DIR_E},{'B','H',5,DIR_S},{'B','C',3,DIR_E},{'D','C',2,DIR_S},{'D','F',2,DIR_E},{'E','F',1,DIR_S},{'F','J',4,DIR_S},{'I','J',1,DIR_E},{'J','K',3,DIR_S},
         {'G','H',4, DIR_E},{'H','R',3,DIR_E},{'R','K',3,DIR_E},{'R','S',2,DIR_S},{'K','L',1, DIR_E},{'K','Q',7, DIR_S},{'P','Q',5,DIR_E},{'O','P',2,DIR_S},{'N','O',1, DIR_E},{'M','O',2,DIR_S}};
 
-        class Sennot_Graph {
+class Sennot_Graph {
+
 public:
+
+    // Constructor and Desturctor
     Sennot_Graph();
     ~Sennot_Graph();
 
+
+    /*
+
+    Resets the graph state to reflect initial state
+
+     */
     void reset_graph();
 
+    /*
+    Update the graph state to have reached an intsection while seeing the given directions open in terms of (L,R,F,B) directions
+     */
     bool intersection_update(std::vector<handDirection> & dirs_open);
 
+
+    // Adds a node to the graph
      int add_node(Node *root, int tree_depth, int num_neighbors,int add_cost,std::vector<handDirection> & dirs_open);
 
     // Makes a step along the current edge
@@ -52,6 +66,7 @@ public:
     nodeLabel get_last_node(int path_length, nodeLabel & parent);
             nodeLabel get_last_node(Node * root, int deeper, nodeLabel & parent);
 
+    // Gets node from the graph with teh given node label
     Node * get_node(nodeLabel node);
 
     /**
@@ -79,11 +94,13 @@ private:
     // Graph representing sennot square floor 5
     std::array<Node *, NODE_COUNT> graph;
 
+    // List of trees that reflect possible paths taken, when the leaf deepest tree has only 1 node then we are located
     std::list<Node*> progression_tree;
 
     // Num of candidate paths being tracked
     graphInt num_paths;
 
+    // Whether the first intersection has been reached in this problem cycle
     int init_intersect;
 
 };

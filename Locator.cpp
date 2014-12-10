@@ -328,5 +328,4 @@ Locator::~Locator() {
     } while (!end);
 
     con->end_connection();
-    camera.close_camera();
 }
