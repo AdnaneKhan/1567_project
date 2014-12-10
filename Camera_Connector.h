@@ -11,7 +11,7 @@
 
 #ifdef __arm__
 #include <raspicam/raspicam.h>
-#include <raspicam/raspicam_still_cv.h>
+#include <raspicam/raspicam_cv.h>
 #endif
 
 #include "ConstantDefs.hpp"
@@ -44,7 +44,7 @@ private:
 
     CTypeEnum camera_source; /// <camera source based on dfinitions
     #ifdef __arm__
-        raspicam::RaspiCam_Still_Cv Camera;
+        raspicam::RaspiCam_Cv Camera;
     #endif
     cv::VideoCapture cam; ///< camera to get images from
 

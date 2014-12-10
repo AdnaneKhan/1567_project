@@ -34,13 +34,12 @@ cv::Mat Camera_Connector::get_image() {
     #ifdef __arm__
 
         if (Camera.open()) {
-           Camera.grab();
 
+           Camera.grab();
            Camera.retrieve(ret_image);
-   std::cout << "We just grabbed an image from raspberry_Pi cam\n" << std::flush;
 
         } else {
-        std::cout << "Problem with retrieving image from Pi camera. \n";
+            std::cout << "Problem with retrieving image from Pi camera. \n";
         }
 
     #endif
@@ -76,7 +75,7 @@ void usb_camera_init(cv::VideoCapture &to_init, int camera_id) {
 }
 
 #ifdef __arm__
-int pi_camera_init( raspicam::RaspiCam_Still_Cv & to_init ) {
+int pi_camera_init( raspicam::RaspiCam_Cv & to_init ) {
     to_init.set(CV_CAP_PROP_FORMAT, CV_8UC3 );
 
     if (!to_init.open()) {
