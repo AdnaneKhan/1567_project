@@ -48,7 +48,7 @@ cv::Mat Camera_Connector::get_image()
            Camera.retrieve(ret_image);
 
         } else {
-            camera.set(CV_CAP_PROP_FORMAT, CV_8UC3 );
+            Camera.set(CV_CAP_PROP_FORMAT, CV_8UC3 );
 
            Camera.grab();
            Camera.retrieve(ret_image);
