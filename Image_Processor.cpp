@@ -198,16 +198,12 @@ detectionResult Image_Processor::rectangle_detect(Camera_Connector &camera) {
 * \param camera to set image from
 */
 detectionResult Image_Processor::step_detect(Camera_Connector &camera, int &intersection) {
-    Mat src = camera.get_image();
-    int step = rectangle_detect(src);
-    int circle = circle_detect(src);
+  int step = rectangle_detect(camera);
 
     // If circle is detected intersection flag is set to 1
-    if (circle) {
-        intersection = 1;
-    } else {
-        intersection = 0;
-    }
+
+    intersection = 0;
+
 
     return step;
 }
