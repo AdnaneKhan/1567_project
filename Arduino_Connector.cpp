@@ -143,6 +143,7 @@ void Arduino_Connector::write_packet(char * string_in,int buf_max) {
 
 }
 #endif
+
 void Arduino_Connector::init_connection() {
     char start = START_SENTINEL;
 

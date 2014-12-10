@@ -47,7 +47,7 @@ void run_full(const char * serial_port) {
     Locator * loc = new Locator("", ARDUINO);
     std::chrono::milliseconds timespan(3000);
     int res = loc->start(serial_port, ARDUINO_DATA);
-    
+
     if (res) {
         while (true) {
             loc->run_locator();
