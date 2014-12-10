@@ -63,7 +63,6 @@ void Arduino_Connector::parse_packet(char * string_in,int buf_max, Arduino_Packe
 
             float parsed_value = strtof((string_in + start), nullptr);
 
-
             to_update.update(val_count, parsed_value);
             val_count++;
             start = 0;
@@ -83,13 +82,14 @@ int Arduino_Connector::file_read(std::string data_source) {
 
     std::chrono::milliseconds dura( 500 );
 
-
     if (file_in.is_open()) {
 
         while (this->thread_halt == FALSE && getline (file_in,line)) {
+
             string_buf = const_cast<char*>(line.c_str());
-            parse_packet(string_buf, line.length() - 1, *this->data_holder);
-            std::this_thread::sleep_for(dura);
+
+            parse_packet(string_buf, line.length() - 1, *this->data_holder); // Parse line as if it were from Arduino
+            std::this_thread::sleep_for(dura); // Sleep before reading next value
         }
     }
 

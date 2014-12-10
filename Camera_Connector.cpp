@@ -34,9 +34,9 @@ cv::Mat Camera_Connector::get_image() {
     #ifdef __arm__
 
         if (Camera.open()) {
-       Camera.grab();
-       std::cout << "We just grabbed an image from raspberry_Pi cam\n" << std::flush;
-       Camera.retrieve(ret_image);
+           Camera.grab();
+           std::cout << "We just grabbed an image from raspberry_Pi cam\n" << std::flush;
+           Camera.retrieve(ret_image);
 
         } else {
         std::cout << "Problem with retrieving image from Pi camera. \n";
