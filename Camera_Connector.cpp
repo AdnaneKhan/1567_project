@@ -75,7 +75,7 @@ void usb_camera_init(cv::VideoCapture &to_init, int camera_id) {
 }
 
 #ifdef __arm__
-int pi_camera_init( raspicam::RaspiCam_Cv & to_init ) {
+int pi_camera_init( raspicam::RaspiCam_Still_Cv & to_init ) {
     to_init.set(CV_CAP_PROP_FORMAT, CV_8UC3 );
 
     if (!to_init.open()) {
