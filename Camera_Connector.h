@@ -35,7 +35,8 @@ images will be loaded in order provided by folder and returned sequentially ever
 time get image is called
 */
 
-class Camera_Connector {
+class Camera_Connector
+{
 
 private:
 
@@ -43,7 +44,7 @@ private:
     std::string file_folder; ///< folder to look in for images
 
     CTypeEnum camera_source; /// <camera source based on dfinitions
-    #ifdef __arm__
+#ifdef __arm__
         raspicam::RaspiCam_Cv Camera;
     #endif
     cv::VideoCapture cam; ///< camera to get images from
@@ -54,6 +55,7 @@ public:
     CLoses the connection with the camera
      */
     void close_camera();
+
     /**
     * Writes the matrix to a png file with the given filename
     */
@@ -71,7 +73,8 @@ public:
      */
     cv::Mat get_image();
 
-    Camera_Connector() {
+    Camera_Connector()
+    {
     }
 
     /*

@@ -22,18 +22,20 @@ typedef int graphInt;
 
 
 // Nodes in the graph by label
-const char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M' ,'N','O','P','Q','R','S'};
+const char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S'};
 
 // Edges in graph
-const char edges[EDGE_COUNT][4] = {{'A','B',3,DIR_E},{'B','H',5,DIR_S},{'B','C',3,DIR_E},{'D','C',2,DIR_S},{'D','F',2,DIR_E},{'E','F',1,DIR_S},{'F','J',4,DIR_S},{'I','J',1,DIR_E},{'J','K',3,DIR_S},
-        {'G','H',4, DIR_E},{'H','R',3,DIR_E},{'R','K',3,DIR_E},{'R','S',2,DIR_S},{'K','L',1, DIR_E},{'K','Q',7, DIR_S},{'P','Q',5,DIR_E},{'O','P',2,DIR_S},{'N','O',1, DIR_E},{'M','O',2,DIR_S}};
+const char edges[EDGE_COUNT][4] = {{'A', 'B', 3, DIR_E}, {'B', 'H', 5, DIR_S}, {'B', 'C', 3, DIR_E}, {'D', 'C', 2, DIR_S}, {'D', 'F', 2, DIR_E}, {'E', 'F', 1, DIR_S}, {'F', 'J', 4, DIR_S}, {'I', 'J', 1, DIR_E}, {'J', 'K', 3, DIR_S},
+        {'G', 'H', 4, DIR_E}, {'H', 'R', 3, DIR_E}, {'R', 'K', 3, DIR_E}, {'R', 'S', 2, DIR_S}, {'K', 'L', 1, DIR_E}, {'K', 'Q', 7, DIR_S}, {'P', 'Q', 5, DIR_E}, {'O', 'P', 2, DIR_S}, {'N', 'O', 1, DIR_E}, {'M', 'O', 2, DIR_S}};
 
-class Sennot_Graph {
+class Sennot_Graph
+{
 
 public:
 
     // Constructor and Desturctor
     Sennot_Graph();
+
     ~Sennot_Graph();
 
 
@@ -47,11 +49,11 @@ public:
     /*
     Update the graph state to have reached an intsection while seeing the given directions open in terms of (L,R,F,B) directions
      */
-    bool intersection_update(std::vector<handDirection> & dirs_open);
+    bool intersection_update(std::vector<handDirection> &dirs_open);
 
 
     // Adds a node to the graph
-     int add_node(Node *root, int tree_depth, int num_neighbors,int add_cost,std::vector<handDirection> & dirs_open);
+    int add_node(Node *root, int tree_depth, int num_neighbors, int add_cost, std::vector<handDirection> &dirs_open);
 
     // Makes a step along the current edge
     graphInt edge_step();
@@ -63,11 +65,12 @@ public:
     graphInt get_depth();
 
     // Returns the last node (ONLY IF LOCATED)
-    nodeLabel get_last_node(int path_length, nodeLabel & parent);
-            nodeLabel get_last_node(Node * root, int deeper, nodeLabel & parent);
+    nodeLabel get_last_node(int path_length, nodeLabel &parent);
+
+    nodeLabel get_last_node(Node *root, int deeper, nodeLabel &parent);
 
     // Gets node from the graph with teh given node label
-    Node * get_node(nodeLabel node);
+    Node *get_node(nodeLabel node);
 
     /**
     * Finds path from start node to destination node
@@ -75,8 +78,10 @@ public:
     *
     * Uses Djikstras algorithm
     */
-    std::vector<nodeLabel> find_path(Node * start, Node * finish);
+    std::vector<nodeLabel> find_path(Node *start, Node *finish);
+
     std::vector<nodeLabel> find_path(nodeLabel start, nodeLabel finish);
+
     // Progress on current edge
     graphInt edge_progress;
     // Depth (in number of intersections of traversal)
@@ -85,17 +90,18 @@ public:
 private:
 
     void initialize_paths();
+
     void initialize_graph();
 
     // Checks whether we can arrive at node possible step from the approach direction and see the following directions open
     // returns true if this possibility is valid according to the graph.
-    bool neighbor_match(Node *possible_step, cardinalDirection approach_dir,std::vector<handDirection> & dirs_open);
+    bool neighbor_match(Node *possible_step, cardinalDirection approach_dir, std::vector<handDirection> &dirs_open);
 
     // Graph representing sennot square floor 5
     std::array<Node *, NODE_COUNT> graph;
 
     // List of trees that reflect possible paths taken, when the leaf deepest tree has only 1 node then we are located
-    std::list<Node*> progression_tree;
+    std::list<Node *> progression_tree;
 
     // Num of candidate paths being tracked
     graphInt num_paths;

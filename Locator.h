@@ -53,7 +53,8 @@ typedef int locatorState;
     Nodes are intersections of two or more hallways.
 
  */
-class Locator {
+class Locator
+{
 
 public:
 
@@ -68,7 +69,7 @@ public:
 
     If the connection fails, exit without starting the therad.
     */
-    int start(std::string serial_info,int source_type);
+    int start(std::string serial_info, int source_type);
 
     Locator(std::string file_uri, int run_type);
 
@@ -79,13 +80,15 @@ private:
     // Metrics from sensors
     // TODO: transfer handling of camera readings to this struct
 
-    typedef struct Camera_Readings {
+    typedef struct Camera_Readings
+    {
         std::list<detectionResult> light_result_cache;
         std::list<detectionResult> intersection_result_cache;
 
     } Camera_Readings;
 
-    typedef struct Sonar_Distances {
+    typedef struct Sonar_Distances
+    {
         sensorValue left_distance;
         sensorValue right_distance;
         sensorValue forward_distance;
@@ -102,7 +105,7 @@ private:
     /// CONNECTORS AND PROCESSORS FOR HARDWARE
     Camera_Connector camera;
     Image_Processor proc;
-    Arduino_Connector * con;
+    Arduino_Connector *con;
     ///////////////===========================
 
 
@@ -142,7 +145,7 @@ private:
     /**
     *  Parses sensor data to check which directions are open for the user to turn into
     */
-    std::vector<cardinalDirection> check_openings(Sonar_Distances & distances);
+    std::vector<cardinalDirection> check_openings(Sonar_Distances &distances);
 
     /**
     *  Resets the state of the graph so that user is located at any of ndes matching current

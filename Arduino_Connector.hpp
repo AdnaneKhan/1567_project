@@ -35,11 +35,13 @@ typedef float sensorDistance;
 typedef float sensorValue;
 
 
-typedef struct Arduino_Packet {
-std::mutex mutex;
+typedef struct Arduino_Packet
+{
+    std::mutex mutex;
 
 private:
-    struct Values {
+    struct Values
+    {
         sensorDistance l_distance;
         sensorDistance l_2_distance;
         sensorDistance front_distance;
@@ -52,56 +54,98 @@ private:
     } Values;
 
 public:
-    void update(int value_select, sensorValue new_val) {
+    void update(int value_select, sensorValue new_val)
+    {
 
         mutex.lock();
-        switch(value_select) {
-            case LEFT_DISTANCE: Values.l_distance = new_val; break;
-            case FRONT_LEFT: Values.l_2_distance = new_val; break;
-            case FRONT_DISTANCE: Values.front_distance = new_val; break;
-            case FRONT_RIGHT: Values.r_2_distance = new_val; break;
-            case RIGHT_DISTANCE: Values.r_distance = new_val; break;
-            case TURNING: Values.turn_flag = new_val; break;
-            case HEADING_OK: Values.heading_ok = new_val;  break;
-            case DIST_OK: Values.dist_ok = new_val; break;
+        switch (value_select)
+        {
+            case LEFT_DISTANCE:
+                Values.l_distance = new_val;
+                break;
+            case FRONT_LEFT:
+                Values.l_2_distance = new_val;
+                break;
+            case FRONT_DISTANCE:
+                Values.front_distance = new_val;
+                break;
+            case FRONT_RIGHT:
+                Values.r_2_distance = new_val;
+                break;
+            case RIGHT_DISTANCE:
+                Values.r_distance = new_val;
+                break;
+            case TURNING:
+                Values.turn_flag = new_val;
+                break;
+            case HEADING_OK:
+                Values.heading_ok = new_val;
+                break;
+            case DIST_OK:
+                Values.dist_ok = new_val;
+                break;
         }
         mutex.unlock();
     }
 
-    void start_read() {
+    //// Read must be used before reading to ensure values are consistent with packet
+    void start_read()
+    {
         mutex.lock();
     }
 
-    void end_read() {
+    void end_read()
+    {
         mutex.unlock();
     }
+    /////
 
-    sensorValue read(int value_select) {
+    sensorValue read(int value_select)
+    {
 
         sensorValue to_return = 0;
 
-        switch(value_select) {
-            case LEFT_DISTANCE: to_return = Values.l_distance; break;
-            case FRONT_LEFT: to_return = Values.l_2_distance; break;
-            case FRONT_DISTANCE: to_return =Values.front_distance; break;
-            case FRONT_RIGHT:to_return = Values.r_2_distance; break;
-            case RIGHT_DISTANCE:to_return = Values.r_distance; break;
-            case TURNING: to_return =Values.turn_flag; break;
-            case HEADING_OK: to_return =Values.heading_ok;  break;
-            case DIST_OK: to_return =Values.dist_ok ; break;
+        switch (value_select)
+        {
+            case LEFT_DISTANCE:
+                to_return = Values.l_distance;
+                break;
+            case FRONT_LEFT:
+                to_return = Values.l_2_distance;
+                break;
+            case FRONT_DISTANCE:
+                to_return = Values.front_distance;
+                break;
+            case FRONT_RIGHT:
+                to_return = Values.r_2_distance;
+                break;
+            case RIGHT_DISTANCE:
+                to_return = Values.r_distance;
+                break;
+            case TURNING:
+                to_return = Values.turn_flag;
+                break;
+            case HEADING_OK:
+                to_return = Values.heading_ok;
+                break;
+            case DIST_OK:
+                to_return = Values.dist_ok;
+                break;
         }
 
 
         return to_return;
     }
 
-    Arduino_Packet() {
+    Arduino_Packet()
+    {
         this->Values = {0};
     }
 
 } Arduino_Packet;
 
-class Arduino_Connector {
+class Arduino_Connector
+{
 
 public:
 
@@ -125,17 +169,17 @@ public:
 
 private:
 
-    #ifndef __arm__
+#ifndef __arm__
 
-        // Writes packet to file if we are not running on Raspberry Pi
-        void write_packet(char * string_in,int buf_max);
+    // Writes packet to file if we are not running on Raspberry Pi
+    void write_packet(char *string_in, int buf_max);
 
-    #endif
+#endif
 
     // Parses a packet in the following format:
     // {val1_val2_val3_val4_val5_val6_val7_val8}
     // Where indixes coresspond to values in recent data
-    void parse_packet(char * string_in,int buf_max, Arduino_Packet & to_update);
+    void parse_packet(char *string_in, int buf_max, Arduino_Packet &to_update);
 
     // Reads packets from a text file instead of Arduino serial
     // for running simulations
@@ -153,7 +197,7 @@ private:
     // Type of connection (simulation or arduino read)
     int type;
 
-    Arduino_Packet * data_holder;
+    Arduino_Packet *data_holder;
 
     // Buffer to hold string from Arduino
     char buffer[200];
@@ -166,10 +210,12 @@ private:
     int thread_halt;
 
     // If we are NOT running on Raspberry Pi then file open to write packet data to
-    #ifndef __arm__
-        std::ofstream w_file;
-        void open_file_w();
-    #endif
+#ifndef __arm__
+    std::ofstream w_file;
+
+    void open_file_w();
+
+#endif
 
     // Runs the arduino connection as a seperate thread to receive packets from
     // arduino over serial USB.

@@ -8,7 +8,8 @@
 *  \param bounding_percent distance from the boundaries of the image that contour must exist within
 *  \param countour vector of points that form contour to check
 */
-bool Image_Processor::check_within(cv::Mat &mat, float bounding_percent, Vector<Point> contour) {
+bool Image_Processor::check_within(cv::Mat &mat, float bounding_percent, Vector<Point> contour)
+{
     bool retV = true;
 
     // Finding max and min x and y coords
@@ -18,24 +19,26 @@ bool Image_Processor::check_within(cv::Mat &mat, float bounding_percent, Vector<
     int x_min = mat.cols / 5;
     int x_max = mat.cols - x_min;
 
-    #ifdef DEBUG
+#ifdef DEBUG
          std::cout << "The y min is " << y_min << std::endl;
          std::cout << "The x min is " << x_min << std::endl;
     #endif
 
-    for (cv::Vector<Point>::iterator point = contour.begin(); point != contour.end(); ++point) {
+    for (cv::Vector<Point>::iterator point = contour.begin(); point != contour.end(); ++point)
+    {
         // Shape contains points outside of the rectangle
-    #ifdef DEBUG
+#ifdef DEBUG
         std::cout << "The y point is " << point->y << std::endl;
         std::cout << "The x point is " << point->x << std::endl;
     #endif
-        if (point->x > x_max || point->x < x_max || point->y > y_max || point->y < y_min) {
+        if (point->x > x_max || point->x < x_max || point->y > y_max || point->y < y_min)
+        {
             retV = false;
             break;
         }
     }
 
-    #ifdef DEBUG
+#ifdef DEBUG
     std::cout << "The contour was " << retV << " in the mat.\n";
     #endif
     return retV;
@@ -44,7 +47,8 @@ bool Image_Processor::check_within(cv::Mat &mat, float bounding_percent, Vector<
 /**
 * \param camera to get get image from before checking circle
 */
-detectionResult Image_Processor::circle_detect(Camera_Connector &camera) {
+detectionResult Image_Processor::circle_detect(Camera_Connector &camera)
+{
 
     Mat src = camera.get_image();
 
@@ -54,30 +58,32 @@ detectionResult Image_Processor::circle_detect(Camera_Connector &camera) {
 /**
 * Detects circle lights that are on
 */
-detectionResult on_circle_detect(Mat & src) {
+detectionResult on_circle_detect(Mat &src)
+{
     detectionResult retV = 0;
     Mat dest;
     Mat thr;
     Mat canny;
 
     cvtColor(src, thr, CV_BGR2GRAY);
-    GaussianBlur(thr, dest, Size(15, 15),2,2);
-    threshold(dest,dest,230,255,CV_THRESH_BINARY);
-    Canny(dest, canny, 100,200,3);
+    GaussianBlur(thr, dest, Size(15, 15), 2, 2);
+    threshold(dest, dest, 230, 255, CV_THRESH_BINARY);
+    Canny(dest, canny, 100, 200, 3);
 
     vector<vector<Point> > contours;
     vector<Vec4i> hierarchy;
 
-    findContours( canny, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
+    findContours(canny, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
 
-    if (contours.size() > 0.0) {
+    if (contours.size() > 0.0)
+    {
 
-        double area = contourArea(contours[0],false);
+        double area = contourArea(contours[0], false);
         float radius;
         Point2f center;
         minEnclosingCircle(contours[0], center, radius);
 
-        #ifdef DEBUG
+#ifdef DEBUG
             imshow("img",src);
             waitKey(0);
             circle(src, center, radius,Scalar(255,0,0), 1,8,0);
@@ -86,7 +92,8 @@ detectionResult on_circle_detect(Mat & src) {
             printf("div %f\n",(area/(radius*radius*3.14159265359) ));
         #endif
 
-        if ( (area/(radius*radius*3.14159265359) ) > 0.90) {
+        if ((area / (radius * radius * 3.14159265359)) > 0.90)
+        {
             retV = 1;
         }
     }
@@ -96,12 +103,13 @@ detectionResult on_circle_detect(Mat & src) {
 /**
 *  Detects circle lights that are off
 */
-detectionResult off_circle_detect(Mat & src ){
+detectionResult off_circle_detect(Mat &src)
+{
     detectionResult retV = 0;
     Mat grey_src;
 
     cvtColor(src, grey_src, CV_BGR2GRAY);
-    GaussianBlur(grey_src, grey_src, Size(7, 7),0,0);
+    GaussianBlur(grey_src, grey_src, Size(7, 7), 0, 0);
 
     Canny(grey_src, grey_src, 50, 100, 3);
 
@@ -118,14 +126,16 @@ detectionResult off_circle_detect(Mat & src ){
 *
 * \param src matrix to check for circles
 */
-detectionResult Image_Processor::circle_detect(Mat &src) {
+detectionResult Image_Processor::circle_detect(Mat &src)
+{
     int retV = 0;
 
     retV = on_circle_detect(src);
 
-   if (!retV) {
-       retV = off_circle_detect(src);
-   }
+    if (!retV)
+    {
+        retV = off_circle_detect(src);
+    }
 
     return retV;
 }
@@ -136,7 +146,8 @@ detectionResult Image_Processor::circle_detect(Mat &src) {
 *   \param src image matrix to check for rectangles
 *   Uses a countour method to detect rectangles in image
 */
-detectionResult Image_Processor::rectangle_detect(Mat &src) {
+detectionResult Image_Processor::rectangle_detect(Mat &src)
+{
     int retV = 0;
     Mat thr;
     Mat blurred;
@@ -151,7 +162,7 @@ detectionResult Image_Processor::rectangle_detect(Mat &src) {
 
     Canny(blurred, edges, 20, 200, 3);
 
-    #ifdef DEBUG
+#ifdef DEBUG
         Camera_Connector::write_image("rect_test", blurred);
     #endif
 
@@ -163,18 +174,22 @@ detectionResult Image_Processor::rectangle_detect(Mat &src) {
 
     findContours(edges.clone(), contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS); // Find the contours in the image
 
-    for (int i = 0; i < contours.size(); i++) {
-        if (contours[i].size() > 0 && check_within(src, .20, contours[i])) {
+    for (int i = 0; i < contours.size(); i++)
+    {
+        if (contours[i].size() > 0 && check_within(src, .20, contours[i]))
+        {
             double a = contourArea(contours[i], false);  //  Find the area of contour
 
-            if (a > largest_area) {
+            if (a > largest_area)
+            {
                 largest_area = a;
             }
         }
     }
 
     // If we have a circular shape vs rectangle we are at an intersection
-    if (contours.size() > 0) {
+    if (contours.size() > 0)
+    {
         retV = 1;
     }
 
@@ -187,7 +202,8 @@ detectionResult Image_Processor::rectangle_detect(Mat &src) {
 *  \param camera to get image from prior to passing it to detector
 *  \return whether rectangle was detected or not
 */
-detectionResult Image_Processor::rectangle_detect(Camera_Connector &camera) {
+detectionResult Image_Processor::rectangle_detect(Camera_Connector &camera)
+{
     Mat src = camera.get_image();
 
     return rectangle_detect(src);
@@ -197,8 +213,9 @@ detectionResult Image_Processor::rectangle_detect(Camera_Connector &camera) {
 * \param intersection set to 1 if intersection is detecteed
 * \param camera to set image from
 */
-detectionResult Image_Processor::step_detect(Camera_Connector &camera, int &intersection) {
-     int step = rectangle_detect(camera);
+detectionResult Image_Processor::step_detect(Camera_Connector &camera, int &intersection)
+{
+    int step = rectangle_detect(camera);
 
     // If circle is detected intersection flag is set to 1
 

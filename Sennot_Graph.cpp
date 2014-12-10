@@ -1,4 +1,3 @@
-
 #include "Sennot_Graph.h"
 #include "Graph_Utils.hpp"
 
@@ -6,7 +5,8 @@
 
 //#define LOGGING
 
-Sennot_Graph::Sennot_Graph() {
+Sennot_Graph::Sennot_Graph()
+{
     initialize_paths();
     initialize_graph();
 
@@ -17,16 +17,20 @@ Sennot_Graph::Sennot_Graph() {
 }
 
 
- Sennot_Graph::~Sennot_Graph() {
-    for (int i = 0; i < NODE_COUNT; i++) {
+Sennot_Graph::~Sennot_Graph()
+{
+    for (int i = 0; i < NODE_COUNT; i++)
+    {
         delete(this->graph[i]);
     }
 }
 
-void Sennot_Graph::reset_graph() {
+void Sennot_Graph::reset_graph()
+{
 
-    for (Node * n : this->graph) {
-          n->visitor = INVALID_NEIGHBOR;
+    for (Node *n : this->graph)
+    {
+        n->visitor = INVALID_NEIGHBOR;
     }
 
     this->depth = 0;
@@ -35,24 +39,32 @@ void Sennot_Graph::reset_graph() {
     this->num_paths = NODE_COUNT;
 
     // Clear progression trees and set all as valid start points
-    for (Node * n : this->progression_tree) {
+    for (Node *n : this->progression_tree)
+    {
         n->clear_tree();
         n->valid = 1;
     }
 
 }
 
-nodeLabel Sennot_Graph::get_last_node(Node * root, int deeper, nodeLabel & parent) {
+nodeLabel Sennot_Graph::get_last_node(Node *root, int deeper, nodeLabel &parent)
+{
 
-    if (deeper == 0) {
+    if (deeper == 0)
+    {
         return root->node_id;
-    } else {
+    }
+    else
+    {
 
-        for (int i = 0 ; i < MAX_NEIGHBORS;i++) {
-            if (root->neighbors[i].second != INVALID_NEIGHBOR) {
-                nodeLabel temp = get_last_node(root->neighbors[i].first,deeper -1,parent);
+        for (int i = 0; i < MAX_NEIGHBORS; i++)
+        {
+            if (root->neighbors[i].second != INVALID_NEIGHBOR)
+            {
+                nodeLabel temp = get_last_node(root->neighbors[i].first, deeper - 1, parent);
 
-                if (temp != INVALID_NEIGHBOR && deeper == 1) {
+                if (temp != INVALID_NEIGHBOR && deeper == 1)
+                {
                     std::cout << "The parent was " << root->node_id << std::endl;
                     parent = root->node_id;
                 }
@@ -64,11 +76,14 @@ nodeLabel Sennot_Graph::get_last_node(Node * root, int deeper, nodeLabel & paren
 }
 
 
-nodeLabel Sennot_Graph::get_last_node(int deeper,nodeLabel & parent) {
+nodeLabel Sennot_Graph::get_last_node(int deeper, nodeLabel &parent)
+{
     nodeLabel retC;
-    for (Node * root : this->progression_tree) {
-        retC =get_last_node(root,deeper,parent);
-        if (retC != -1) {
+    for (Node *root : this->progression_tree)
+    {
+        retC = get_last_node(root, deeper, parent);
+        if (retC != -1)
+        {
             return retC;
         }
     }
@@ -76,21 +91,27 @@ nodeLabel Sennot_Graph::get_last_node(int deeper,nodeLabel & parent) {
     return -1;
 }
 
-graphInt Sennot_Graph::path_count() {
+graphInt Sennot_Graph::path_count()
+{
     return num_paths;
 }
 
-graphInt Sennot_Graph::get_depth() {
+graphInt Sennot_Graph::get_depth()
+{
     return depth;
 }
 
-Node * Sennot_Graph::get_node(nodeLabel node) {
-    Node * return_node = nullptr;
+Node *Sennot_Graph::get_node(nodeLabel node)
+{
+    Node *return_node = nullptr;
 
     int index = node - CHAR_TO_POSITION;
-    if (index < this->graph.size()) {
+    if (index < this->graph.size())
+    {
         return_node = this->graph[index];
-    } else {
+    }
+    else
+    {
         std::cout << "Node get error.\n";
         // Problem!!
     }
@@ -99,11 +120,14 @@ Node * Sennot_Graph::get_node(nodeLabel node) {
 }
 
 
-bool check_valid(Node * curr, std::array<cardinalDirection,4> & dirs_open) {
+bool check_valid(Node *curr, std::array<cardinalDirection, 4> &dirs_open)
+{
 
-    for (int i = 0; i < MAX_NEIGHBORS; i++) {
+    for (int i = 0; i < MAX_NEIGHBORS; i++)
+    {
 
-        if( ((dirs_open[i] != INVALID_NEIGHBOR) && curr->neighbors[i].second == INVALID_NEIGHBOR ))  {
+        if (((dirs_open[i] != INVALID_NEIGHBOR) && curr->neighbors[i].second == INVALID_NEIGHBOR))
+        {
             return false;
         }
     }
@@ -111,55 +135,68 @@ bool check_valid(Node * curr, std::array<cardinalDirection,4> & dirs_open) {
     return true;
 }
 
-bool Sennot_Graph::neighbor_match( Node *possible_step, cardinalDirection approach_dir,std::vector<handDirection> & dirs_open) {
-    bool  retb = false;
+bool Sennot_Graph::neighbor_match(Node *possible_step, cardinalDirection approach_dir, std::vector<handDirection> &dirs_open)
+{
+    bool retb = false;
 
-    std::array<cardinalDirection,4> node_match = {-1,-1,-1,-1};
+    std::array<cardinalDirection, 4> node_match = {-1, -1, -1, -1};
 
-    for (int i = 0; i < MAX_NEIGHBORS; i++){
-        if (dirs_open[i] != INVALID_DIRECTION) {
-            cardinalDirection potential = ( Graph_Utils::hand_to_cardinal( dirs_open[i] , approach_dir) );
+    for (int i = 0; i < MAX_NEIGHBORS; i++)
+    {
+        if (dirs_open[i] != INVALID_DIRECTION)
+        {
+            cardinalDirection potential = (Graph_Utils::hand_to_cardinal(dirs_open[i], approach_dir));
 
             node_match[potential] = potential;
         }
     }
 
-    if (check_valid(possible_step,node_match)) {
+    if (check_valid(possible_step, node_match))
+    {
         retb = true;
     }
 
     return retb;
 }
 
-int Sennot_Graph::add_node(Node *root, int tree_depth, int num_neighbors, int add_cost,std::vector<handDirection> & dirs_open) {
+int Sennot_Graph::add_node(Node *root, int tree_depth, int num_neighbors, int add_cost, std::vector<handDirection> &dirs_open)
+{
 
     int to_ret = 0;
     // If we are at leaf level
-    if (tree_depth == 0) {
+    if (tree_depth == 0)
+    {
 
-        Node * ref = get_node(root->node_id);
+        Node *ref = get_node(root->node_id);
 
-        for (int i = 0; i < MAX_NEIGHBORS; i ++) {
+        for (int i = 0; i < MAX_NEIGHBORS; i++)
+        {
 
-            if (ref->neighbors[i].second != INVALID_NEIGHBOR && neighbor_match( ref->neighbors[i].first,i,dirs_open) && ref->neighbors[i].first->visitor != ref->node_id  && (ref->neighbors[i].second-1 <= add_cost || ref->neighbors[i].second+1 >= add_cost)) {
+            if (ref->neighbors[i].second != INVALID_NEIGHBOR && neighbor_match(ref->neighbors[i].first, i, dirs_open) && ref->neighbors[i].first->visitor != ref->node_id && (ref->neighbors[i].second - 1 <= add_cost || ref->neighbors[i].second + 1 >= add_cost))
+            {
 
-                    Node * to_add = new Node( ref->neighbors[i].first->node_id );
-                    ref->neighbors[i].first->visitor = ref->node_id;
+                Node *to_add = new Node(ref->neighbors[i].first->node_id);
+                ref->neighbors[i].first->visitor = ref->node_id;
 
-                    std::cout << "The node ID was " << ref->neighbors[i].first->node_id << " coming from " << ref->node_id << "\n";
+                std::cout << "The node ID was " << ref->neighbors[i].first->node_id << " coming from " << ref->node_id << "\n";
 
-                    if (root->add_neighbor(to_add,add_cost)) {
-                        to_ret+= 1;
-                    }
+                if (root->add_neighbor(to_add, add_cost))
+                {
+                    to_ret += 1;
+                }
             }
         }
         return to_ret;
 
-    } else {
-        for (int i = 0; i < MAX_NEIGHBORS;i++) {
-            if (root->neighbors[i].second != INVALID_NEIGHBOR  ) {
+    }
+    else
+    {
+        for (int i = 0; i < MAX_NEIGHBORS; i++)
+        {
+            if (root->neighbors[i].second != INVALID_NEIGHBOR)
+            {
 
-                to_ret += add_node(root->neighbors[i].first, tree_depth - 1, num_neighbors, add_cost,dirs_open);
+                to_ret += add_node(root->neighbors[i].first, tree_depth - 1, num_neighbors, add_cost, dirs_open);
             }
         }
     }
@@ -169,34 +206,47 @@ int Sennot_Graph::add_node(Node *root, int tree_depth, int num_neighbors, int ad
 
 
 // S
-bool Sennot_Graph::intersection_update( std::vector<handDirection> & dirs_open) {
+bool Sennot_Graph::intersection_update(std::vector<handDirection> &dirs_open)
+{
     int added = 0;
-    int opencount= 0;
+    int opencount = 0;
 
-    for (handDirection d : dirs_open) {
-        if (d != INVALID_NEIGHBOR) {
+    for (handDirection d : dirs_open)
+    {
+        if (d != INVALID_NEIGHBOR)
+        {
             opencount++;
         }
     }
 
     // Clear visitor list
-    for (Node * n : graph) {
+    for (Node *n : graph)
+    {
         n->visitor = -1;
     }
 
 
-    if(!init_intersect) {
-        for (Node * n : progression_tree) {
-            if (n->valid == 1) {
-                added += add_node(n, this->depth, opencount, this->edge_progress,dirs_open);
+    if (!init_intersect)
+    {
+        for (Node *n : progression_tree)
+        {
+            if (n->valid == 1)
+            {
+                added += add_node(n, this->depth, opencount, this->edge_progress, dirs_open);
             }
         }
-    } else {
+    }
+    else
+    {
 
-        for (Node * n : progression_tree) {
-            if (n->num_neighbors() == opencount) {
+        for (Node *n : progression_tree)
+        {
+            if (n->num_neighbors() == opencount)
+            {
                 added++;
-            } else {
+            }
+            else
+            {
                 n->valid = INVALID_NEIGHBOR;
             }
 
@@ -211,10 +261,13 @@ bool Sennot_Graph::intersection_update( std::vector<handDirection> & dirs_open) 
     // If we are unable to add at all we are fucked.
     this->edge_progress = 0;
 
-    if (added) {
+    if (added)
+    {
         depth++;
         return true;
-    } else {
+    }
+    else
+    {
         return false;
     }
 }
@@ -226,17 +279,20 @@ bool Sennot_Graph::intersection_update( std::vector<handDirection> & dirs_open) 
 *
 * \param path_cost cost of the edge we are currently travelling upon
 */
-graphInt Sennot_Graph::edge_step() {
+graphInt Sennot_Graph::edge_step()
+{
 
     edge_progress++;
 
     return 0;
 }
 
-void Sennot_Graph::initialize_paths() {
-    for (int i = 0; i < NODE_COUNT; i++) {
+void Sennot_Graph::initialize_paths()
+{
+    for (int i = 0; i < NODE_COUNT; i++)
+    {
         // set initial steps
-        Node * temp = new Node(nodes[i]);
+        Node *temp = new Node(nodes[i]);
         graph[i] = temp;
 
         // Make starting progression trees with possibilities
@@ -245,26 +301,30 @@ void Sennot_Graph::initialize_paths() {
     }
 }
 
-void Sennot_Graph::initialize_graph() {
+void Sennot_Graph::initialize_graph()
+{
     depth = 0;
     num_paths = NODE_COUNT;
 
     // For each each in graph, add connection from node0 to node1 in one direction, then add edge from node1 to node0 in the opposite
     // direction
-    for (int i = 0; i < EDGE_COUNT; i++) {
+    for (int i = 0; i < EDGE_COUNT; i++)
+    {
         (this->graph.at(edges[i][0] - 65))->add_neighbor(graph.at(edges[i][1] - CHAR_TO_POSITION), edges[i][2], edges[i][3]);
         (this->graph.at(edges[i][1] - 65))->add_neighbor(graph.at(edges[i][0] - CHAR_TO_POSITION), edges[i][2], (edges[i][3] + 2) % 4);
     }
 }
 
-std::vector<nodeLabel> Sennot_Graph::find_path(nodeLabel start, nodeLabel finish) {
-    Node * source = graph[start - CHAR_TO_POSITION];
-    Node * dest = graph[finish - CHAR_TO_POSITION];
+std::vector<nodeLabel> Sennot_Graph::find_path(nodeLabel start, nodeLabel finish)
+{
+    Node *source = graph[start - CHAR_TO_POSITION];
+    Node *dest = graph[finish - CHAR_TO_POSITION];
 
     return find_path(source, dest);
 }
 
-std::vector<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
+std::vector<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish)
+{
     std::vector<nodeLabel> to_return;
 
 #ifdef LOGGING
@@ -282,8 +342,10 @@ std::vector<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
     dist[start->node_id - CHAR_TO_POSITION] = 0;
     prev[start->node_id - CHAR_TO_POSITION] = INVALID_PREV;
 
-    for (Node * n : this->graph) {
-        if (n->node_id != start->node_id) {
+    for (Node *n : this->graph)
+    {
+        if (n->node_id != start->node_id)
+        {
             dist[n->node_id - CHAR_TO_POSITION] = 9999;
             prev[n->node_id - CHAR_TO_POSITION] = INVALID_PREV;
         }
@@ -291,61 +353,70 @@ std::vector<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
         bfs_queue.push_back(n);
     }
 
-        while (!bfs_queue.empty()) {
-            int alt_cost;
+    while (!bfs_queue.empty())
+    {
+        int alt_cost;
 
-            int min_c = dist[bfs_queue.front()->node_id - CHAR_TO_POSITION];
-            int iter = 0;
-            int saved_iter = 0;
-            for (iter = 0 ; iter < bfs_queue.size(); iter++) {
-                if (dist[bfs_queue[iter]->node_id - CHAR_TO_POSITION] < min_c) {
+        int min_c = dist[bfs_queue.front()->node_id - CHAR_TO_POSITION];
+        int iter = 0;
+        int saved_iter = 0;
+        for (iter = 0; iter < bfs_queue.size(); iter++)
+        {
+            if (dist[bfs_queue[iter]->node_id - CHAR_TO_POSITION] < min_c)
+            {
 
-                    #ifdef LOGGING
+#ifdef LOGGING
                     std::cout << "Updating " << bfs_queue[iter]->node_id << std::endl;
                     #endif
-                    min_c = dist[bfs_queue[iter]->node_id - CHAR_TO_POSITION];
-                    saved_iter = iter;
-                }
+                min_c = dist[bfs_queue[iter]->node_id - CHAR_TO_POSITION];
+                saved_iter = iter;
             }
+        }
 
-            Node *current = bfs_queue[saved_iter];
-            bfs_queue.erase(bfs_queue.begin() + saved_iter);
+        Node *current = bfs_queue[saved_iter];
+        bfs_queue.erase(bfs_queue.begin() + saved_iter);
 
-            if (current->node_id == finish->node_id) {
+        if (current->node_id == finish->node_id)
+        {
 
-               #ifdef LOGGING
+#ifdef LOGGING
                     std::cout << "We found the destination node!\n";
                 #endif
             // Found it
-                break;
+            break;
 
-            } else {
-               #ifdef LOGGING
+        }
+        else
+        {
+#ifdef LOGGING
                 std::cout << "We are checking " << current->node_id << std::endl;
 
                 #endif
 
-                for (int i = 0; i < MAX_NEIGHBORS; i++) {
-                    if (current->neighbors[i].second != INVALID_NEIGHBOR) {
-                        char label_check = current->neighbors[i].first->node_id;
-                        alt_cost = dist[current->node_id - CHAR_TO_POSITION] + current->neighbors[i].second;
+            for (int i = 0; i < MAX_NEIGHBORS; i++)
+            {
+                if (current->neighbors[i].second != INVALID_NEIGHBOR)
+                {
+                    char label_check = current->neighbors[i].first->node_id;
+                    alt_cost = dist[current->node_id - CHAR_TO_POSITION] + current->neighbors[i].second;
 
-                        #ifdef LOGGING
+#ifdef LOGGING
                         std::cout << "Neighbor " << label_check << " Cost " << alt_cost<< std::endl;
                         #endif
-                        if (alt_cost < dist[label_check - CHAR_TO_POSITION]) {
-                            dist[label_check- CHAR_TO_POSITION] = alt_cost;
-                            #ifdef LOGGING
+                    if (alt_cost < dist[label_check - CHAR_TO_POSITION])
+                    {
+                        dist[label_check - CHAR_TO_POSITION] = alt_cost;
+#ifdef LOGGING
                             std::cout << "Setting prev " << label_check << " to " << current->node_id << std::endl;
                             #endif
-                            prev[label_check - CHAR_TO_POSITION] = current->node_id;
-                        }
+                        prev[label_check - CHAR_TO_POSITION] = current->node_id;
                     }
                 }
             }
         }
+    }
 
-    #ifdef LOGGING
+#ifdef LOGGING
         for (int i = 0; i < NODE_COUNT; i++) {
                 std::cout << prev[i] << " ";
 
@@ -355,18 +426,19 @@ std::vector<nodeLabel> Sennot_Graph::find_path(Node *start, Node *finish) {
 
     char iter = finish->node_id;
 
-    while (prev[iter - CHAR_TO_POSITION] != INVALID_PREV) {
-        #ifdef LOGGING
+    while (prev[iter - CHAR_TO_POSITION] != INVALID_PREV)
+    {
+#ifdef LOGGING
         std::cout << "Adding " << iter << std::endl;
         #endif
 
-        to_return.insert(to_return.begin(),iter);
+        to_return.insert(to_return.begin(), iter);
         iter = prev[iter - CHAR_TO_POSITION];
     }
-    to_return.insert(to_return.begin(),start->node_id);
+    to_return.insert(to_return.begin(), start->node_id);
 
 
-    #ifdef LOGGING
+#ifdef LOGGING
     std::cout << "Cost: " << dist[finish->node_id - CHAR_TO_POSITION] << std::endl;
 
 

@@ -1,6 +1,7 @@
 #include "Locator.h"
 
-locatorState Locator::reset_state() {
+locatorState Locator::reset_state()
+{
     // Reset Graph State
 
     Audio::play_reset();
@@ -8,14 +9,15 @@ locatorState Locator::reset_state() {
     this->goal_progression = 0;
     this->goal_list.clear();
 
-   locator_graph.reset_graph();
+    locator_graph.reset_graph();
 
     return 1;
 }
 
-static void sleep_loc(int n) {
-   std::chrono::seconds timespan(n);
-   std::this_thread::sleep_for(timespan);
+static void sleep_loc(int n)
+{
+    std::chrono::seconds timespan(n);
+    std::this_thread::sleep_for(timespan);
 }
 
 /**
@@ -28,42 +30,49 @@ static void sleep_loc(int n) {
 *
 * \return whether any F,L,R values were detected as open
 */
-std::vector<cardinalDirection> Locator::check_openings(Sonar_Distances & distances) {
+std::vector<cardinalDirection> Locator::check_openings(Sonar_Distances &distances)
+{
 
     std::vector<cardinalDirection> directions = {DIR_N, DIR_E, DIR_S, DIR_W};
 
-    std::cout << "The right value was: " << this->curr_cycle.right_distance<< std::endl;
-    std::cout <<  "The left value was: " <<this->curr_cycle.left_distance << std::endl;
-    std::cout <<  "The front value was: " <<this->curr_cycle.forward_distance << std::endl;
+    std::cout << "The right value was: " << this->curr_cycle.right_distance << std::endl;
+    std::cout << "The left value was: " << this->curr_cycle.left_distance << std::endl;
+    std::cout << "The front value was: " << this->curr_cycle.forward_distance << std::endl;
 
     float max_l = curr_cycle.left_distance;
     float max_r = curr_cycle.right_distance;
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++)
+    {
 
         read_distances();
         sleep_loc(1);
 
-        if (curr_cycle.right_distance > max_r) {
+        if (curr_cycle.right_distance > max_r)
+        {
             max_r = curr_cycle.right_distance;
         }
 
-        if (curr_cycle.left_distance > max_l) {
+        if (curr_cycle.left_distance > max_l)
+        {
             max_l = curr_cycle.left_distance;
         }
     }
 
-    if (max_l < INTERSECTION_THRESHOLD) {
+    if (max_l < INTERSECTION_THRESHOLD)
+    {
 
         directions[LEFT] = INVALID_DIRECTION;
     }
 
-    if (max_r < INTERSECTION_THRESHOLD) {
+    if (max_r < INTERSECTION_THRESHOLD)
+    {
 
         directions[RIGHT] = INVALID_DIRECTION;
     }
 
-    if (curr_cycle.forward_distance < 80) {
+    if (curr_cycle.forward_distance < 80)
+    {
 
         directions[FORWARD] = INVALID_DIRECTION;
     }
@@ -72,44 +81,52 @@ std::vector<cardinalDirection> Locator::check_openings(Sonar_Distances & distanc
 }
 
 
-cardinalDirection Locator::next_step(std::vector<cardinalDirection> &directions) {
+cardinalDirection Locator::next_step(std::vector<cardinalDirection> &directions)
+{
 
 
-    if (directions[FORWARD] != INVALID_NEIGHBOR) {
+    if (directions[FORWARD] != INVALID_NEIGHBOR)
+    {
         return FORWARD;
     }
 
-    if (directions[RIGHT] != INVALID_NEIGHBOR) {
+    if (directions[RIGHT] != INVALID_NEIGHBOR)
+    {
         return RIGHT;
     }
 
-    if (directions[LEFT] != INVALID_NEIGHBOR) {
+    if (directions[LEFT] != INVALID_NEIGHBOR)
+    {
         return LEFT;
     }
 
-    if (directions[BACK] != INVALID_NEIGHBOR) {
+    if (directions[BACK] != INVALID_NEIGHBOR)
+    {
         return BACK;
     }
 
     return 0;
 }
 
-detectionResult Locator::intersection_check() {
+detectionResult Locator::intersection_check()
+{
     detectionResult retV = 0;
 
-    if (this->curr_cycle.right_distance > INTERSECTION_THRESHOLD || this->curr_cycle.left_distance > INTERSECTION_THRESHOLD*1.5) {
+    if (this->curr_cycle.right_distance > INTERSECTION_THRESHOLD || this->curr_cycle.left_distance > INTERSECTION_THRESHOLD * 1.5)
+    {
 
-        std::cout << "The right value was: " << this->curr_cycle.right_distance<< std::endl;
-        std::cout <<  "The left value was: " <<this->curr_cycle.left_distance << std::endl;
-        std::cout <<  "The front value was: " <<this->curr_cycle.forward_distance << std::endl;
+        std::cout << "The right value was: " << this->curr_cycle.right_distance << std::endl;
+        std::cout << "The left value was: " << this->curr_cycle.left_distance << std::endl;
+        std::cout << "The front value was: " << this->curr_cycle.forward_distance << std::endl;
         retV = INTERSECTION;
     }
 
-    if (this->curr_cycle.forward_distance < FRONT_TRESHOLD && this->curr_cycle.forward_distance > 12) {
+    if (this->curr_cycle.forward_distance < FRONT_TRESHOLD && this->curr_cycle.forward_distance > 12)
+    {
 
-        std::cout << "The right value was: " << this->curr_cycle.right_distance<< std::endl;
-        std::cout <<  "The left value was: " <<this->curr_cycle.left_distance << std::endl;
-        std::cout <<  "The front value was: " <<this->curr_cycle.forward_distance << std::endl;
+        std::cout << "The right value was: " << this->curr_cycle.right_distance << std::endl;
+        std::cout << "The left value was: " << this->curr_cycle.left_distance << std::endl;
+        std::cout << "The front value was: " << this->curr_cycle.forward_distance << std::endl;
 
         retV = INTERSECTION;
     }
@@ -117,10 +134,11 @@ detectionResult Locator::intersection_check() {
     return retV;
 };
 
-void Locator::read_distances() {
+void Locator::read_distances()
+{
     this->newest_metrics.start_read();
 
-    this->curr_cycle.right_distance  = newest_metrics.read(RIGHT_DISTANCE);
+    this->curr_cycle.right_distance = newest_metrics.read(RIGHT_DISTANCE);
     this->curr_cycle.left_distance = newest_metrics.read(LEFT_DISTANCE);
     this->curr_cycle.forward_distance = newest_metrics.read(FORWARD);
 
@@ -128,7 +146,8 @@ void Locator::read_distances() {
     this->newest_metrics.end_read();
 }
 
-void Locator::run_locator() {
+void Locator::run_locator()
+{
 
     this->read_distances();
 
@@ -141,7 +160,8 @@ void Locator::run_locator() {
     locatorState new_light = (light_res ^ old_light_res) & light_res;
 
     // Need to ensure we don't count circles as lights too
-    if (intersection) {
+    if (intersection)
+    {
         new_light = 0;
     }
 
@@ -154,16 +174,19 @@ void Locator::run_locator() {
     intersection_verify(intersection, old_intersection);
 
     // Indicate to user that we have passed under a light.
-    if (new_light) {
+    if (new_light)
+    {
         locator_graph.edge_step();
         Audio::play_light();
     }
 }
 
 
-void Locator::intersection_verify(detectionResult intersect, detectionResult old_intersect) {
+void Locator::intersection_verify(detectionResult intersect, detectionResult old_intersect)
+{
 
-    if ((intersect ^ old_intersect) & intersect) {
+    if ((intersect ^ old_intersect) & intersect)
+    {
         Audio::intersection();
 
         // Prompt user that he has reached intersection
@@ -171,8 +194,10 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
         cardinalDirection to_turn;
 
 
-        if (goal_progression) {
-            if (goal_list.size() > 0) {
+        if (goal_progression)
+        {
+            if (goal_list.size() > 0)
+            {
                 to_turn = goalDirection();
 
 
@@ -180,33 +205,40 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
                 curr_heading = to_turn;
 
                 Audio::turn_dir(turn_prompt);
-            } else {
+            }
+            else
+            {
                 // At this point we should be at goal, in case we are not we reset after 10 seconds
                 sleep_loc(15);
 
                 this->reset_state();
             }
-        } else {
+        }
+        else
+        {
 
             to_turn = standardDirection(to_turn);
 
-            if (locator_graph.path_count() == 1 && !goal_progression) {
+            if (locator_graph.path_count() == 1 && !goal_progression)
+            {
 
                 goal_setup();
                 to_turn = goalDirection();
                 handDirection turn_prompt = Graph_Utils::cardinal_to_hand(to_turn, curr_heading);
                 curr_heading = to_turn;
 
-            sleep_loc(1);
+                sleep_loc(1);
 
                 Audio::turn_dir(turn_prompt);
-            } else {
+            }
+            else
+            {
 
-             sleep_loc(1);
+                sleep_loc(1);
                 Audio::turn_dir(to_turn);
             }
         }
-       sleep_loc(5);
+        sleep_loc(5);
     }
 }
 
@@ -214,19 +246,24 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
 // Fires off pathfinding to goal node and
 // changes further commands to guide user via shortest path
 // to goal.
-void Locator::goal_setup() {
+void Locator::goal_setup()
+{
     nodeLabel parent;
 
-    last_node = locator_graph.get_last_node(locator_graph.get_depth(),parent);
+    last_node = locator_graph.get_last_node(locator_graph.get_depth(), parent);
 
-    if(last_node == INVALID_NEIGHBOR) {
+    if (last_node == INVALID_NEIGHBOR)
+    {
         this->reset_state();
-    } else {
+    }
+    else
+    {
         this->curr_heading = Graph_Utils::check_connection(parent, last_node, this->locator_graph);
 
         // Identify location direction
 
-        if (!goal_progression) {
+        if (!goal_progression)
+        {
             Audio::play_goal();
             goal_list = locator_graph.find_path(last_node, GOAL_NODE);
 
@@ -235,7 +272,8 @@ void Locator::goal_setup() {
     }
 }
 
-cardinalDirection Locator::standardDirection(cardinalDirection to_turn) {
+cardinalDirection Locator::standardDirection(cardinalDirection to_turn)
+{
     // Update Distances
     this->read_distances();
 
@@ -249,31 +287,38 @@ cardinalDirection Locator::standardDirection(cardinalDirection to_turn) {
     bool result = locator_graph.intersection_update(openings);
 
     // If no paths were advanced, then state is inconsistent; reset graph
-    if (!result) {
+    if (!result)
+    {
         this->reset_state();
     }
 
     return to_turn;
 }
 
-cardinalDirection Locator::goalDirection() {
+cardinalDirection Locator::goalDirection()
+{
     cardinalDirection to_turn = INVALID_DIRECTION;
-    if (goal_list.size() == 1) {
-                Audio::play_destination();
-            } else {
-                // Check connection between current and front of goal list
-                to_turn = Graph_Utils::check_connection( goal_list.front(), goal_list.at(1), locator_graph);
+    if (goal_list.size() == 1)
+    {
+        Audio::play_destination();
+    }
+    else
+    {
+        // Check connection between current and front of goal list
+        to_turn = Graph_Utils::check_connection(goal_list.front(), goal_list.at(1), locator_graph);
 
-                goal_list.erase(goal_list.begin());
-            }
+        goal_list.erase(goal_list.begin());
+    }
 
     return to_turn;
 }
 
-int Locator::start(std::string data_source, int source_type) {
-    int retv= 0;
+int Locator::start(std::string data_source, int source_type)
+{
+    int retv = 0;
 
-    if (source_type == ARDUINO_DATA) {
+    if (source_type == ARDUINO_DATA)
+    {
         // Initialize the serial read
         con = new Arduino_Connector(&this->newest_metrics, data_source, ARDUINO);
 
@@ -285,10 +330,12 @@ int Locator::start(std::string data_source, int source_type) {
         retv = 1;
 
 
-    } else if (source_type == SIMULATED_DATA) {
+    }
+    else if (source_type == SIMULATED_DATA)
+    {
         con = new Arduino_Connector(&this->newest_metrics, data_source, SIMULATION);
         con->start_thread();
-        retv =  1;
+        retv = 1;
     }
 
     Audio::play_start();
@@ -297,18 +344,23 @@ int Locator::start(std::string data_source, int source_type) {
     return retv;
 }
 
-Locator::Locator(std::string file_uri, int run_type) {
+Locator::Locator(std::string file_uri, int run_type)
+{
 
     this->proc = Image_Processor();
 
-    if (run_type == ARDUINO) {
-        #ifdef __arm__
+
+    if (run_type == ARDUINO)
+    {
+#ifdef __arm__
          this->camera.config_connector(Camera_Type::RASPBERRY_PI_CAM_E, file_uri, 0);
         #else
-        this->camera.config_connector(Camera_Type::USB_WEBCAMS_E , file_uri, DEFAULT_CAMERA);
-        #endif
+        this->camera.config_connector(Camera_Type::USB_WEBCAMS_E, file_uri, DEFAULT_CAMERA);
+#endif
 
-    } else if (run_type == SIMULATION) {
+    }
+    else if (run_type == SIMULATION)
+    {
         this->camera.config_connector(Camera_Type::IMAGE_FOLDER_E, file_uri, 180);
     }
 
@@ -319,9 +371,11 @@ Locator::Locator(std::string file_uri, int run_type) {
     this->old_intersection = 0;
 }
 
-Locator::~Locator() {
+Locator::~Locator()
+{
     int end = 0;
-    do {
+    do
+    {
         end = con->stop_thread();
     } while (!end);
 

@@ -9,13 +9,14 @@ typedef int handDirection;
 
 typedef char nodeLabel;
 
-class Node {
+class Node
+{
 private:
     int neighbor_count;
 
 public:
 
-    std::pair<Node *, int> * neighbors;
+    std::pair<Node *, int> *neighbors;
     nodeLabel node_id;
 
     nodeLabel visitor;
@@ -40,7 +41,7 @@ public:
     // Ensure that pointer is tracked and properly
     // dealt with in case of returning false to prevent
     // mmeory leaks.
-    bool add_neighbor(Node * neighbor, int cost);
+    bool add_neighbor(Node *neighbor, int cost);
 
     /*
        Reeturns the number of neighbors this Node has.

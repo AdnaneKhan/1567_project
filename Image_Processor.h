@@ -7,18 +7,20 @@ using namespace cv;
 
 typedef int detectionResult;
 
-class Image_Processor {
+class Image_Processor
+{
 
     bool check_within(Mat &mat, float bounding_percent, cv::Vector<cv::Point> contour);
 
 public:
 
-    //
     detectionResult circle_detect(Camera_Connector &camera);
+
     detectionResult circle_detect(Mat &src);
 
 
     detectionResult rectangle_detect(Camera_Connector &camera);
+
     detectionResult rectangle_detect(Mat &src);
 
 
