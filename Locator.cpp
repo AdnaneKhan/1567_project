@@ -155,9 +155,10 @@ void Locator::run_locator() {
 
     // Indicate to user that we have passed under a light.
     if (new_light) {
-        Audio::play_light();
+
 
         locator_graph.edge_step();
+        Audio::play_light();
     }
 }
 
