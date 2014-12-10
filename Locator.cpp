@@ -303,7 +303,7 @@ Locator::Locator(std::string file_uri, int run_type) {
 
     if (run_type == ARDUINO) {
         #ifdef __arm__
-         this->camera.config_camera(Camera_Type::RASPBERRY_PI_CAM_E, file_uri, 0);
+         this->camera.config_connector(Camera_Type::RASPBERRY_PI_CAM_E, file_uri, 0);
         #else
         this->camera.config_connector(Camera_Type::USB_WEBCAMS_E , file_uri, DEFAULT_CAMERA);
         #endif
