@@ -175,49 +175,65 @@ bool Sennot_Graph::neighbor_match(Node *possible_step, cardinalDirection approac
     return retb;
 }
 
-int Sennot_Graph::add_node(Node *root, int tree_depth, int num_neighbors, int add_cost, std::vector<handDirection> &dirs_open)
+// Check if the node was visited before from the same node in the same locate cycle, this means two paths have converged (usually as a result of turnout from
+// a dead end.
+bool visitor_check(Node * to_check, nodeLabel visitor) {
+    if (to_check->visitor == visitor)
+    {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+int Sennot_Graph::add_node(Node *parent, int tree_depth, int num_neighbors, int add_cost, std::vector<handDirection> &dirs_open)
 {
 
-    int to_ret = 0;
-    // If we are at leaf level
-    if (tree_depth == 0)
+    int nodes_added = 0;
+
+    if (tree_depth == 0) // Are we at leaf?
     {
 
-        Node *ref = get_node(root->node_id);
+        Node *coming_from = get_node(parent->node_id);
 
         for (int i = 0; i < MAX_NEIGHBORS; i++)
         {
-
-            if (ref->neighbors[i].second != INVALID_NEIGHBOR && neighbor_match(ref->neighbors[i].first, i, dirs_open) /*&&ref->neighbors[i].first->visitor != ref->node_id && (ref->neighbors[i].second - 1 <= add_cost || ref->neighbors[i].second + 1 >= add_cost)*/)
+            // Check in order:
+            // Is child valid?
+            // Is the node already visited by this parent in this search cycle? (path merging)
+            // Does the new node exhibit openings if it were arrived at from assumed direction?
+            // Did the path we take have the length it would take to get to this node?
+            if (coming_from->neighbors[i].second != INVALID_NEIGHBOR && visitor_check( coming_from->neighbors[i].first , coming_from->node_id) && neighbor_match(coming_from->neighbors[i].first, i, dirs_open) /*&&ref->neighbors[i].first->visitor != ref->node_id && (ref->neighbors[i].second - 1 <= add_cost || ref->neighbors[i].second + 1 >= add_cost)*/)
             {
 
-                Node *to_add = new Node(ref->neighbors[i].first->node_id);
-                ref->neighbors[i].first->visitor = ref->node_id;
+                Node *to_add = new Node(coming_from->neighbors[i].first->node_id);
 
-                std::cout << "The node ID was " << ref->neighbors[i].first->node_id << " coming from " << ref->node_id << "\n";
+                // Mark this node as visited in the main (permanent) graph
+                coming_from->neighbors[i].first->visitor = coming_from->node_id;
 
-                if (root->add_neighbor(to_add, add_cost))
-                {
-                    to_ret += 1;
-                }
+                std::cout << "The node ID was " << coming_from->neighbors[i].first->node_id << " coming from " << coming_from->node_id << "\n";
+
+                parent->add_neighbor(to_add, add_cost);
+
+                nodes_added += 1;
             }
         }
-        return to_ret;
+        return nodes_added;
 
     }
-    else
+    else // Not at leaf keep descending
     {
         for (int i = 0; i < MAX_NEIGHBORS; i++)
         {
-            if (root->neighbors[i].second != INVALID_NEIGHBOR)
+            if (parent->neighbors[i].second != INVALID_NEIGHBOR)
             {
 
-                to_ret += add_node(root->neighbors[i].first, tree_depth - 1, num_neighbors, add_cost, dirs_open);
+                nodes_added += add_node(parent->neighbors[i].first, tree_depth - 1, num_neighbors, add_cost, dirs_open);
             }
         }
     }
 
-    return to_ret;
+    return nodes_added;
 }
 
 // S

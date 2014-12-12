@@ -35,14 +35,10 @@ public:
 
     // Constructor and Desturctor
     Sennot_Graph();
-
     ~Sennot_Graph();
 
-
     /*
-
     Resets the graph state to reflect initial state
-
      */
     void reset_graph();
 
@@ -53,7 +49,7 @@ public:
 
 
     // Adds a node to the graph
-    int add_node(Node *root, int tree_depth, int num_neighbors, int add_cost, std::vector<handDirection> &dirs_open);
+    int add_node(Node *parent, int tree_depth, int num_neighbors, int add_cost, std::vector<handDirection> &dirs_open);
 
     // Makes a step along the current edge
     graphInt edge_step();

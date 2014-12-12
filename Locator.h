@@ -1,6 +1,7 @@
 #ifndef LOCATOR_H
 #define LOCATOR_H
 
+#include <curses.h>
 #include <time.h>   // time calls
 #include <iostream>
 #include <fstream>
@@ -107,7 +108,7 @@ private:
     Image_Processor proc;
     Arduino_Connector *con;
     ///////////////===========================
-
+    int run_mode;
 
     Sennot_Graph locator_graph;
     nodeLabel last_node;
@@ -115,6 +116,7 @@ private:
 
 
     bool goal_progression; // Are we on path to goal?
+
 
 
     // Value is non valid until location has occured, afterwards value
@@ -138,7 +140,9 @@ private:
     // The presence of an intersection
     detectionResult intersection_check();
 
-    cardinalDirection next_step(std::vector<cardinalDirection> &directions); // Manually asks for openings
+    detectionResult intersection_check_m(); // simulaed intersection check
+
+    cardinalDirection next_step(std::vector<cardinalDirection> &directions);
 
     ////////////////////////////////////////////////
 
@@ -146,6 +150,8 @@ private:
     *  Parses sensor data to check which directions are open for the user to turn into
     */
     std::vector<cardinalDirection> check_openings(Sonar_Distances &distances);
+
+    std::vector<cardinalDirection> check_open_m();
 
     /**
     *  Resets the state of the graph so that user is located at any of ndes matching current

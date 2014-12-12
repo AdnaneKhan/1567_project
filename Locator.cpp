@@ -237,7 +237,7 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
 
         if (goal_progression)
         {
-            if (goal_list.size() > 0)
+            if (goal_list.size() > 1)
             {
                 to_turn = goalDirection();
 
@@ -340,17 +340,12 @@ cardinalDirection Locator::standardDirection(cardinalDirection to_turn)
 cardinalDirection Locator::goalDirection()
 {
     cardinalDirection to_turn = INVALID_DIRECTION;
-    if (goal_list.size() == 1)
-    {
-        Audio::play_destination();
-    }
-    else
-    {
+
+
         // Check connection between current and front of goal list
         to_turn = Graph_Utils::check_connection(goal_list.front(), goal_list.at(1), locator_graph);
 
         goal_list.erase(goal_list.begin());
-    }
 
     return to_turn;
 }
