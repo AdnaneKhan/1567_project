@@ -2,12 +2,20 @@
 
 #include "Locator.h"
 
+
 #define SIMULATION 2
 #define REAL 1
 #define INVALID 3
 
 typedef int operationType;
 Locator *loc;
+
+
+void exit_handler(int signal) {
+    std::cout << "Exiting Program " << signal << std::endl;
+    loc->~Locator();
+    exit(0);
+}
 
 operationType select_operation(int num_args, char *args[])
 {
@@ -38,6 +46,8 @@ void run_simulation(const char *image_folder, const char *mock_data_file)
     std::chrono::milliseconds timespan(500);
     int res = loc->start(mock_data_file, SIMULATED_DATA);
 
+
+
     if (res)
     {
         while (true)
@@ -52,11 +62,6 @@ void run_simulation(const char *image_folder, const char *mock_data_file)
     }
 }
 
-void exit_handler(int signal) {
-    std::cout << "Exiting Program " << signal << std::endl;
-    loc->~Locator();
-    exit(0);
-}
 
 /*
 Runs the actual locater using data from camera and arduino serial connection
@@ -64,7 +69,7 @@ Runs the actual locater using data from camera and arduino serial connection
 void run_full(const char *serial_port)
 {
     loc = new Locator("", ARDUINO);
-    signal(SIGINT, exit_handler);
+
 
     int res = loc->start(serial_port, ARDUINO_DATA);
 

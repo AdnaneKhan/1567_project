@@ -20,6 +20,36 @@ static void sleep_loc(int n)
     std::this_thread::sleep_for(timespan);
 }
 
+std::vector<cardinalDirection> Locator::check_open_m() {
+    std::vector<cardinalDirection> directions = {FORWARD, RIGHT, BACK, LEFT};
+
+    handDirection l = 0;
+    handDirection r = 0;
+    handDirection b =1;
+    handDirection f = 0;
+
+    std::cout << "Is left open 0/1?";
+    std::cin >> l;
+    std::cout << "Is right open 0/1?";
+    std::cin >> r;
+    std::cout << "Is front open 0/1?";
+    std::cin >> f;
+
+    if (!f ) {
+        directions[FORWARD] = -1;
+    }
+
+    if (!r ) {
+        directions[RIGHT] = -1;
+    }
+
+    if (!l ) {
+        directions[LEFT] = -1;
+    }
+
+    return directions;
+}
+
 /**
 *
 * Checks openings based on sensor data and places the results in directions vector
@@ -108,6 +138,16 @@ cardinalDirection Locator::next_step(std::vector<cardinalDirection> &directions)
     return 0;
 }
 
+detectionResult Locator::intersection_check_m() {
+    detectionResult retV;
+
+    std::cout << "At intersection? 0/1\n";
+
+    std::cin >> retV;
+
+    return retV;
+}
+
 detectionResult Locator::intersection_check()
 {
     detectionResult retV = 0;
@@ -166,7 +206,8 @@ void Locator::run_locator()
     }
 
     // If intersection detected from hallway opening
-    intersection |= intersection_check();
+   // intersection |= intersection_check();
+    intersection |= intersection_check_m();
 
     // Check to make sure we don't double count intersection that we are standing under
     // If accelerometers can be incorporated into this that data can also be used
@@ -208,18 +249,18 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
             }
             else
             {
+                Audio::play_destination();
                 // At this point we should be at goal, in case we are not we reset after 10 seconds
-                sleep_loc(15);
+                sleep_loc(20);
 
                 this->reset_state();
             }
         }
         else
         {
-
             to_turn = standardDirection(to_turn);
 
-            if (locator_graph.path_count() == 1 && !goal_progression)
+            if (locator_graph.path_count() == 1 && !goal_progression && locator_graph.get_depth() > 0)
             {
 
                 goal_setup();
@@ -227,18 +268,16 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
                 handDirection turn_prompt = Graph_Utils::cardinal_to_hand(to_turn, curr_heading);
                 curr_heading = to_turn;
 
-                sleep_loc(1);
-
                 Audio::turn_dir(turn_prompt);
             }
             else
             {
 
-                sleep_loc(1);
                 Audio::turn_dir(to_turn);
             }
         }
-        sleep_loc(5);
+        sleep_loc(2);
+        Audio::play_forward();
     }
 }
 
@@ -252,6 +291,7 @@ void Locator::goal_setup()
 
     last_node = locator_graph.get_last_node(locator_graph.get_depth(), parent);
 
+    std::cout << last_node;
     if (last_node == INVALID_NEIGHBOR)
     {
         this->reset_state();
@@ -278,13 +318,15 @@ cardinalDirection Locator::standardDirection(cardinalDirection to_turn)
     this->read_distances();
 
     // Check openings based on most recent read
-    std::vector<cardinalDirection> openings = check_openings(this->curr_cycle);
+   // std::vector<handDirection > openings = check_openings(this->curr_cycle);
+    std::vector<handDirection > openings = check_open_m();
 
     // Get turn in Open direction
     to_turn = this->next_step(openings);
 
     // Update the graph state to correspond with node we are at
     bool result = locator_graph.intersection_update(openings);
+    std::cout << result << std::endl;
 
     // If no paths were advanced, then state is inconsistent; reset graph
     if (!result)
@@ -319,6 +361,7 @@ int Locator::start(std::string data_source, int source_type)
 
     if (source_type == ARDUINO_DATA)
     {
+        run_mode = ARDUINO_DATA;
         // Initialize the serial read
         con = new Arduino_Connector(&this->newest_metrics, data_source, ARDUINO);
 
@@ -333,6 +376,7 @@ int Locator::start(std::string data_source, int source_type)
     }
     else if (source_type == SIMULATED_DATA)
     {
+        run_mode = SIMULATED_DATA;
         con = new Arduino_Connector(&this->newest_metrics, data_source, SIMULATION);
         con->start_thread();
         retv = 1;

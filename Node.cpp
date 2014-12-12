@@ -75,13 +75,13 @@ Node::Node(nodeLabel id)
         neighbors[i].second = INVALID_NEIGHBOR;
     }
     node_id = id;
+    this->valid = 1;
 }
 
 Node::Node()
 {
-
-    neighbor_count = 0;
     this->valid = 1;
+    neighbor_count = 0;
 
     neighbors = new std::pair<Node *, int>[MAX_NEIGHBORS];
 

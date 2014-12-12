@@ -122,16 +122,26 @@ Node *Sennot_Graph::get_node(nodeLabel node)
 
 bool check_valid(Node *curr, std::array<cardinalDirection, 4> &dirs_open)
 {
+//    std::cout << curr->node_id;
+//
+//    for (cardinalDirection d : dirs_open) {
+//        std::cout << " "<< d << " ";
+//    }
+//    std::cout <<std::endl;
+
+//    for (int i= 0; i< MAX_NEIGHBORS; i++) {
+//        std::cout << " " <<curr->neighbors[i].second << " ";
+//    }
+//    std::cout <<std::endl;
 
     for (int i = 0; i < MAX_NEIGHBORS; i++)
     {
 
-        if (((dirs_open[i] != INVALID_NEIGHBOR) && curr->neighbors[i].second == INVALID_NEIGHBOR))
+        if (((dirs_open[i] == INVALID_NEIGHBOR) && curr->neighbors[i].second != INVALID_NEIGHBOR) || ((dirs_open[i] != INVALID_NEIGHBOR) && curr->neighbors[i].second == INVALID_NEIGHBOR))
         {
             return false;
         }
     }
-
     return true;
 }
 
@@ -140,20 +150,26 @@ bool Sennot_Graph::neighbor_match(Node *possible_step, cardinalDirection approac
     bool retb = false;
 
     std::array<cardinalDirection, 4> node_match = {-1, -1, -1, -1};
-
+//
+//    for (cardinalDirection d : dirs_open) {
+//        std::cout << " "<< d << " for hand.\n ";
+//    }
     for (int i = 0; i < MAX_NEIGHBORS; i++)
     {
         if (dirs_open[i] != INVALID_DIRECTION)
         {
-            cardinalDirection potential = (Graph_Utils::hand_to_cardinal(dirs_open[i], approach_dir));
+
+            //std::cout << "Appraoch Dir" << approach_dir << std::endl;
+            cardinalDirection potential = Graph_Utils::hand_to_cardinal(dirs_open[i], approach_dir);
 
             node_match[potential] = potential;
+
         }
     }
 
     if (check_valid(possible_step, node_match))
     {
-        retb = true;
+       retb = true;
     }
 
     return retb;
@@ -172,7 +188,7 @@ int Sennot_Graph::add_node(Node *root, int tree_depth, int num_neighbors, int ad
         for (int i = 0; i < MAX_NEIGHBORS; i++)
         {
 
-            if (ref->neighbors[i].second != INVALID_NEIGHBOR && neighbor_match(ref->neighbors[i].first, i, dirs_open) && ref->neighbors[i].first->visitor != ref->node_id && (ref->neighbors[i].second - 1 <= add_cost || ref->neighbors[i].second + 1 >= add_cost))
+            if (ref->neighbors[i].second != INVALID_NEIGHBOR && neighbor_match(ref->neighbors[i].first, i, dirs_open) /*&&ref->neighbors[i].first->visitor != ref->node_id && (ref->neighbors[i].second - 1 <= add_cost || ref->neighbors[i].second + 1 >= add_cost)*/)
             {
 
                 Node *to_add = new Node(ref->neighbors[i].first->node_id);
@@ -204,7 +220,6 @@ int Sennot_Graph::add_node(Node *root, int tree_depth, int num_neighbors, int ad
     return to_ret;
 }
 
-
 // S
 bool Sennot_Graph::intersection_update(std::vector<handDirection> &dirs_open)
 {
@@ -219,6 +234,8 @@ bool Sennot_Graph::intersection_update(std::vector<handDirection> &dirs_open)
         }
     }
 
+    std::cout << opencount << std::endl;
+
     // Clear visitor list
     for (Node *n : graph)
     {
@@ -226,14 +243,19 @@ bool Sennot_Graph::intersection_update(std::vector<handDirection> &dirs_open)
     }
 
 
-    if (!init_intersect)
+    if (init_intersect)
     {
         for (Node *n : progression_tree)
         {
-            if (n->valid == 1)
+            if (n->valid != INVALID_NEIGHBOR)
             {
                 added += add_node(n, this->depth, opencount, this->edge_progress, dirs_open);
             }
+        }
+
+        if (added)
+        {
+            depth++;
         }
     }
     else
@@ -241,7 +263,8 @@ bool Sennot_Graph::intersection_update(std::vector<handDirection> &dirs_open)
 
         for (Node *n : progression_tree)
         {
-            if (n->num_neighbors() == opencount)
+            Node *ref = get_node(n->node_id);
+            if (ref->num_neighbors() == opencount)
             {
                 added++;
             }
@@ -249,7 +272,7 @@ bool Sennot_Graph::intersection_update(std::vector<handDirection> &dirs_open)
             {
                 n->valid = INVALID_NEIGHBOR;
             }
-
+            init_intersect = 1;
         }
     }
 
@@ -263,7 +286,6 @@ bool Sennot_Graph::intersection_update(std::vector<handDirection> &dirs_open)
 
     if (added)
     {
-        depth++;
         return true;
     }
     else
