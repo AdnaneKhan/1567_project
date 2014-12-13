@@ -117,9 +117,9 @@ namespace Audio
     void play_destination()
     {
 #ifdef __arm__
-        system("omxplayer -o local audio_prompts/goal.m4a &");
+        system("omxplayer -o local audio_prompts/dest.m4a &");
         #else
-        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/goal.m4a &");
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/dest.m4a &");
 #endif
         std::cout << "The goal has been reached" << std::endl;
     }
@@ -168,5 +168,31 @@ namespace Audio
 #endif
 
         std::cout << "Graph has been reset." << std::endl;
+    }
+
+    void play_stop() {
+#ifdef __arm__
+        system("omxplayer -o local audio_prompts/stop.m4a &");
+        #else
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/stop.m4a &");
+#endif
+    }
+
+    void continue_mov() {
+#ifdef __arm__
+        system("omxplayer -o local audio_prompts/cont.m4a &");
+        #else
+    system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/cont.m4a &");
+#endif
+
+}
+
+    void middle()
+    {
+#ifdef __arm__
+        system("omxplayer -o local audio_prompts/middle.m4a &");
+        #else
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/middle.m4a &");
+#endif
     }
 }

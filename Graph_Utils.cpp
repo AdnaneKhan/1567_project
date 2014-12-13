@@ -108,58 +108,74 @@ int Graph_Utils::hand_to_cardinal(handDirection to_convert, cardinalDirection cu
 {
     int new_dir;
 
-    switch( current_heading) {
+    switch (current_heading)
+    {
         case DIR_N:
-        switch(to_convert)
-        {
-            case LEFT:
-                new_dir = DIR_W;
-                break;
-            case RIGHT:
-                new_dir = DIR_E;
-                break;
-            case BACK:
-                new_dir = DIR_S;
-                break;
-            case FORWARD:
-                new_dir = DIR_N;
-                break;
-        }
+            switch (to_convert)
+            {
+                case LEFT:
+                    new_dir = DIR_W;
+                    break;
+                case RIGHT:
+                    new_dir = DIR_E;
+                    break;
+                case BACK:
+                    new_dir = DIR_S;
+                    break;
+                case FORWARD:
+                    new_dir = DIR_N;
+                    break;
+            }
             break;
 
         case DIR_E:
-            switch(to_convert) {
-                case LEFT: new_dir = DIR_N;
+            switch (to_convert)
+            {
+                case LEFT:
+                    new_dir = DIR_N;
                     break;
-                case RIGHT: new_dir = DIR_S;
+                case RIGHT:
+                    new_dir = DIR_S;
                     break;
-                case BACK: new_dir = DIR_W;
+                case BACK:
+                    new_dir = DIR_W;
                     break;
-                case FORWARD: new_dir = DIR_E;
+                case FORWARD:
+                    new_dir = DIR_E;
                     break;
             }
             break;
         case DIR_S:
-            switch(to_convert) {
-                case LEFT: new_dir = DIR_E;
+            switch (to_convert)
+            {
+                case LEFT:
+                    new_dir = DIR_E;
                     break;
-                case RIGHT: new_dir = DIR_W;
+                case RIGHT:
+                    new_dir = DIR_W;
                     break;
-                case BACK: new_dir = DIR_N;
+                case BACK:
+                    new_dir = DIR_N;
                     break;
-                case FORWARD: new_dir = DIR_S;
+                case FORWARD:
+                    new_dir = DIR_S;
                     break;
             }
             break;
         case DIR_W:
-            switch(to_convert) {
-                case LEFT: new_dir = DIR_S;
+            switch (to_convert)
+            {
+                case LEFT:
+                    new_dir = DIR_S;
                     break;
-                case RIGHT: new_dir = DIR_N;
+                case RIGHT:
+                    new_dir = DIR_N;
                     break;
-                case BACK: new_dir = DIR_E;
+                case BACK:
+                    new_dir = DIR_E;
                     break;
-                case FORWARD: new_dir = DIR_W;
+                case FORWARD:
+                    new_dir = DIR_W;
                     break;
             }
             break;

@@ -29,9 +29,9 @@
 #define DEFAULT_CAMERA 500
 #define MAX_NEIGHBORS 4
 
-#define INTERSECTION_THRESHOLD 60
+#define INTERSECTION_THRESHOLD 80
 #define LEFT_INTERSECTION_TRESHOLD 65
-#define FRONT_TRESHOLD 50
+#define FRONT_TRESHOLD 60
 #define INTERSECTION 1
 
 #define GOAL_NODE 'S'
@@ -116,7 +116,7 @@ private:
 
 
     bool goal_progression; // Are we on path to goal?
-
+    int middle_count;
 
 
     // Value is non valid until location has occured, afterwards value

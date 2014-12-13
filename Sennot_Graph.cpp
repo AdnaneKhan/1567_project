@@ -169,7 +169,7 @@ bool Sennot_Graph::neighbor_match(Node *possible_step, cardinalDirection approac
 
     if (check_valid(possible_step, node_match))
     {
-       retb = true;
+        retb = true;
     }
 
     return retb;
@@ -177,11 +177,14 @@ bool Sennot_Graph::neighbor_match(Node *possible_step, cardinalDirection approac
 
 // Check if the node was visited before from the same node in the same locate cycle, this means two paths have converged (usually as a result of turnout from
 // a dead end.
-bool visitor_check(Node * to_check, nodeLabel visitor) {
+bool visitor_check(Node *to_check, nodeLabel visitor)
+{
     if (to_check->visitor == visitor)
     {
         return false;
-    } else {
+    }
+    else
+    {
         return true;
     }
 }
@@ -203,7 +206,7 @@ int Sennot_Graph::add_node(Node *parent, int tree_depth, int num_neighbors, int 
             // Is the node already visited by this parent in this search cycle? (path merging)
             // Does the new node exhibit openings if it were arrived at from assumed direction?
             // Did the path we take have the length it would take to get to this node?
-            if (coming_from->neighbors[i].second != INVALID_NEIGHBOR && visitor_check( coming_from->neighbors[i].first , coming_from->node_id) && neighbor_match(coming_from->neighbors[i].first, i, dirs_open) /*&&ref->neighbors[i].first->visitor != ref->node_id && (ref->neighbors[i].second - 1 <= add_cost || ref->neighbors[i].second + 1 >= add_cost)*/)
+            if (coming_from->neighbors[i].second != INVALID_NEIGHBOR && visitor_check(coming_from->neighbors[i].first, coming_from->node_id) && neighbor_match(coming_from->neighbors[i].first, i, dirs_open) &&coming_from->neighbors[i].first->visitor != coming_from->node_id && (coming_from->neighbors[i].second - 1 <= add_cost || coming_from->neighbors[i].second + 1 >= add_cost))
             {
 
                 Node *to_add = new Node(coming_from->neighbors[i].first->node_id);
@@ -309,7 +312,6 @@ bool Sennot_Graph::intersection_update(std::vector<handDirection> &dirs_open)
         return false;
     }
 }
-
 
 /**
 * Prunes possible paths through graph to correspond with how many lights the current path has passed.

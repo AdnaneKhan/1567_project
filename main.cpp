@@ -11,7 +11,8 @@ typedef int operationType;
 Locator *loc;
 
 
-void exit_handler(int signal) {
+void exit_handler(int signal)
+{
     std::cout << "Exiting Program " << signal << std::endl;
     loc->~Locator();
     exit(0);
@@ -47,7 +48,6 @@ void run_simulation(const char *image_folder, const char *mock_data_file)
     int res = loc->start(mock_data_file, SIMULATED_DATA);
 
 
-
     if (res)
     {
         while (true)
@@ -75,8 +75,10 @@ void run_full(const char *serial_port)
 
     if (res)
     {
-       do {
-           loc->run_locator();
+        do
+        {
+
+            loc->run_locator();
         } while (true);
     }
     else

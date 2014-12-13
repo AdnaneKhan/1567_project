@@ -44,6 +44,7 @@ private:
     std::string file_folder; ///< folder to look in for images
 
     CTypeEnum camera_source; /// <camera source based on dfinitions
+
 #ifdef __arm__
         raspicam::RaspiCam_Cv Camera;
     #endif

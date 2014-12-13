@@ -6,6 +6,7 @@
 #include <queue>
 
 #include "Node.h"
+#include "ConstantDefs.hpp"
 
 #define NODE_COUNT 19
 #define EDGE_COUNT 19
@@ -26,7 +27,8 @@ const char nodes[NODE_COUNT] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'
 
 // Edges in graph
 const char edges[EDGE_COUNT][4] = {{'A', 'B', 3, DIR_E}, {'B', 'H', 5, DIR_S}, {'B', 'C', 3, DIR_E}, {'D', 'C', 2, DIR_S}, {'D', 'F', 2, DIR_E}, {'E', 'F', 1, DIR_S}, {'F', 'J', 4, DIR_S}, {'I', 'J', 1, DIR_E}, {'J', 'K', 3, DIR_S},
-        {'G', 'H', 4, DIR_E}, {'H', 'R', 3, DIR_E}, {'R', 'K', 3, DIR_E}, {'R', 'S', 2, DIR_S}, {'K', 'L', 1, DIR_E}, {'K', 'Q', 7, DIR_S}, {'P', 'Q', 5, DIR_E}, {'O', 'P', 2, DIR_S}, {'N', 'O', 1, DIR_E}, {'M', 'O', 2, DIR_S}};
+        {'G', 'H', 4, DIR_E}, {'H', 'R', 3, DIR_E}, {'R', 'K', 3, DIR_E}, {'R', 'S', 2, DIR_S}, {'K', 'L', 2, DIR_E}, {'K', 'Q', 4, DIR_S}, {'P', 'Q', 5, DIR_E}, {'O', 'P', 2, DIR_S}, {'N', 'O', 1, DIR_E}, {'M', 'O', 2, DIR_S}};
+
 
 class Sennot_Graph
 {
@@ -35,6 +37,7 @@ public:
 
     // Constructor and Desturctor
     Sennot_Graph();
+
     ~Sennot_Graph();
 
     /*

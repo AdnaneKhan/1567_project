@@ -56,6 +56,14 @@ namespace Audio
     *  \param dir for user to turn
     */
     void turn_dir(int dir);
+
+    void play_stop();
+
+    void continue_mov();
+
+    void middle();
+
+
 }
 
 
