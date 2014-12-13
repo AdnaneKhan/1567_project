@@ -77,11 +77,13 @@ std::vector<cardinalDirection> Locator::check_openings(Sonar_Distances &distance
     float max_l = curr_cycle.left_distance;
     float max_r = curr_cycle.right_distance;
 
+
+    /////////////////////////////////////////
     for (int i = 0; i < 10; i++)
     {
-
+        // Refresh cycle with new data
         read_distances();
-        sleep_loc(1);
+
 
         if (curr_cycle.right_distance > max_r)
         {
@@ -92,7 +94,9 @@ std::vector<cardinalDirection> Locator::check_openings(Sonar_Distances &distance
         {
             max_l = curr_cycle.left_distance;
         }
+        sleep_loc(1); // Sleep before next iteration
     }
+    /////////////////////////////////////////
 
     if (max_l < INTERSECTION_THRESHOLD)
     {
@@ -106,7 +110,7 @@ std::vector<cardinalDirection> Locator::check_openings(Sonar_Distances &distance
         directions[RIGHT] = INVALID_DIRECTION;
     }
 
-    if (curr_cycle.forward_distance < FRONT_TRESHOLD)
+    if (curr_cycle.forward_distance < FRONT_TRESHOLD*1.2)
     {
 
         directions[FORWARD] = INVALID_DIRECTION;
@@ -118,7 +122,6 @@ std::vector<cardinalDirection> Locator::check_openings(Sonar_Distances &distance
 
 cardinalDirection Locator::next_step(std::vector<cardinalDirection> &directions)
 {
-
 
     if (directions[FORWARD] != INVALID_NEIGHBOR)
     {
@@ -154,94 +157,78 @@ detectionResult Locator::intersection_check_m()
     return retV;
 }
 
+
+bool Locator::verify_single(sensorDistance &dist1, sensorDistance & dist2) {
+    bool retV;
+    Audio::play_stop();
+
+    for (int i = 0; i < 3; i++)
+    {
+        sleep_loc(1);
+        read_distances();
+        if (dist1 < dist2)
+        {
+            retV = true;
+            break;
+        }
+        else
+        {
+            retV = false;
+        }
+    }
+
+    return retV;
+}
+
 detectionResult Locator::intersection_check()
 {
+    bool movFlag = false;
+    bool l=0;
+    bool r=0;
+    bool f=0;
+
     detectionResult retV = 0;
 
-    if (this->curr_cycle.left_distance > INTERSECTION_THRESHOLD && this->curr_cycle.right_distance > INTERSECTION_THRESHOLD)
+    if (this->curr_cycle.left_distance > INTERSECTION_THRESHOLD)
     {
-        std::cout << "The right value was: " << this->curr_cycle.right_distance << std::endl;
-        std::cout << "The left value was: " << this->curr_cycle.left_distance << std::endl;
-        std::cout << "The front value was: " << this->curr_cycle.forward_distance << std::endl;
-
-        retV = INTERSECTION;
+        l = 1;
     }
 
-    if (this->curr_cycle.forward_distance < FRONT_TRESHOLD && this->curr_cycle.forward_distance > 12)
+    if (this->curr_cycle.right_distance > INTERSECTION_THRESHOLD)
     {
-        if (!retV) {
-            Audio::play_stop();
-
-            for (int i = 0; i < 3; i++) {
-                sleep_loc(1);
-                read_distances();
-                if (!(this->curr_cycle.forward_distance < FRONT_TRESHOLD)) {
-                    Audio::continue_mov();
-                    retV = 0;
-                    break;
-                } else {
-                    retV = INTERSECTION;
-                }
-            }
-
-        } else {
-            retV = INTERSECTION;
-        }
-        std::cout << "The right value was: " << this->curr_cycle.right_distance << std::endl;
-        std::cout << "The left value was: " << this->curr_cycle.left_distance << std::endl;
-        std::cout << "The front value was: " << this->curr_cycle.forward_distance << std::endl;
-
+        r = 1;
     }
 
-    if (this->curr_cycle.left_distance > INTERSECTION_THRESHOLD  && !retV)
+    if (this->curr_cycle.forward_distance < FRONT_TRESHOLD)
     {
-        if (!retV)
-        {
-            Audio::play_stop();
-
-            for (int i = 0; i < 3; i++)
-            {
-                sleep_loc(1);
-                read_distances();
-                if (!(this->curr_cycle.left_distance > INTERSECTION_THRESHOLD))
-                {
-                    Audio::continue_mov();
-                    retV = 0;
-                    break;
-                }
-                else
-                {
-                    retV = INTERSECTION;
-                }
-            }
-
-        }
+        f = 1;
     }
 
-    if (this->curr_cycle.right_distance > INTERSECTION_THRESHOLD && !retV)
+    // Forward ONLY trigger
+    if (f && !r && !l)
     {
-        if (!retV)
-        {
-            Audio::play_stop();
+        float temp = FRONT_TRESHOLD;
+        movFlag =verify_single(temp,this->curr_cycle.forward_distance);
+    }
 
-            for (int i = 0; i < 3; i++)
-            {
-                sleep_loc(1);
-                read_distances();
-                if (!(this->curr_cycle.right_distance > INTERSECTION_THRESHOLD))
-                {
-                    Audio::continue_mov();
-                    retV = 0;
-                    break;
-                }
-                else
-                {
-                    retV = INTERSECTION;
-                }
-            }
+    if (r && !l && !f)
+    {
+        float temp = INTERSECTION_THRESHOLD;
+        movFlag =verify_single(this->curr_cycle.right_distance,temp);
+    }
 
-        }
+    if (l && !r && !f)
+    {
+        float temp = INTERSECTION_THRESHOLD;
+        movFlag = verify_single(this->curr_cycle.left_distance,temp);
+    }
 
+
+    if (movFlag)
+    {
+        Audio::continue_mov();
+        retV = 0;
+    } else if (l || r || f) {
         retV = INTERSECTION;
     }
 
@@ -265,6 +252,9 @@ void Locator::run_locator()
 {
     this->read_distances();
 
+    Audio::play_step();
+    sleep_loc(3);
+
     // Rising edge for ceiling light detection
     old_light_res = light_res;
     old_intersection = intersection;
@@ -277,18 +267,6 @@ void Locator::run_locator()
     if (intersection)
     {
         new_light = 0;
-    }
-
-    middle_count++;
-    middle_count %= 20;
-
-    if (middle_count == 0 )
-    {
-        float sum = curr_cycle.right_distance - curr_cycle.left_distance;
-        if (abs(sum) < 10)
-        {
-            Audio::middle();
-        }
     }
 
     // If intersection detected from hallway opening
@@ -321,49 +299,50 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
         cardinalDirection to_turn;
 
 
-        if (goal_progression)
+        if (goal_progression) // Are we in path to goal?
         {
-            if (goal_list.size() > 1)
+            if (goal_list.size() > 1) // We still have steps to go
             {
                 to_turn = goalDirection();
 
-
                 handDirection turn_prompt = Graph_Utils::cardinal_to_hand(to_turn, curr_heading);
                 curr_heading = to_turn;
-                sleep_loc(3);
+                sleep_loc(5);
                 Audio::turn_dir(turn_prompt);
             }
             else
             {
                 Audio::play_destination();
                 // At this point we should be at goal, in case we are not we reset after 10 seconds
-                sleep_loc(20);
+                sleep_loc(20); // Reset program after 20 minutes
 
                 this->reset_state();
             }
         }
         else
         {
-            to_turn = standardDirection(to_turn);
+            to_turn = standardDirection();
 
             if (locator_graph.path_count() == 1 && !goal_progression && locator_graph.get_depth() > 0)
             {
 
                 goal_setup();
+
                 to_turn = goalDirection();
+
+
                 handDirection turn_prompt = Graph_Utils::cardinal_to_hand(to_turn, curr_heading);
-                curr_heading = to_turn;
+                curr_heading = to_turn;// Now facing in new cardinal direction
 
                 Audio::turn_dir(turn_prompt);
             }
             else
             {
-
                 Audio::turn_dir(to_turn);
             }
         }
-        sleep_loc(15);
-        Audio::play_forward();
+        sleep_loc(10);
+        Audio::continue_mov();
     }
 }
 
@@ -399,13 +378,14 @@ void Locator::goal_setup()
     sleep_loc(10);
 }
 
-cardinalDirection Locator::standardDirection(cardinalDirection to_turn)
+handDirection Locator::standardDirection()
 {
+    handDirection to_turn;
     // Update Distances
     this->read_distances();
 
     // Check openings based on most recent read
-     std::vector<handDirection > openings = check_openings(this->curr_cycle);
+    std::vector<handDirection> openings = check_openings(this->curr_cycle);
     //std::vector<handDirection> openings = check_open_m();
 
     // Get turn in Open direction
@@ -428,11 +408,10 @@ cardinalDirection Locator::goalDirection()
 {
     cardinalDirection to_turn;
 
-
     // Check connection between current and front of goal list
     to_turn = Graph_Utils::check_connection(goal_list.front(), goal_list.at(1), locator_graph);
-
     goal_list.erase(goal_list.begin());
+
 
     return to_turn;
 }

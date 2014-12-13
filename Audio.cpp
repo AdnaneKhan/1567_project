@@ -170,7 +170,8 @@ namespace Audio
         std::cout << "Graph has been reset." << std::endl;
     }
 
-    void play_stop() {
+    void play_stop()
+    {
 #ifdef __arm__
         system("omxplayer -o local audio_prompts/stop.m4a &");
         #else
@@ -178,21 +179,72 @@ namespace Audio
 #endif
     }
 
-    void continue_mov() {
+    void continue_mov()
+    {
 #ifdef __arm__
         system("omxplayer -o local audio_prompts/cont.m4a &");
         #else
-    system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/cont.m4a &");
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/cont.m4a &");
 #endif
 
-}
+    }
 
     void middle()
     {
 #ifdef __arm__
-        system("omxplayer -o local audio_prompts/middle.m4a &");
+        system("omxplayer -o local audio_prompts/notmiddle.m4a &");
         #else
-        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/middle.m4a &");
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/notmiddle.m4a &");
+#endif
+    }
+
+
+
+    void front_r() {
+#ifdef __arm__
+        system("omxplayer -o local audio_prompts/frontr.m4a &");
+        #else
+        system("( sleep 1 ; afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/frontr.m4a ) &");
+#endif
+    }
+
+    void front_l() {
+#ifdef __arm__
+        system("omxplayer -o local audio_prompts/frontl.m4a &");
+        #else
+        system("( sleep 2.5 ; afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/frontl.m4a ) &");
+#endif
+    }
+
+    void right_close(){
+#ifdef __arm__
+        system("omxplayer -o local audio_prompts/rightc.m4a &");
+        #else
+        system("( sleep 1 ; afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/rightc.m4a ) &");
+#endif
+    }
+
+    void left_close(){
+#ifdef __arm__
+        system("omxplayer -o local audio_prompts/leftc.m4a &");
+        #else
+        system("( sleep 2.5; afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/leftc.m4a ) &");
+#endif
+    }
+
+    void downfront(){
+#ifdef __arm__
+        system("omxplayer -o local audio_prompts/downf.m4a &");
+        #else
+        system("( sleep 5.9 ; afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/downf.m4a )  &");
+#endif
+    }
+
+    void play_step() {
+#ifdef __arm__
+        system("omxplayer -o local audio_prompts/step.m4a &");
+        #else
+        system("afplay /Users/adnankhan/Box\\ Sync/Robots/1567_project/audio_prompts/step.m4a &");
 #endif
     }
 }

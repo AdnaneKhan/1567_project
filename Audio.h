@@ -63,7 +63,17 @@ namespace Audio
 
     void middle();
 
+    void play_step();
 
+    void front_r();
+
+    void front_l();
+
+    void right_close();
+
+    void left_close();
+
+    void downfront();
 }
 
 

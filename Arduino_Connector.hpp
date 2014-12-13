@@ -10,6 +10,7 @@
 #include <termios.h> // POSIX terminal control definitionss
 #include <iostream>
 #include <fstream>
+#include "Audio.h"
 
 #define ARDUINO 1
 #define SIMULATION 2
@@ -25,7 +26,7 @@
 #define LEFT_DISTANCE  2
 #define FRONT_RIGHT 3
 #define RIGHT_DISTANCE 4
-#define TURNING 5
+#define DOWN_SONAR 5
 #define HEADING_OK 6
 #define DIST_OK 7
 
@@ -40,6 +41,8 @@ typedef struct Arduino_Packet
     std::mutex mutex;
 
 private:
+
+
     struct Values
     {
         sensorDistance l_distance;
@@ -47,7 +50,7 @@ private:
         sensorDistance front_distance;
         sensorDistance r_2_distance;
         sensorDistance r_distance;
-        sensorValue turn_flag;
+        sensorValue down_sonar;
         sensorValue heading_ok;
         sensorValue dist_ok;
 
@@ -75,8 +78,8 @@ public:
             case RIGHT_DISTANCE:
                 Values.r_distance = new_val;
                 break;
-            case TURNING:
-                Values.turn_flag = new_val;
+            case DOWN_SONAR:
+                Values.down_sonar = new_val;
                 break;
             case HEADING_OK:
                 Values.heading_ok = new_val;
@@ -122,8 +125,8 @@ public:
             case RIGHT_DISTANCE:
                 to_return = Values.r_distance;
                 break;
-            case TURNING:
-                to_return = Values.turn_flag;
+            case DOWN_SONAR:
+                to_return = Values.down_sonar;
                 break;
             case HEADING_OK:
                 to_return = Values.heading_ok;
@@ -148,6 +151,8 @@ class Arduino_Connector
 {
 
 public:
+
+    void middle_check();
 
     /*
         \param data_in pointer to Arduino Packet which has latest data filled into if
@@ -208,6 +213,8 @@ private:
     // Indicates that the thread needs to stop
     // used when ending connection
     int thread_halt;
+
+    int aud_tim;
 
     // If we are NOT running on Raspberry Pi then file open to write packet data to
 #ifndef __arm__

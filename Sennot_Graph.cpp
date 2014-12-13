@@ -122,21 +122,10 @@ Node *Sennot_Graph::get_node(nodeLabel node)
 
 bool check_valid(Node *curr, std::array<cardinalDirection, 4> &dirs_open)
 {
-//    std::cout << curr->node_id;
-//
-//    for (cardinalDirection d : dirs_open) {
-//        std::cout << " "<< d << " ";
-//    }
-//    std::cout <<std::endl;
-
-//    for (int i= 0; i< MAX_NEIGHBORS; i++) {
-//        std::cout << " " <<curr->neighbors[i].second << " ";
-//    }
-//    std::cout <<std::endl;
 
     for (int i = 0; i < MAX_NEIGHBORS; i++)
     {
-
+        // Direction_Observed[i] <-> Candidate_node[i] not open
         if (((dirs_open[i] == INVALID_NEIGHBOR) && curr->neighbors[i].second != INVALID_NEIGHBOR) || ((dirs_open[i] != INVALID_NEIGHBOR) && curr->neighbors[i].second == INVALID_NEIGHBOR))
         {
             return false;
@@ -150,23 +139,20 @@ bool Sennot_Graph::neighbor_match(Node *possible_step, cardinalDirection approac
     bool retb = false;
 
     std::array<cardinalDirection, 4> node_match = {-1, -1, -1, -1};
-//
-//    for (cardinalDirection d : dirs_open) {
-//        std::cout << " "<< d << " for hand.\n ";
-//    }
+
     for (int i = 0; i < MAX_NEIGHBORS; i++)
     {
         if (dirs_open[i] != INVALID_DIRECTION)
         {
 
-            //std::cout << "Appraoch Dir" << approach_dir << std::endl;
+           // Transforms from hand direction to cardinal
             cardinalDirection potential = Graph_Utils::hand_to_cardinal(dirs_open[i], approach_dir);
-
+            // Populate cardinal
             node_match[potential] = potential;
 
         }
     }
-
+    //
     if (check_valid(possible_step, node_match))
     {
         retb = true;
@@ -206,7 +192,7 @@ int Sennot_Graph::add_node(Node *parent, int tree_depth, int num_neighbors, int 
             // Is the node already visited by this parent in this search cycle? (path merging)
             // Does the new node exhibit openings if it were arrived at from assumed direction?
             // Did the path we take have the length it would take to get to this node?
-            if (coming_from->neighbors[i].second != INVALID_NEIGHBOR && visitor_check(coming_from->neighbors[i].first, coming_from->node_id) && neighbor_match(coming_from->neighbors[i].first, i, dirs_open) &&coming_from->neighbors[i].first->visitor != coming_from->node_id && (coming_from->neighbors[i].second - 1 <= add_cost || coming_from->neighbors[i].second + 1 >= add_cost))
+            if (coming_from->neighbors[i].second != INVALID_NEIGHBOR && visitor_check(coming_from->neighbors[i].first, coming_from->node_id) && neighbor_match(coming_from->neighbors[i].first, i, dirs_open) && (coming_from->neighbors[i].second - 2 <= add_cost || coming_from->neighbors[i].second + 2 >= add_cost))
             {
 
                 Node *to_add = new Node(coming_from->neighbors[i].first->node_id);

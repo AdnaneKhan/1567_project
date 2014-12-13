@@ -60,6 +60,32 @@ int Arduino_Connector::stop_thread()
     }
 }
 
+void Arduino_Connector::middle_check()
+{
+    aud_tim++;
+    aud_tim %= 2000000;
+    if (aud_tim == 0)
+    {
+        float r_d = data_holder->read(RIGHT_DISTANCE);
+        float l_d = data_holder->read(LEFT_DISTANCE);
+
+        float sum = r_d - l_d;
+        if ( (abs(sum) >= 18) )
+        {
+            Audio::middle();
+        }
+
+        if (r_d < 22 || data_holder->read(FRONT_RIGHT) < 25) {
+            Audio::right_close();
+        }
+
+        if(l_d < 22 || data_holder->read(FRONT_LEFT) < 25) {
+            Audio::left_close();
+        }
+
+    }
+}
+
 
 void Arduino_Connector::parse_packet(char *string_in, int buf_max, Arduino_Packet &to_update)
 {
@@ -150,6 +176,8 @@ int Arduino_Connector::serial_read(int serial_handle)
                 this->buffer[string_counter++] = byte_in;
             }
         }
+
+        middle_check();
     }
 
     return 0;

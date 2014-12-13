@@ -11,13 +11,6 @@ typedef int operationType;
 Locator *loc;
 
 
-void exit_handler(int signal)
-{
-    std::cout << "Exiting Program " << signal << std::endl;
-    loc->~Locator();
-    exit(0);
-}
-
 operationType select_operation(int num_args, char *args[])
 {
     operationType to_return;

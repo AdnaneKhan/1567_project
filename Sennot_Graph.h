@@ -37,7 +37,6 @@ public:
 
     // Constructor and Desturctor
     Sennot_Graph();
-
     ~Sennot_Graph();
 
     /*
@@ -49,7 +48,6 @@ public:
     Update the graph state to have reached an intsection while seeing the given directions open in terms of (L,R,F,B) directions
      */
     bool intersection_update(std::vector<handDirection> &dirs_open);
-
 
     // Adds a node to the graph
     int add_node(Node *parent, int tree_depth, int num_neighbors, int add_cost, std::vector<handDirection> &dirs_open);
@@ -86,15 +84,15 @@ public:
     // Depth (in number of intersections of traversal)
     graphInt depth;
 
+    // Checks whether we can arrive at node possible step from the approach direction and see the following directions open
+    // returns true if this possibility is valid according to the graph.
+    bool neighbor_match(Node *possible_step, cardinalDirection approach_dir, std::vector<handDirection> &dirs_open);
+
 private:
 
     void initialize_paths();
 
     void initialize_graph();
-
-    // Checks whether we can arrive at node possible step from the approach direction and see the following directions open
-    // returns true if this possibility is valid according to the graph.
-    bool neighbor_match(Node *possible_step, cardinalDirection approach_dir, std::vector<handDirection> &dirs_open);
 
     // Graph representing sennot square floor 5
     std::array<Node *, NODE_COUNT> graph;

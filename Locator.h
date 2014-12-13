@@ -29,7 +29,7 @@
 #define DEFAULT_CAMERA 500
 #define MAX_NEIGHBORS 4
 
-#define INTERSECTION_THRESHOLD 80
+#define INTERSECTION_THRESHOLD 70
 #define LEFT_INTERSECTION_TRESHOLD 65
 #define FRONT_TRESHOLD 60
 #define INTERSECTION 1
@@ -116,6 +116,9 @@ private:
 
 
     bool goal_progression; // Are we on path to goal?
+
+
+    // Counter that ticks to re-play the middle indicator
     int middle_count;
 
 
@@ -162,15 +165,20 @@ private:
     locatorState reset_state();
 
     // Reads distances from arduino packet into sonar struct
+    bool verify_single(sensorDistance & dist1, sensorDistance  & dist2);
+
+
+    void goal_setup();
     void read_distances();
 
     int goalDirection();
 
-    int standardDirection(int to_turn);
 
-    void goal_setup();
+    handDirection standardDirection();
 
+    // Verifies intersection by making sure we aren't already in an intersection state
     void intersection_verify(detectionResult intersect, detectionResult old_intersect);
+
 };
 
 #endif
