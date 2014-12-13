@@ -1,9 +1,6 @@
 #include "Sennot_Graph.h"
 #include "Graph_Utils.hpp"
-
 #include <iostream>
-
-//#define LOGGING
 
 Sennot_Graph::Sennot_Graph()
 {
@@ -16,7 +13,6 @@ Sennot_Graph::Sennot_Graph()
     num_paths = NODE_COUNT;
 }
 
-
 Sennot_Graph::~Sennot_Graph()
 {
     for (int i = 0; i < NODE_COUNT; i++)
@@ -27,7 +23,6 @@ Sennot_Graph::~Sennot_Graph()
 
 void Sennot_Graph::reset_graph()
 {
-
     for (Node *n : this->graph)
     {
         n->visitor = INVALID_NEIGHBOR;
@@ -44,7 +39,6 @@ void Sennot_Graph::reset_graph()
         n->clear_tree();
         n->valid = 1;
     }
-
 }
 
 nodeLabel Sennot_Graph::get_last_node(Node *root, int deeper, nodeLabel &parent)
@@ -177,12 +171,10 @@ bool visitor_check(Node *to_check, nodeLabel visitor)
 
 int Sennot_Graph::add_node(Node *parent, int tree_depth, int num_neighbors, int add_cost, std::vector<handDirection> &dirs_open)
 {
-
     int nodes_added = 0;
 
     if (tree_depth == 0) // Are we at leaf?
     {
-
         Node *coming_from = get_node(parent->node_id);
 
         for (int i = 0; i < MAX_NEIGHBORS; i++)
@@ -192,7 +184,10 @@ int Sennot_Graph::add_node(Node *parent, int tree_depth, int num_neighbors, int 
             // Is the node already visited by this parent in this search cycle? (path merging)
             // Does the new node exhibit openings if it were arrived at from assumed direction?
             // Did the path we take have the length it would take to get to this node?
-            if (coming_from->neighbors[i].second != INVALID_NEIGHBOR && visitor_check(coming_from->neighbors[i].first, coming_from->node_id) && neighbor_match(coming_from->neighbors[i].first, i, dirs_open) && (coming_from->neighbors[i].second - 2 <= add_cost || coming_from->neighbors[i].second + 2 >= add_cost))
+            if (coming_from->neighbors[i].second != INVALID_NEIGHBOR
+                    && visitor_check(coming_from->neighbors[i].first, coming_from->node_id)
+                    && neighbor_match(coming_from->neighbors[i].first, i, dirs_open)
+                    && ( abs( add_cost - coming_from->neighbors[i].second ) < ALLOWABLE_LIGHT_ERROR))
             {
 
                 Node *to_add = new Node(coming_from->neighbors[i].first->node_id);
@@ -204,7 +199,7 @@ int Sennot_Graph::add_node(Node *parent, int tree_depth, int num_neighbors, int 
 
                 parent->add_neighbor(to_add, add_cost);
 
-                nodes_added += 1;
+                nodes_added++;
             }
         }
         return nodes_added;

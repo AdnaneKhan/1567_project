@@ -3,17 +3,14 @@
 
 void Node::clear_tree()
 {
-
     for (int i = 0; i < MAX_NEIGHBORS; i++)
     {
         if (this->neighbors[i].second != INVALID_NEIGHBOR)
         {
-
             this->neighbors[i].first->clear_tree(); // CLear children of child
 
             delete(this->neighbors[i].first); // Now this child node can be deleted
             this->neighbors[i].second = INVALID_NEIGHBOR; // Set child as invalid
-
         }
     }
 }

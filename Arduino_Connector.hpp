@@ -30,7 +30,6 @@
 #define HEADING_OK 6
 #define DIST_OK 7
 
-
 //#define DEBUG
 typedef float sensorDistance;
 typedef float sensorValue;
@@ -41,7 +40,6 @@ typedef struct Arduino_Packet
     std::mutex mutex;
 
 private:
-
 
     struct Values
     {
@@ -158,7 +156,6 @@ public:
         \param data_in pointer to Arduino Packet which has latest data filled into if
      */
     Arduino_Connector(Arduino_Packet *data_in, std::string source_info, int connection_type);
-
 
     // Initializes the serial connection with Arduino
     void init_connection();

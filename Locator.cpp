@@ -228,7 +228,7 @@ detectionResult Locator::intersection_check()
     {
         Audio::continue_mov();
         retV = 0;
-    } else if (l || r || f) {
+    } else if (l || r || f) { // If intersection was confirmed
         retV = INTERSECTION;
     }
 
@@ -295,7 +295,6 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
         Audio::intersection();
 
         // Prompt user that he has reached intersection
-
         cardinalDirection to_turn;
 
 
@@ -325,11 +324,9 @@ void Locator::intersection_verify(detectionResult intersect, detectionResult old
 
             if (locator_graph.path_count() == 1 && !goal_progression && locator_graph.get_depth() > 0)
             {
-
-                goal_setup();
+                goal_setup(); // Sets up path to destination
 
                 to_turn = goalDirection();
-
 
                 handDirection turn_prompt = Graph_Utils::cardinal_to_hand(to_turn, curr_heading);
                 curr_heading = to_turn;// Now facing in new cardinal direction
@@ -422,7 +419,6 @@ int Locator::start(std::string data_source, int source_type)
 
     if (source_type == ARDUINO_DATA)
     {
-        run_mode = ARDUINO_DATA;
         // Initialize the serial read
         con = new Arduino_Connector(&this->newest_metrics, data_source, ARDUINO);
 
@@ -437,7 +433,6 @@ int Locator::start(std::string data_source, int source_type)
     }
     else if (source_type == SIMULATED_DATA)
     {
-        run_mode = SIMULATED_DATA;
         con = new Arduino_Connector(&this->newest_metrics, data_source, SIMULATION);
         con->start_thread();
         retv = 1;
@@ -454,7 +449,6 @@ Locator::Locator(std::string file_uri, int run_type)
 {
 
     this->proc = Image_Processor();
-    this->middle_count = 0;
 
     if (run_type == ARDUINO)
     {

@@ -162,7 +162,7 @@ detectionResult Image_Processor::rectangle_detect(Mat &src)
 
     Canny(blurred, edges, 20, 200, 3);
 
-#ifdef DEBUG
+    #ifdef DEBUG
         Camera_Connector::write_image("rect_test", blurred);
     #endif
 
@@ -170,7 +170,7 @@ detectionResult Image_Processor::rectangle_detect(Mat &src)
     vector<Vec4i> hierarchy;
 
     // Init this to be large enough to represent a light
-    int largest_area = 0;
+    double largest_area = 0;
 
     findContours(edges.clone(), contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS); // Find the contours in the image
 

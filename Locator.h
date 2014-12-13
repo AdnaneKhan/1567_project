@@ -78,16 +78,6 @@ public:
 
 private:
 
-    // Metrics from sensors
-    // TODO: transfer handling of camera readings to this struct
-
-    typedef struct Camera_Readings
-    {
-        std::list<detectionResult> light_result_cache;
-        std::list<detectionResult> intersection_result_cache;
-
-    } Camera_Readings;
-
     typedef struct Sonar_Distances
     {
         sensorValue left_distance;
@@ -101,26 +91,18 @@ private:
     // ensure that all data originated from same packet.
     Arduino_Packet newest_metrics;
 
-
     ///=======================================
     /// CONNECTORS AND PROCESSORS FOR HARDWARE
     Camera_Connector camera;
     Image_Processor proc;
     Arduino_Connector *con;
     ///////////////===========================
-    int run_mode;
 
     Sennot_Graph locator_graph;
     nodeLabel last_node;
     std::vector<nodeLabel> goal_list;
 
-
     bool goal_progression; // Are we on path to goal?
-
-
-    // Counter that ticks to re-play the middle indicator
-    int middle_count;
-
 
     // Value is non valid until location has occured, afterwards value
     // is consistent with "sennot cardinals" as long as user makes appropriate
@@ -137,7 +119,6 @@ private:
 
     // Holds the sonar distances read in per loop of locator
     Sonar_Distances curr_cycle;
-
 
     // Checks the distances reported from the Arduino to determine whether hallway openings suggest
     // The presence of an intersection
@@ -167,13 +148,18 @@ private:
     // Reads distances from arduino packet into sonar struct
     bool verify_single(sensorDistance & dist1, sensorDistance  & dist2);
 
-
+    // Sets up state for guiding user back to goal
     void goal_setup();
+
+    // Update distances from Arduino packet
     void read_distances();
 
-    int goalDirection();
 
+    // When we are guiding user back to goal this is used to return the next
+    // direction (in sennot cardinal direction) to the next node)
+    cardinalDirection goalDirection();
 
+    // In pre-localization state returns the next direction to turn in hand direction
     handDirection standardDirection();
 
     // Verifies intersection by making sure we aren't already in an intersection state

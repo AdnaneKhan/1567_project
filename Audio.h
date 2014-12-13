@@ -3,7 +3,6 @@
 
 namespace Audio
 {
-
     void play_start();
 
     /**

@@ -63,14 +63,12 @@ void run_full(const char *serial_port)
 {
     loc = new Locator("", ARDUINO);
 
-
     int res = loc->start(serial_port, ARDUINO_DATA);
 
     if (res)
     {
         do
         {
-
             loc->run_locator();
         } while (true);
     }

@@ -27,7 +27,6 @@ public:
     Node(nodeLabel id);
 
     Node();
-
     ~Node();
 
     // Clears neighbors of the node

@@ -198,8 +198,6 @@ namespace Audio
 #endif
     }
 
-
-
     void front_r() {
 #ifdef __arm__
         system("omxplayer -o local audio_prompts/frontr.m4a &");

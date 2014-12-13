@@ -1,6 +1,5 @@
 #include "Camera_Connector.h"
 
-
 using namespace cv;
 
 class camera_exception : public std::exception
